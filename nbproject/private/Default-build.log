@@ -1,0 +1,6 @@
+./bas2tap/bas2tap -q -a10 -sftpUno ./cargadorBASIC/cargador.bas
+zcc +zx -o f.bin -lndos src/EspDrv/RingBuffer.c src/EspDrv/IPAddress.c src/EspDrv/EspDrv.c src/textUtils.c src/zxuno/zxuno.c src/zxuno/uart.c src/zxuno/esxdos.c src/zxuno/ftp.c src/ftpuno.c > ultimolog.txt
+src/EspDrv/RingBuffer.c: No such file or directory
+cpp: line 0, Error: Can't open input file `src/EspDrv/RingBuffer.c'
+Makefile:35: recipe for target 'compile' failed
+make: *** [compile] Error 1

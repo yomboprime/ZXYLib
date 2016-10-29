@@ -1,0 +1,8 @@
+{
+    "name": "bin2tap-js",
+    "version": "1.0.0",
+    "keywords": ["zx spectrum", "TAP", "BIN" ],
+    "author": "yomboprime",
+    "contributors": [],
+    "dependencies": {}
+}

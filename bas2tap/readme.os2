@@ -1,0 +1,25 @@
+This is the OS/2 port of BAS2TAP, a ZX BASIC source converter.
+
+Basically (joke intended :D) this program converts a ZX Spectrum BASIC source file
+into a .TAP tape file, so that it can be loaded into a ZX Spectrum Emulator or
+directly into a real ZX Spectrum, provided it is interfaced with a suitable device
+(such as DivIDE or other Speccy add-ons).
+
+The usage is rather straightforward; launch it without arguments to see a brief
+command description.
+
+This program has been built with GCC 4.5.2, so you'll need the relevant DLLs to
+use it (if you don't have them, look at Paul Smedley's site or netlabs).
+
+Source code is included, respectfully of GPL, if you want to recompile it.
+
+I built this software (and many others) with Paul Smedley's build environment, so
+if you feel this is useful or even funny, please consider making him a donation for
+his hard work on OS/2 software made life easier for all of us!
+
+Also, users feedback on these software would be greatly appreciated.
+
+Have fun!
+Mentore Siesto
+Pisa, Italy
+mentore.siesto@alice.it
