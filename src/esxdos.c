@@ -17,34 +17,30 @@
  */
 uint32_t ESXDOS_fsize( int16_t fhandle ) {
 
-    uint8_t buffer[ ESXDOS_FILE_STAT_STRUCT_SIZE ];
-    uint32_t *pointer;
+    ESXDOS_FSTAT_Struct stat;
 
-    ESXDOS_fstat( buffer, fhandle );
+    ESXDOS_fstat( (uint8_t *)&stat, fhandle );
     iferror {
         return 0;
     }
 
-    pointer = ( (uint32_t*)( buffer + ESXDOS_FILE_STAT_SIZE_OFFSET ) );
-
-    return *pointer;
-
+    return stat.fileSize;
 
 }
 
 /*
- * Returns if a file handle corresponds to a directory (true)
+ * Given a file handle, returns true if it corresponds to a directory else returns false.
  */
 bool ESXDOS_isDirectory( int16_t fhandle ) {
 
-    uint8_t buffer[ ESXDOS_FILE_STAT_STRUCT_SIZE ];
+    ESXDOS_FSTAT_Struct stat;
 
-    ESXDOS_fstat( buffer, fhandle );
+    ESXDOS_fstat( (uint8_t *)&stat, fhandle );
     iferror {
         return false;
     }
 
-    return ( buffer[ ESXDOS_FILE_STAT_ATTRIBUTES_OFFSET ] & ESXDOS_FILE_ATTRIBUTE_DIR_BIT ) == ESXDOS_FILE_ATTRIBUTE_DIR_BIT ? true : false;
+    return ( stat.attributes & ESXDOS_FILE_ATTRIBUTE_DIR_BIT ) == ESXDOS_FILE_ATTRIBUTE_DIR_BIT ? true : false;
 
 }
 
@@ -90,6 +86,7 @@ int16_t ESXDOS_getDefaultDrive() {
  * Open a file.
  * pathFileName can be absolute or relative to CWD
  * mode: one of ESXDOS_FILEMODE_* values
+ * drive: The drive number
  * Returns file handle if success
  */
 int16_t ESXDOS_fopen( uint8_t *pathFileName, int16_t mode, int16_t drive ) {
@@ -173,7 +170,7 @@ uint16_t ESXDOS_fread( uint8_t *buffer, uint16_t length, int16_t fhandle ) {
         inc hl
         ld b, (hl)
         inc hl
-        
+
         ; last param from the end
         ; ix <- (hl)
         ld e, (hl)
@@ -240,7 +237,19 @@ uint16_t ESXDOS_fwrite( uint8_t *buffer, uint16_t length, int16_t fhandle ) {
  * Given a file handle, updates file info / flushes write cache
  */
 void ESXDOS_fsync( uint16_t fhandle ) {
-    // TODO implement
+
+    #asm
+
+        ; get param in a
+        ld hl, 2
+        add hl, sp
+        ld a, (hl)
+
+        rst 0x08
+        defb ESXDOS_F_SYNC
+
+    #endasm
+
 }
 
 
@@ -252,26 +261,222 @@ uint32_t ESXDOS_fgetPos( int16_t fhandle ) {
     // TODO implement
 }
 
-void ESXDOS_fstat( uint8_t *buffer, int16_t fhandle ) {
-    // TODO implement
+/*
+ * Given a file handle, fill a ESXDOS_FSTAT_Struct with info/status of the file.
+ * infoStruct: A ESXDOS_FSTAT_Struct struct (See esxdos.h)
+ * fhandle: The file handle
+ * Return error code if there was error.
+ */
+int16_t ESXDOS_fstat( ESXDOS_FSTAT_Struct *infoStruct, int16_t fhandle ) {
+
+    #asm
+
+        ; get sp and skip return address
+        ld hl, 2
+        add hl, sp
+
+        ; first param from the end
+        ld a, (hl)
+        inc hl
+        inc hl
+
+        ; last param from the end
+        ; ix <- (hl)
+        ld e, (hl)
+        inc hl
+        ld d, (hl)
+        ld ixl, e
+        ld ixh, d
+
+        rst 0x08
+        defb ESXDOS_F_FSTAT
+
+        ld h, 0
+        ld l, a     ; Return value
+
+    #endasm
+
 }
 
+/*
+ * Open a directory for listing its files
+ * pathDirName can be absolute or relative to CWD
+ * drive: The drive number
+ * Returns directory handle if success
+ */
 int16_t ESXDOS_openDirectory( uint8_t *pathDirName, int16_t drive ) {
-    // TODO implement
+
+    #asm
+
+        ; get sp and skip return address
+        ld hl, 2
+        add hl, sp
+
+        ; first param from the end
+        ld a, (hl)
+        inc hl
+        inc hl
+
+        ; last param from the end
+        ; ix <- (hl)
+        ld e, (hl)
+        inc hl
+        ld d, (hl)
+        ld ixl, e
+        ld ixh, d
+
+        ; No attributes
+        ld b, 0
+
+        rst 0x08
+        defb ESXDOS_F_OPENDIR
+
+        ld h, 0
+        ld l, a     ; Returns file handle if no error else error code
+
+    #endasm
+
 }
 
-int16_t ESXDOS_readDirectory( uint8_t *buffer, int16_t fhandle ) {
-    // TODO implement
+/*
+ * Read a directory entry in a buffer
+ * buffer: The buffer to store the entry bytes
+ * fhandle: The file handle
+ * Returns 1 if an entry was read (and possibly there are more after this one, which you can read by making more calls). Else returns 0.
+ *
+ * Entry Structure:
+ * - asciiz File or directory name.
+ * - 1 byte MSDOS-like attributes.
+ * - 4 bytes Date
+ * - 4 bytes File Size
+ */
+int16_t ESXDOS_readDirectory( uint8_t *buffer, int16_t dhandle ) {
+
+    #asm
+
+        ; get sp and skip return address
+        ld hl, 2
+        add hl, sp
+
+        ; first param from the end
+        ld a, (hl)
+        inc hl
+        inc hl
+
+        ; last param from the end
+        ; ix <- (hl)
+        ld e, (hl)
+        inc hl
+        ld d, (hl)
+        ld ixl, e
+        ld ixh, d
+
+        rst 0x08
+        defb ESXDOS_F_READDIR
+
+        ld h, 0
+        ld l, a     ; Return value
+
+    #endasm
+
+
 }
 
-void ESXDOS_getCWD( uint8_t *path, int16_t drive ) {
-    // TODO implement
+/*
+ * Get the current working directory (cwd) path in a buffer
+ * buffer:  The buffer to fill in the cwd, will be null terminated
+ * drive: The drive number
+ */
+void ESXDOS_getCWD( uint8_t *buffer, int16_t drive ) {
+
+    #asm
+
+        ; get sp and skip return address
+        ld hl, 2
+        add hl, sp
+
+        ; first param from the end
+        ld a, (hl)
+        inc hl
+        inc hl
+
+        ; last param from the end
+        ; ix <- (hl)
+        ld e, (hl)
+        inc hl
+        ld d, (hl)
+        ld ixl, e
+        ld ixh, d
+
+        rst 0x08
+        defb ESXDOS_F_GETCWD
+
+    #endasm
+
 }
 
+/*
+ * Set the current working directory (cwd) path
+ * pathDirName:  The string with the cwd to set, null terminated.
+ * drive: The drive number
+ */
 void ESXDOS_changeDirectory( uint8_t *pathDirName, int16_t drive ) {
-    // TODO implement
+
+    #asm
+
+        ; get sp and skip return address
+        ld hl, 2
+        add hl, sp
+
+        ; first param from the end
+        ld a, (hl)
+        inc hl
+        inc hl
+
+        ; last param from the end
+        ; ix <- (hl)
+        ld e, (hl)
+        inc hl
+        ld d, (hl)
+        ld ixl, e
+        ld ixh, d
+
+        rst 0x08
+        defb ESXDOS_F_CHDIR
+
+    #endasm
+
 }
 
+/*
+ * Deletes a file
+ * pathFileName: path including the file name
+ * drive: The drive number
+ */
 void ESXDOS_delete( uint8_t *pathFileName, int16_t drive ) {
-    // TODO implement
+
+    #asm
+
+        ; get sp and skip return address
+        ld hl, 2
+        add hl, sp
+
+        ; first param from the end
+        ld a, (hl)
+        inc hl
+        inc hl
+
+        ; last param from the end
+        ; ix <- (hl)
+        ld e, (hl)
+        inc hl
+        ld d, (hl)
+        ld ixl, e
+        ld ixh, d
+
+        rst 0x08
+        defb ESXDOS_F_UNLINK
+
+    #endasm
+
 }

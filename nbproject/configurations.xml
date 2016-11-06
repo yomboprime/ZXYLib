@@ -9,12 +9,14 @@
         <in>CgLeches.c</in>
         <in>leches.c</in>
       </df>
+      <df name="examples">
+        <in>exampleSDList.c</in>
+      </df>
       <df name="src">
         <df name="zxuno">
           <in>uart.c</in>
           <in>zxuno.c</in>
         </df>
-        <in>esxdos.c</in>
         <in>textUtils.c</in>
       </df>
     </df>
@@ -25,6 +27,7 @@
       <itemPath>Makefile</itemPath>
       <itemPath>nbproject/private/launcher.properties</itemPath>
     </logicalFolder>
+    <itemPath>TODO.txt</itemPath>
   </logicalFolder>
   <sourceFolderFilter>^(nbproject)$</sourceFolderFilter>
   <sourceRootList>
@@ -52,13 +55,15 @@
           <preBuildCommand></preBuildCommand>
         </preBuild>
       </makefileType>
+      <item path="TODO.txt" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="bas2tap/bas2tap.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="cargandoleches/CgLeches.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="cargandoleches/leches.c" ex="false" tool="0" flavor2="0">
       </item>
-      <item path="src/esxdos.c" ex="false" tool="0" flavor2="0">
+      <item path="examples/exampleSDList.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="src/textUtils.c" ex="false" tool="0" flavor2="0">
       </item>

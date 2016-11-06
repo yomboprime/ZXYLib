@@ -1,7 +1,7 @@
 /*
  * @author yomboprime
  *
- * ZX-Uno UART Functions
+ * ZX-Uno UART functions
 */
 
 #include "uart.h"

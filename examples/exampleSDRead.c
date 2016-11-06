@@ -27,7 +27,7 @@ void main(void) {
 
     int16_t f;
 
-    uint8_t *filePath;
+    uint8_t *filePath = "hola.txt";
 
     uint8_t buffer[258];
 
@@ -38,7 +38,7 @@ void main(void) {
     textUtils_64ColumnsMode();
     textUtils_cls();
 
-    textUtils_println( "Starting SD test, press a key..." );
+    textUtils_println( "This example reads a file from SD card. Press a key to start..." );
 
     waitKey();
 
@@ -53,8 +53,6 @@ void main(void) {
 
     textUtils_print( "Drive: " );
     textUtils_println_l( drive );
-    
-    filePath = "hola.txt";
 
     textUtils_print( "Opening file: " );
     textUtils_println( filePath );
@@ -92,7 +90,6 @@ void main(void) {
     textUtils_println( "File closed OK" );
 
     textUtils_println( "End. Press a key." );
-
     waitKey();
 
 }

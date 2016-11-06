@@ -23,7 +23,6 @@ extern void UART_print( uint8_t *s );
 extern void UART_println( uint8_t *s );
 
 extern int UART_available();
-
 extern uint8_t UART_readBlocking();
 extern int UART_read();
 extern int UART_peek();

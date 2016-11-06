@@ -1,0 +1,8 @@
+
+- Turbo modes management, registro SCANDBLCTRL (no tocar resto de bits)
+
+- Habilitar/desabilitar scanlines: mismo registro
+
+- mouse: registros MOUSEDATA y MOUSESTATUS, mirar protocolo
+
+- id de core: registro COREID

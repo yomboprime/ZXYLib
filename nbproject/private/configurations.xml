@@ -14,8 +14,10 @@
         <in>leches.c</in>
       </df>
       <df name="examples">
-        <in>readSDTest.c</in>
-        <in>writeSDTest.c</in>
+        <in>exampleSDList.c</in>
+        <in>exampleSDRead.c</in>
+        <in>exampleSDStat.c</in>
+        <in>exampleSDWrite.c</in>
       </df>
       <df name="lib">
       </df>
@@ -33,6 +35,7 @@
         <in>textUtils.h</in>
       </df>
     </df>
+    <itemPath>TODO.txt</itemPath>
   </logicalFolder>
   <projectmakefile>Makefile</projectmakefile>
   <confs>

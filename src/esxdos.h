@@ -9,6 +9,30 @@
 
 #include "integerTypes.h"
 
+// ESXDOS calls
+
+#define ESXDOS_M_GETSETDRV ( 0x89 )
+
+#define ESXDOS_F_OPEN ( 0x9A )
+#define ESXDOS_F_CLOSE ( 0x9B )
+
+#define ESXDOS_F_SYNC ( 0x9C )
+
+#define ESXDOS_F_READ ( 0x9D )
+#define ESXDOS_F_WRITE ( 0x9E )
+
+#define ESXDOS_F_SEEK ( 0x9F )
+#define ESXDOS_F_GETPOS ( 0xA0 )
+
+#define ESXDOS_F_FSTAT ( 0xA1 )
+
+#define ESXDOS_F_OPENDIR ( 0xA3 )
+#define ESXDOS_F_READDIR ( 0xA4 )
+
+#define ESXDOS_F_GETCWD ( 0xA8 )
+#define ESXDOS_F_CHDIR ( 0xA9 )
+
+#define ESXDOS_F_UNLINK ( 0xAD )
 
 // File access modes
 
@@ -22,23 +46,20 @@
 #define ESXDOS_FILEMODE_WRITE_CREATE ( 0x0E )
 
 
-// ESXDOS calls
-
-#define ESXDOS_M_GETSETDRV ( 0x89 )
-
-#define ESXDOS_F_OPEN ( 0x9A )
-#define ESXDOS_F_CLOSE ( 0x9B )
-
-#define ESXDOS_F_READ ( 0x9D )
-#define ESXDOS_F_WRITE ( 0x9E )
-
 // Other definitions
 
 #define ESXDOS_FILE_ATTRIBUTE_DIR_BIT ( 0x10 )
 
-#define ESXDOS_FILE_STAT_STRUCT_SIZE ( 11 )
-#define ESXDOS_FILE_STAT_ATTRIBUTES_OFFSET ( 2 )
-#define ESXDOS_FILE_STAT_SIZE_OFFSET ( 7 )
+// Struct used in the ESXDOS_fstat function
+typedef struct {
+
+    uint8_t drive;
+    uint8_t device;
+    uint8_t attributes;
+    uint32_t date;
+    uint32_t fileSize;
+
+} ESXDOS_FSTAT_Struct;
 
 /*
  *
@@ -47,7 +68,7 @@
  *
 */
 extern uint32_t ESXDOS_fsize( int16_t fhandle );
-bool ESXDOS_isDirectory( int16_t fhandle );
+extern bool ESXDOS_isDirectory( int16_t fhandle );
 
 /*
  * ESXDOS API wrapper functions
@@ -61,12 +82,12 @@ extern void ESXDOS_fclose( uint16_t fhandle );
 extern uint16_t ESXDOS_fread( uint8_t *buffer, uint16_t length, int16_t fhandle );
 extern uint16_t ESXDOS_fwrite( uint8_t *buffer, uint16_t length, int16_t fhandle );
 extern void ESXDOS_fsync( uint16_t fhandle );
-extern uint32_t ESXDOS_fseek( uint32_t n, int16_t mode, int16_t fhandle );
-extern uint32_t ESXDOS_fgetPos( int16_t fhandle );
-extern void ESXDOS_fstat( uint8_t *buffer, int16_t fhandle );
+extern uint32_t ESXDOS_fseek( uint32_t n, int16_t mode, int16_t fhandle ); // TODO: Not implemented
+extern uint32_t ESXDOS_fgetPos( int16_t fhandle ); // TODO: Not implemented
+extern int16_t ESXDOS_fstat( ESXDOS_FSTAT_Struct *infoStruct, int16_t fhandle );
 extern int16_t ESXDOS_openDirectory( uint8_t *pathDirName, int16_t drive );
-extern int16_t ESXDOS_readDirectory( uint8_t *buffer, int16_t fhandle );
-extern void ESXDOS_getCWD( uint8_t *path, int16_t drive );
+extern int16_t ESXDOS_readDirectory( uint8_t *buffer, int16_t dhandle );
+extern void ESXDOS_getCWD( uint8_t *buffer, int16_t drive );
 extern void ESXDOS_changeDirectory( uint8_t *pathDirName, int16_t drive );
 extern void ESXDOS_delete( uint8_t *pathFileName, int16_t drive );
 

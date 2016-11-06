@@ -28,7 +28,7 @@ void main(void) {
 
     int16_t f;
 
-    uint8_t *filePath;
+    uint8_t *filePath = "/escrito.txt";
 
     uint8_t buffer[258];
 
@@ -39,7 +39,7 @@ void main(void) {
     textUtils_64ColumnsMode();
     textUtils_cls();
 
-    textUtils_println( "Starting SD Write test, press a key..." );
+    textUtils_println( "This example writes a file to SD card. Press a key to start..." );
 
     waitKey();
 
@@ -54,8 +54,6 @@ void main(void) {
 
     textUtils_print( "Drive: " );
     textUtils_println_l( drive );
-
-    filePath = "/escrito.txt";
 
     textUtils_print( "Opening file: " );
     textUtils_println( filePath );
@@ -85,6 +83,13 @@ void main(void) {
 
     }
 
+    ESXDOS_fsync( f );
+    iferror {
+        textUtils_println( "Error doing sync to the file." );
+        return;
+    }
+    textUtils_println( "File sync'ed OK" );
+
     ESXDOS_fclose( f );
     iferror {
         textUtils_println( "Error closing the file." );
@@ -93,7 +98,6 @@ void main(void) {
     textUtils_println( "File closed OK" );
 
     textUtils_println( "End. Press a key." );
-
     waitKey();
 
 }
