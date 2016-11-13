@@ -77,7 +77,7 @@ uint16_t UART_write( uint8_t* buf, uint16_t len ) {
     for ( i = 1; i <= len && i > 0; i++ ) {
 
         UART_writeByte( *buf++ );
-        
+
     }
 
     return len;
@@ -236,7 +236,7 @@ int UART_peek() {
 
     return UART_byteBuffer;
 
-    
+
 }
 
 int32_t UART_parseInt() {
@@ -297,7 +297,7 @@ int32_t UART_parseInt() {
                 }
 
             }
-            
+
         }
 
     }
@@ -325,7 +325,7 @@ bool UART_find( uint8_t *s ) {
     while ( millis() - t < 1000 ) {
 
         c_int = UART_read();
-        
+
         if ( c_int >= 0 ) {
 
             c = (uint8_t)c_int;

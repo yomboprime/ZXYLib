@@ -88,6 +88,7 @@ int16_t ESXDOS_getDefaultDrive() {
  * mode: one of ESXDOS_FILEMODE_* values
  * drive: The drive number
  * Returns file handle if success
+ * Always close opened files when done with them.
  */
 int16_t ESXDOS_fopen( uint8_t *pathFileName, int16_t mode, int16_t drive ) {
 
@@ -303,6 +304,7 @@ int16_t ESXDOS_fstat( ESXDOS_FSTAT_Struct *infoStruct, int16_t fhandle ) {
  * pathDirName can be absolute or relative to CWD
  * drive: The drive number
  * Returns directory handle if success
+ * Always close opened directories when done with them.
  */
 int16_t ESXDOS_openDirectory( uint8_t *pathDirName, int16_t drive ) {
 
@@ -341,7 +343,7 @@ int16_t ESXDOS_openDirectory( uint8_t *pathDirName, int16_t drive ) {
 /*
  * Read a directory entry in a buffer
  * buffer: The buffer to store the entry bytes
- * fhandle: The file handle
+ * dhandle: The directory handle
  * Returns 1 if an entry was read (and possibly there are more after this one, which you can read by making more calls). Else returns 0.
  *
  * Entry Structure:

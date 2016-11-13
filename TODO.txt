@@ -6,3 +6,14 @@
 - mouse: registros MOUSEDATA y MOUSESTATUS, mirar protocolo
 
 - id de core: registro COREID
+
+
+
+----------------------
+
+
+cambios por pasar:
+
+textutils
+ftp
+espdrv?
