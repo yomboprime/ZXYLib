@@ -27,7 +27,7 @@ void main(void) {
 
     int16_t f;
 
-    uint8_t *filePath = "hola.txt";
+    uint8_t *filePath = "/hola.txt";
 
     uint8_t buffer[258];
 

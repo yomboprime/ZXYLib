@@ -27,7 +27,7 @@ void main(void) {
 
     int16_t errCode;
 
-    uint8_t *filePath = "hola.txt";
+    uint8_t *filePath = "/hola.txt";
 
     ESXDOS_FSTAT_Struct stat;
 
