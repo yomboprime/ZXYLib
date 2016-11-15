@@ -254,12 +254,111 @@ void ESXDOS_fsync( uint16_t fhandle ) {
 }
 
 
+extern uint32_t ESXDOS_fseek_returnValue;
+
+#asm
+._ESXDOS_fseek_returnValue
+ defb	0
+ defb	0
+ defb	0
+ defb	0
+#endasm
+
+/*
+ * Seek the current file cursor (position, or pointer)
+ * n The number of bytes to seek
+ * mode: See the ESXDOS_SEEK_* constants in esxdos.h
+ * fhandle: The file handle
+ *
+ * Returns current value of cursor/pointer position
+ */
 uint32_t ESXDOS_fseek( uint32_t n, int16_t mode, int16_t fhandle ) {
-    // TODO implement
+
+    #asm
+
+        ; get sp and skip return address
+        ld hl, 2
+        add hl, sp
+
+        ; first param from the end
+        ld a, (hl)
+        inc hl
+        inc hl
+
+        ; second param from the end
+        ; ixl <- (hl)
+        ld e, (hl)
+        inc hl
+        inc hl
+        ld d, 0
+        ld ixl, e
+        ld ixh, d
+
+        ; last param from the end
+        ; bcde <- (hl)
+        ld e, (hl)
+        inc hl
+        ld d, (hl)
+        inc hl
+        ld c, (hl)
+        inc hl
+        ld b, (hl)
+
+        rst 0x08
+        defb ESXDOS_F_SEEK
+
+        ; Return value
+        ld hl, _ESXDOS_fseek_returnValue
+        ; (hl) <- bcde
+        ld (hl), e
+        inc hl
+        ld (hl), d
+        inc hl
+        ld (hl), c
+        inc hl
+        ld (hl), b
+
+
+    #endasm
+
+    return ESXDOS_fseek_returnValue;
 }
 
+/*
+ * Given a file handle, return current value of cursor/pointer position
+ */
 uint32_t ESXDOS_fgetPos( int16_t fhandle ) {
-    // TODO implement
+
+    #asm
+
+        ; get sp and skip return address
+        ld hl, 2
+        add hl, sp
+
+        ; first param from the end
+        ld a, (hl)
+        inc hl
+        inc hl
+
+        rst 0x08
+        defb ESXDOS_F_GETPOS
+
+        ; Return value
+        ld hl, _ESXDOS_fseek_returnValue
+        ; (hl) <- bcde
+        ld (hl), e
+        inc hl
+        ld (hl), d
+        inc hl
+        ld (hl), c
+        inc hl
+        ld (hl), b
+
+
+    #endasm
+
+    return ESXDOS_fseek_returnValue;
+
 }
 
 /*

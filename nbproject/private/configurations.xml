@@ -16,6 +16,7 @@
       <df name="examples">
         <in>exampleSDList.c</in>
         <in>exampleSDRead.c</in>
+        <in>exampleSDSeek.c</in>
         <in>exampleSDStat.c</in>
         <in>exampleSDWrite.c</in>
       </df>

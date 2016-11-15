@@ -17,8 +17,10 @@ srcFilesExampleSDList = src/textUtils.c src/esxdos.c examples/exampleSDList.c
 
 srcFilesExampleSDStat = src/textUtils.c src/esxdos.c examples/exampleSDStat.c
 
+srcFilesExampleSDSeek = src/textUtils.c src/esxdos.c examples/exampleSDSeek.c
+
 # All the targets:
-all: generateBASICLoader createExample1 createExample2 createExample3 createExample4
+all: generateBASICLoader createExample1 createExample2 createExample3 createExample4 createExample5
 
 
 # Targets:
@@ -97,6 +99,25 @@ generateWav4:
 
 generateWavLeches4:
 	./CgLeches ExampleSDStat.tap ExampleSDStat.wav 3 > ultimolog.txt
+
+#------------------------------------------------------------------------------
+createExample5: compile5 createTAP5 concatenateTAPs5 generateWavLeches5
+
+compile5:
+	zcc +zx -o f5.bin -lndos $(srcFilesExampleSDSeek) > ultimolog.txt
+
+createTAP5:
+	$(node) ./bin2tap-js/bin2tap.js ../f5.bin > ultimolog.txt
+
+concatenateTAPs5:
+	cat ./cargadorBASIC/cargador.tap f5.tap > ExampleSDSeek.tap
+
+generateWav5:
+	tape2wav ./ExampleSDSeek.tap ./ExampleSDSeek.wav > ultimolog.txt
+
+generateWavLeches5:
+	./CgLeches ExampleSDSeek.tap ExampleSDSeek.wav 3 > ultimolog.txt
+
 
 #------------------------------------------------------------------------------
 

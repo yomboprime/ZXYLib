@@ -46,6 +46,12 @@
 #define ESXDOS_FILEMODE_WRITE_CREATE ( 0x0E )
 
 
+// File seek modes
+
+#define ESXDOS_SEEK_FROM_START 0
+#define ESXDOS_SEEK_FORWARD_FROM_CURRENT 1
+#define ESXDOS_SEEK_BACKWARDS_FROM_CURRENT 2
+
 // Other definitions
 
 #define ESXDOS_FILE_ATTRIBUTE_DIR_BIT ( 0x10 )
@@ -82,8 +88,8 @@ extern void ESXDOS_fclose( uint16_t fhandle );
 extern uint16_t ESXDOS_fread( uint8_t *buffer, uint16_t length, int16_t fhandle );
 extern uint16_t ESXDOS_fwrite( uint8_t *buffer, uint16_t length, int16_t fhandle );
 extern void ESXDOS_fsync( uint16_t fhandle );
-extern uint32_t ESXDOS_fseek( uint32_t n, int16_t mode, int16_t fhandle ); // TODO: Not implemented
-extern uint32_t ESXDOS_fgetPos( int16_t fhandle ); // TODO: Not implemented
+extern uint32_t ESXDOS_fseek( uint32_t n, int16_t mode, int16_t fhandle );
+extern uint32_t ESXDOS_fgetPos( int16_t fhandle );
 extern int16_t ESXDOS_fstat( ESXDOS_FSTAT_Struct *infoStruct, int16_t fhandle );
 extern int16_t ESXDOS_openDirectory( uint8_t *pathDirName, int16_t drive );
 extern int16_t ESXDOS_readDirectory( uint8_t *buffer, int16_t dhandle );
