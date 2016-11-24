@@ -19,8 +19,10 @@ srcFilesExampleSDStat = src/textUtils.c src/esxdos.c examples/exampleSDStat.c
 
 srcFilesExampleSDSeek = src/textUtils.c src/esxdos.c examples/exampleSDSeek.c
 
+srcFilesExampleUARTTerminal = src/textUtils.c src/esxdos.c src/zxuno/uart.c src/zxuno/zxuno.c examples/exampleUARTTerminal.c
+
 # All the targets:
-all: generateBASICLoader createExample1 createExample2 createExample3 createExample4 createExample5
+all: generateBASICLoader createExample1 createExample2 createExample3 createExample4 createExample5 createExample6
 
 
 # Targets:
@@ -120,6 +122,26 @@ generateWavLeches5:
 
 
 #------------------------------------------------------------------------------
+
+createExample6: compile6 createTAP6 concatenateTAPs6 generateWavLeches6
+
+compile6:
+	zcc +zx -o f6.bin -lndos $(srcFilesExampleUARTTerminal) > ultimolog.txt
+
+createTAP6:
+	$(node) ./bin2tap-js/bin2tap.js ../f6.bin > ultimolog.txt
+
+concatenateTAPs6:
+	cat ./cargadorBASIC/cargador.tap f6.tap > UARTTERM.tap
+
+generateWav6:
+	tape2wav ./UARTTERM.tap ./UARTTERM.wav > ultimolog.txt
+
+generateWavLeches6:
+	./CgLeches UARTTERM.tap UARTTERM.wav 3 > ultimolog.txt
+
+#------------------------------------------------------------------------------
+
 
 clean:
 	$(RM) *.bin *.i *.tap *.op* *.o *.reloc *~ zcc_opt.def *.wav ./cargadorBASIC/cargador.tap

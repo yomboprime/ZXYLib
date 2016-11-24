@@ -11,6 +11,7 @@
       </df>
       <df name="examples">
         <in>exampleSDList.c</in>
+        <in>exampleUARTTerminal.c</in>
       </df>
       <df name="src">
         <df name="zxuno">
@@ -64,6 +65,8 @@
       <item path="cargandoleches/leches.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="examples/exampleSDList.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="examples/exampleUARTTerminal.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="src/textUtils.c" ex="false" tool="0" flavor2="0">
       </item>
