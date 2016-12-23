@@ -6,6 +6,7 @@
 
 #include "textUtils.h"
 #include <stdio.h>
+#include <input.h>
 #include <spectrum.h>
 
 /*
@@ -191,4 +192,24 @@ void textUtils_defineUDGGraphic( uint8_t *graphic, uint16_t graphicIndex ) {
 
 bool isDigit( uint8_t c ) {
     return c >= '0' && c <= '9';
+}
+
+/*
+ * Waits for a key press with repetition
+ */
+uint16_t waitKeyPress() {
+
+    uint16_t count = 350;
+
+    uint16_t k = in_Inkey();
+    while ( k > 0 && count > 0 ) {
+        k = in_Inkey();
+        count--;
+    }
+
+    while ( k == 0 ) {
+        k = in_Inkey();
+    };
+
+    return k;
 }

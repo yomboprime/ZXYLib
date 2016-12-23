@@ -12,12 +12,17 @@
       <df name="examples">
         <in>exampleSDList.c</in>
         <in>exampleUARTTerminal.c</in>
+        <in>exampleVeripac9.c</in>
       </df>
       <df name="src">
         <df name="zxuno">
           <in>uart.c</in>
+          <in>veripac9.c</in>
+          <in>veripac9.h</in>
           <in>zxuno.c</in>
         </df>
+        <in>fileDialog.c</in>
+        <in>fileDialog.h</in>
         <in>textUtils.c</in>
       </df>
     </df>
@@ -50,6 +55,11 @@
           <buildCommand>${MAKE} -f Makefile</buildCommand>
           <cleanCommand>${MAKE} -f Makefile clean</cleanCommand>
           <executablePath></executablePath>
+          <cTool>
+            <incDir>
+              <pElem>../../../soft/z88dk/z88dk/include</pElem>
+            </incDir>
+          </cTool>
         </makeTool>
         <preBuild>
           <preBuildCommandWorkingDir>.</preBuildCommandWorkingDir>
@@ -68,9 +78,19 @@
       </item>
       <item path="examples/exampleUARTTerminal.c" ex="false" tool="0" flavor2="0">
       </item>
+      <item path="examples/exampleVeripac9.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="src/fileDialog.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="src/fileDialog.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="src/textUtils.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="src/zxuno/uart.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="src/zxuno/veripac9.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="src/zxuno/veripac9.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="src/zxuno/zxuno.c" ex="false" tool="0" flavor2="0">
       </item>

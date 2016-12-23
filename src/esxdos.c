@@ -446,8 +446,8 @@ int16_t ESXDOS_openDirectory( uint8_t *pathDirName, int16_t drive ) {
  * Returns 1 if an entry was read (and possibly there are more after this one, which you can read by making more calls). Else returns 0.
  *
  * Entry Structure:
- * - asciiz File or directory name.
  * - 1 byte MSDOS-like attributes.
+ * - asciiz File or directory name.
  * - 4 bytes Date
  * - 4 bytes File Size
  */

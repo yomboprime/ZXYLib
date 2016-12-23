@@ -80,6 +80,7 @@ extern bool ESXDOS_isDirectory( int16_t fhandle );
  * ESXDOS API wrapper functions
  *
  * Note: Check with "iferror {...} else {...}" after every call (Carry flag)
+ * Also you can check with ifnerror {...}
  *
 */
 extern int16_t ESXDOS_getDefaultDrive();

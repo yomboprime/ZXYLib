@@ -20,6 +20,7 @@
         <in>exampleSDStat.c</in>
         <in>exampleSDWrite.c</in>
         <in>exampleUARTTerminal.c</in>
+        <in>exampleVeripac9.c</in>
       </df>
       <df name="lib">
       </df>
@@ -27,11 +28,15 @@
         <df name="zxuno">
           <in>uart.c</in>
           <in>uart.h</in>
+          <in>veripac9.c</in>
+          <in>veripac9.h</in>
           <in>zxuno.c</in>
           <in>zxuno.h</in>
         </df>
         <in>esxdos.c</in>
         <in>esxdos.h</in>
+        <in>fileDialog.c</in>
+        <in>fileDialog.h</in>
         <in>integerTypes.h</in>
         <in>textUtils.c</in>
         <in>textUtils.h</in>

@@ -6,7 +6,7 @@
 
 
 # Configure here your path to Node js:
-node = /media/datos/soft/nodejs/node-v4.4.5-linux-x64/bin/node
+node = node
 
 # All the source files:
 srcFilesExampleSDWrite = src/textUtils.c src/esxdos.c examples/exampleSDWrite.c
@@ -21,8 +21,10 @@ srcFilesExampleSDSeek = src/textUtils.c src/esxdos.c examples/exampleSDSeek.c
 
 srcFilesExampleUARTTerminal = src/textUtils.c src/esxdos.c src/zxuno/uart.c src/zxuno/zxuno.c examples/exampleUARTTerminal.c
 
+srcFilesExampleVeripac = src/textUtils.c src/esxdos.c src/zxuno/zxuno.c src/fileDialog.c src/zxuno/veripac9.c examples/exampleVeripac9.c
+
 # All the targets:
-all: generateBASICLoader createExample1 createExample2 createExample3 createExample4 createExample5 createExample6
+all: generateBASICLoader createExample1 createExample2 createExample3 createExample4 createExample5 createExample6 createExample7
 
 
 # Targets:
@@ -142,6 +144,24 @@ generateWavLeches6:
 
 #------------------------------------------------------------------------------
 
+createExample7: compile7 createTAP7 concatenateTAPs7 generateWavLeches7
+
+compile7:
+	zcc +zx -o f7.bin -lndos $(srcFilesExampleVeripac) > ultimolog.txt
+
+createTAP7:
+	$(node) ./bin2tap-js/bin2tap.js ../f7.bin > ultimolog.txt
+
+concatenateTAPs7:
+	cat ./cargadorBASIC/cargador.tap f7.tap > VERIPAC9.tap
+
+generateWav7:
+	tape2wav ./VERIPAC9.tap ./VERIPAC9.wav > ultimolog.txt
+
+generateWavLeches7:
+	./CgLeches VERIPAC9.tap VERIPAC9.wav 3 > ultimolog.txt
+
+#------------------------------------------------------------------------------
 
 clean:
 	$(RM) *.bin *.i *.tap *.op* *.o *.reloc *~ zcc_opt.def *.wav ./cargadorBASIC/cargador.tap

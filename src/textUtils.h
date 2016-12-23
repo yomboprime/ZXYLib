@@ -42,4 +42,6 @@ extern void textUtils_defineUDGGraphic( uint8_t *graphic, uint16_t graphicIndex 
 
 extern bool isDigit( uint8_t c );
 
+extern uint16_t waitKeyPress();
+
 #endif /* TEXTUTILS_H */
