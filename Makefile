@@ -147,7 +147,7 @@ generateWavLeches6:
 createExample7: compile7 createTAP7 concatenateTAPs7 generateWavLeches7
 
 compile7:
-	zcc +zx -o f7.bin -lndos $(srcFilesExampleVeripac) > ultimolog.txt
+	zcc +zx -o f7.bin -lndos -lmzx $(srcFilesExampleVeripac) > ultimolog.txt
 
 createTAP7:
 	$(node) ./bin2tap-js/bin2tap.js ../f7.bin > ultimolog.txt

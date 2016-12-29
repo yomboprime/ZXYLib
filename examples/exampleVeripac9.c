@@ -39,7 +39,7 @@ void main(void) {
     uint8_t *ptr;
     uint8_t v;
 
-    sprintf( dirPath, "/zxart" );
+    sprintf( dirPath, "/" );
 
     textUtils_64ColumnsMode();
     textUtils_cls();
@@ -64,7 +64,7 @@ void main(void) {
                 textUtils_32ColumnsMode();
                 textUtils_cls();
                 sprintf( filePath, "%s", dirPath );
-                v = openFileDialog( "Open program file", filePath, PATH_LENGTH, INK_BLACK | PAPER_WHITE, INK_BLACK | PAPER_WHITE, INK_BLACK | PAPER_WHITE | BRIGHT );
+                v = openFileDialog( "Open program file", filePath, PATH_LENGTH, INK_BLUE | PAPER_WHITE, INK_WHITE | PAPER_CYAN );
                 textUtils_64ColumnsMode();
                 textUtils_cls();
                 if ( v == true ) {

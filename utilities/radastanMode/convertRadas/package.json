@@ -1,0 +1,9 @@
+{
+    "name": "convertirImagenRadas",
+    "version": "1.0.0",
+    "author": "yomboprime",
+    "contributors": [],
+    "dependencies": {
+        "canvas": "^1.3.12"
+    }
+}

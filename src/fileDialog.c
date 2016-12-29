@@ -6,17 +6,19 @@
 
 #include "fileDialog.h"
 
+#include <math.h>
 #include <string.h>
 
 #include "esxdos.h"
 #include "textUtils.h"
 
 // Function prototypes
-uint16_t fileDialogIterateSDDirectory( uint8_t *dirPath, uint16_t firstEntry, uint16_t maxEntries, void *entryCallBack );
-void callBackPrintEntry( uint16_t numEntry, uint8_t *entry );
-extern bool fileDialogConcatPath( uint8_t *string1, uint8_t *string2, uint16_t maxSize );
-extern void fileDialogpathUpOneDir( uint8_t *path );
-
+uint16_t fileDialogIterateSDDirectory( uint8_t *dirPath, uint16_t firstEntry, uint16_t maxEntries, void *entryCallBack, bool *moreEntries, uint8_t *userData );
+void filedialogCallBackPrintEntry( uint16_t numEntry, uint8_t *entry, uint8_t *userData );
+void fileDialogCallBackSelectEntry( uint16_t numEntry, uint8_t *entryPtr, uint8_t *userData );
+bool fileDialogConcatPath( uint8_t *string1, uint8_t *string2, uint16_t maxSize, bool appendBar );
+void fileDialogpathUpOneDir( uint8_t *path );
+void fileDialogBrightSelection( uint16_t selectedEntry, bool bright );
 
 #define OPENDIALOG_MAX_DISPLAY_DIR_ENTRIES 20
 
@@ -31,11 +33,11 @@ extern void fileDialogpathUpOneDir( uint8_t *path );
  * path: Initial dir path to open, started and terminated in "/". It is also the output value, as the selected file name will be
  *  appended to this string.
  * maxPathLength: If the total path exceeds this length, the function will return false (error)
- * attrs1, attrs2, attrsSel: Different colour attributes for the dialog.
+ * attrs1, attrs2: Different colour attributes for the dialog.
  */
-bool openFileDialog( uint8_t *message, uint8_t *path, int16_t maxPathLength, uint8_t attrs1, uint8_t attrs2, uint8_t attrsSel ) {
+bool openFileDialog( uint8_t *message, uint8_t *path, int16_t maxPathLength, uint8_t attrs1, uint8_t attrs2 ) {
 
-    uint8_t fileName[ 13 ];
+    uint8_t fileName[ 13 + 1 ];
 
     uint8_t key;
 
@@ -45,56 +47,144 @@ bool openFileDialog( uint8_t *message, uint8_t *path, int16_t maxPathLength, uin
 
     uint16_t titleX = 16 - ( strlen( message ) >> 1 );
 
+    bool refreshDirectory = true;
+
+    bool moreEntries = false;
+
+    uint16_t i;
+
+    textUtils_setAttributes( attrs2 );
     textUtils_cls();
 
     // Print title
     textUtils_printAt32( titleX, 1 );
     textUtils_print( message );
     
-    numEntries = fileDialogIterateSDDirectory( path, firstEntry, OPENDIALOG_MAX_DISPLAY_DIR_ENTRIES, callBackPrintEntry );
-
     while ( 1 ) {
+
+        if ( refreshDirectory == true ) {
+
+            textUtils_setAttributes( attrs1 );
+            numEntries = fileDialogIterateSDDirectory( path, firstEntry, OPENDIALOG_MAX_DISPLAY_DIR_ENTRIES, filedialogCallBackPrintEntry, &moreEntries, NULL );
+            if ( numEntries > 0 ) {
+                textUtils_setAttributes( attrs2 );
+                for ( i = numEntries; i < OPENDIALOG_MAX_DISPLAY_DIR_ENTRIES; i++ ) {
+                    textUtils_print("\n                               " );
+                }
+                fileDialogBrightSelection( selectedEntry, true );
+            }
+            refreshDirectory = false;
+
+        }
         
         key = waitKeyPress();
 
         switch ( key ) {
+            
             // Left
             case 8:
                 break;
+
             // Right
             case 9:
                 break;
+
             // Down
             case 10:
+                if ( selectedEntry == numEntries - 1 ) {
+                    if ( moreEntries == true ) {
+                        firstEntry += OPENDIALOG_MAX_DISPLAY_DIR_ENTRIES;
+                        fileDialogBrightSelection( selectedEntry, false );
+                        selectedEntry = 0;
+                        refreshDirectory = true;
+                    }
+                }
+                else {
+                    fileDialogBrightSelection( selectedEntry, false );
+                    selectedEntry++;
+                    fileDialogBrightSelection( selectedEntry, true );
+                }
                 break;
+
             // Up
             case 11:
+                if ( selectedEntry == 0 ) {
+                    if ( firstEntry > 0 ) {
+                        firstEntry -= OPENDIALOG_MAX_DISPLAY_DIR_ENTRIES;
+                        fileDialogBrightSelection( selectedEntry, false );
+                        selectedEntry = OPENDIALOG_MAX_DISPLAY_DIR_ENTRIES - 1;
+                        refreshDirectory = true;
+                    }
+                }
+                else {
+                    fileDialogBrightSelection( selectedEntry, false );
+                    selectedEntry--;
+                    fileDialogBrightSelection( selectedEntry, true );
+                }
+                break;
+
+            // Space, Escape
+            case 32:
+                return false;
+
+            // Enter
+            case 13:
+
+                numEntries = fileDialogIterateSDDirectory( path, firstEntry + selectedEntry, 1, fileDialogCallBackSelectEntry, NULL, fileName );
+                if ( numEntries > 0 ) {
+                    if ( strcmp( fileName + 1, ".." ) == 0 ) {
+                        // Selected ..
+                        fileDialogpathUpOneDir( path );
+                        fileDialogBrightSelection( selectedEntry, false );
+                        firstEntry = 0;
+                        selectedEntry = 0;
+                        refreshDirectory = true;
+                    }
+                    else if ( strcmp( fileName + 1, "." ) == 0 ) {
+                        fileDialogBrightSelection( selectedEntry, false );
+                        refreshDirectory = true;
+                    }
+                    else if ( fileDialogConcatPath( path, fileName + 1, maxPathLength, *fileName == 1 ? true : false ) == true ) {
+
+                        if ( *fileName == 1 ) {
+                            // The user selected a directory
+                            fileDialogBrightSelection( selectedEntry, false );
+                            firstEntry = 0;
+                            selectedEntry = 0;
+                            refreshDirectory = true;
+                        }
+                        else {
+                            // The user selected a file and the path is already updated
+                            return true;
+                        }
+                    }
+                }
+                
                 break;
         }
 
-        if ( key == 32 ) {
-            return false;
-        }
-        else {
-            textUtils_print( "Key: " );
-            textUtils_println_l( key );
-        }
-
+        //textUtils_print( "Key: " );
+        //textUtils_println_l( key );
     }
 
     return false;
 
 }
 
-uint16_t fileDialogIterateSDDirectory( uint8_t *dirPath, uint16_t firstEntry, uint16_t maxEntries, void *entryCallBack ) {
+uint16_t fileDialogIterateSDDirectory( uint8_t *dirPath, uint16_t firstEntry, uint16_t maxEntries, void *entryCallBack, bool *moreEntries, uint8_t *userData ) {
 
-    // Calls entryCallBack( numEntry, entry ) for each directory entry and returns number of iterated entries
+    // Calls entryCallBack( numEntry, entry, userData ) for each directory entry and returns number of iterated entries
+    // moreEntries is modified and tells if there are more entries after the last iterated.
 
     int16_t drive;
     int16_t dirHandle;
     uint16_t numEntries = 0;
     uint16_t readResult;
     uint8_t entry[22];
+
+    if ( moreEntries != NULL ) {
+        *moreEntries = false;
+    }
 
     drive = ESXDOS_getDefaultDrive();
     dirHandle = ESXDOS_openDirectory( dirPath, drive );
@@ -115,12 +205,15 @@ uint16_t fileDialogIterateSDDirectory( uint8_t *dirPath, uint16_t firstEntry, ui
         }
 
         if ( numEntries >= maxEntries ) {
+            if ( moreEntries != NULL ) {
+                *moreEntries = true;
+            }
             break;
         }
 
         if ( firstEntry == 0 ) {
 
-            entryCallBack( numEntries, entry );
+            entryCallBack( numEntries, entry, userData );
 
             numEntries++;
 
@@ -137,12 +230,21 @@ uint16_t fileDialogIterateSDDirectory( uint8_t *dirPath, uint16_t firstEntry, ui
 
 }
 
-void callBackPrintEntry( uint16_t numEntry, uint8_t *entryPtr ) {
+void fileDialogBrightSelection( uint16_t selectedEntry, bool bright ) {
 
-    uint32_t number;
+    textUtils_paintSegmentWithBright( 2, 30, 3 + selectedEntry, bright );
+
+}
+
+void filedialogCallBackPrintEntry( uint16_t numEntry, uint8_t *entryPtr, uint8_t *userData ) {
+
+    uint8_t b1, b2, b3, b4;
+    uint32_t fileSize;
+    
     uint8_t strNumber[ 11 ];
     uint8_t isDir;
     uint8_t nChars;
+    uint8_t * ptr;
 
     textUtils_printAt32( 2, numEntry + 3 );
 
@@ -161,30 +263,60 @@ void callBackPrintEntry( uint16_t numEntry, uint8_t *entryPtr ) {
         entryPtr++;
         nChars++;
     }
-    while ( nChars < 12 ) {
+    while ( nChars < 25 ) {
         textUtils_print( " " );
         nChars++;
     }
+
+    /*
     entryPtr++;
 
     // Skip date
     entryPtr+= 4;
 
     if ( isDir == false ) {
-        // File size
-        number = *entryPtr++;
-        number += ( (uint32_t)( *entryPtr++ ) ) << 8;
-        number += ( (uint32_t)( *entryPtr++ ) ) << 16;
-        number += ( (uint32_t)( *entryPtr++ ) ) << 24;
 
-        sprintf( strNumber, " %10lu", number );
+        // File size
+
+        fileSize = *entryPtr++;
+        fileSize += ( (uint32_t)( *entryPtr++ ) ) << 8;
+        fileSize += ( (uint32_t)( *entryPtr++ ) ) << 16;
+        fileSize += ( (uint32_t)( *entryPtr++ ) ) << 24;
+
+        sprintf( strNumber, "10%lu", fileSize );
         textUtils_print( strNumber );
 
     }
+    */
+}
+
+void fileDialogCallBackSelectEntry( uint16_t numEntry, uint8_t *entryPtr, uint8_t *userData ) {
+
+    uint32_t number;
+    uint8_t strNumber[ 11 ];
+    uint8_t isDir;
+    uint8_t nChars;
+
+    // First byte of user data is 1 = directory, 0 = file
+    *userData++ = *entryPtr++ == ESXDOS_FILE_ATTRIBUTE_DIR_BIT ? 1: 0;
+
+    // Next is the asciiz file name.
+    nChars = 0;
+    while ( *entryPtr != 0 ) {
+        *userData++ = *entryPtr++;
+        nChars++;
+    }
+    *userData = 0;
 
 }
 
-bool fileDialogConcatPath( uint8_t *string1, uint8_t *string2, uint16_t maxSize ) {
+//uint32_t concat4Bytes( uint8_t b1, b2, b3, b4 ) {
+
+//}
+
+bool fileDialogConcatPath( uint8_t *string1, uint8_t *string2, uint16_t maxSize, bool appendBar ) {
+
+    // COncats string2 to string1
 
     uint16_t l1 = strlen( string1 );
     uint16_t l2 = strlen( string2 );
@@ -199,7 +331,9 @@ bool fileDialogConcatPath( uint8_t *string1, uint8_t *string2, uint16_t maxSize 
         *string1++ = *string2++;
         l2--;
     }
-    *string1++='/';
+    if ( appendBar == true ) {
+        *string1++='/';
+    }
     *string1 = 0;
 
     return true;

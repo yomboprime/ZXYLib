@@ -14,6 +14,8 @@
         <in>leches.c</in>
       </df>
       <df name="examples">
+        <df name="programsVeripac">
+        </df>
         <in>exampleSDList.c</in>
         <in>exampleSDRead.c</in>
         <in>exampleSDSeek.c</in>
@@ -40,6 +42,89 @@
         <in>integerTypes.h</in>
         <in>textUtils.c</in>
         <in>textUtils.h</in>
+      </df>
+      <df name="utilities">
+        <df name="radastanMode">
+          <df name="convertRadas">
+            <df name="node_modules">
+              <df name="canvas">
+                <df name="build">
+                  <df name="Release">
+                    <df name=".deps">
+                      <df name="Release">
+                        <df name="obj.target">
+                          <df name="canvas">
+                            <df name="src">
+                            </df>
+                          </df>
+                        </df>
+                      </df>
+                    </df>
+                    <df name="obj.target">
+                      <df name="canvas">
+                        <df name="src">
+                        </df>
+                      </df>
+                    </df>
+                  </df>
+                </df>
+                <df name="lib">
+                </df>
+                <df name="node_modules">
+                  <df name="nan">
+                    <df name="doc">
+                    </df>
+                    <df name="tools">
+                    </df>
+                    <in>nan.h</in>
+                    <in>nan_callbacks.h</in>
+                    <in>nan_callbacks_12_inl.h</in>
+                    <in>nan_callbacks_pre_12_inl.h</in>
+                    <in>nan_converters.h</in>
+                    <in>nan_converters_43_inl.h</in>
+                    <in>nan_converters_pre_43_inl.h</in>
+                    <in>nan_implementation_12_inl.h</in>
+                    <in>nan_implementation_pre_12_inl.h</in>
+                    <in>nan_maybe_43_inl.h</in>
+                    <in>nan_maybe_pre_43_inl.h</in>
+                    <in>nan_new.h</in>
+                    <in>nan_object_wrap.h</in>
+                    <in>nan_persistent_12_inl.h</in>
+                    <in>nan_persistent_pre_12_inl.h</in>
+                    <in>nan_string_bytes.h</in>
+                    <in>nan_typedarray_contents.h</in>
+                    <in>nan_weak.h</in>
+                  </df>
+                </df>
+                <df name="src">
+                  <in>Canvas.cc</in>
+                  <in>Canvas.h</in>
+                  <in>CanvasGradient.cc</in>
+                  <in>CanvasGradient.h</in>
+                  <in>CanvasPattern.cc</in>
+                  <in>CanvasPattern.h</in>
+                  <in>CanvasRenderingContext2d.cc</in>
+                  <in>CanvasRenderingContext2d.h</in>
+                  <in>FontFace.cc</in>
+                  <in>FontFace.h</in>
+                  <in>Image.cc</in>
+                  <in>Image.h</in>
+                  <in>ImageData.cc</in>
+                  <in>ImageData.h</in>
+                  <in>JPEGStream.h</in>
+                  <in>PNG.h</in>
+                  <in>Point.h</in>
+                  <in>closure.h</in>
+                  <in>color.cc</in>
+                  <in>color.h</in>
+                  <in>init.cc</in>
+                </df>
+                <df name="util">
+                </df>
+              </df>
+            </df>
+          </df>
+        </df>
       </df>
     </df>
     <itemPath>TODO.txt</itemPath>
