@@ -13,14 +13,16 @@
 #include "textUtils.h"
 
 // Function prototypes
-uint16_t fileDialogIterateSDDirectory( uint8_t *dirPath, uint16_t firstEntry, uint16_t maxEntries, void *entryCallBack, bool *moreEntries, uint8_t *userData );
+uint16_t fileDialogIterateSDDirectory( uint8_t *dirPath, uint16_t firstEntry, uint16_t maxEntries, void *entryCallBack, uint16_t *totalEntries, bool *moreEntries, uint8_t *userData );
 void filedialogCallBackPrintEntry( uint16_t numEntry, uint8_t *entry, uint8_t *userData );
 void fileDialogCallBackSelectEntry( uint16_t numEntry, uint8_t *entryPtr, uint8_t *userData );
 bool fileDialogConcatPath( uint8_t *string1, uint8_t *string2, uint16_t maxSize, bool appendBar );
 void fileDialogpathUpOneDir( uint8_t *path );
 void fileDialogBrightSelection( uint16_t selectedEntry, bool bright );
+void updateVerticalBar( uint16_t xPos, uint16_t pos, uint16_t total, uint8_t attrs1, uint8_t attrs2 );
 
-#define OPENDIALOG_MAX_DISPLAY_DIR_ENTRIES 20
+#define OPENDIALOG_MAX_DIR_ENTRIES 20
+#define OPENDIALOG_MAX_DIR_ENTRIES_2 400
 
 /*
  * This function opens a file dialog in normal 32x24 chars screen mode.
@@ -41,17 +43,19 @@ bool openFileDialog( uint8_t *message, uint8_t *path, int16_t maxPathLength, uin
 
     uint8_t key;
 
+    uint16_t i;
+
     uint16_t firstEntry = 0;
     uint16_t numEntries = 0;
     uint16_t selectedEntry = 0;
+
+    uint16_t totalEntries = 0;
 
     uint16_t titleX = 16 - ( strlen( message ) >> 1 );
 
     bool refreshDirectory = true;
 
     bool moreEntries = false;
-
-    uint16_t i;
 
     textUtils_setAttributes( attrs2 );
     textUtils_cls();
@@ -65,14 +69,19 @@ bool openFileDialog( uint8_t *message, uint8_t *path, int16_t maxPathLength, uin
         if ( refreshDirectory == true ) {
 
             textUtils_setAttributes( attrs1 );
-            numEntries = fileDialogIterateSDDirectory( path, firstEntry, OPENDIALOG_MAX_DISPLAY_DIR_ENTRIES, filedialogCallBackPrintEntry, &moreEntries, NULL );
+            numEntries = fileDialogIterateSDDirectory( path, firstEntry, OPENDIALOG_MAX_DIR_ENTRIES, filedialogCallBackPrintEntry, &totalEntries, &moreEntries, NULL );
             if ( numEntries > 0 ) {
+
                 textUtils_setAttributes( attrs2 );
-                for ( i = numEntries; i < OPENDIALOG_MAX_DISPLAY_DIR_ENTRIES; i++ ) {
+                for ( i = OPENDIALOG_MAX_DIR_ENTRIES - numEntries; i > 0; i-- ) {
                     textUtils_print("\n                               " );
                 }
+
                 fileDialogBrightSelection( selectedEntry, true );
             }
+
+            updateVerticalBar( 30, firstEntry, totalEntries, attrs1, attrs2 );
+
             refreshDirectory = false;
 
         }
@@ -93,7 +102,7 @@ bool openFileDialog( uint8_t *message, uint8_t *path, int16_t maxPathLength, uin
             case 10:
                 if ( selectedEntry == numEntries - 1 ) {
                     if ( moreEntries == true ) {
-                        firstEntry += OPENDIALOG_MAX_DISPLAY_DIR_ENTRIES;
+                        firstEntry += OPENDIALOG_MAX_DIR_ENTRIES;
                         fileDialogBrightSelection( selectedEntry, false );
                         selectedEntry = 0;
                         refreshDirectory = true;
@@ -110,9 +119,9 @@ bool openFileDialog( uint8_t *message, uint8_t *path, int16_t maxPathLength, uin
             case 11:
                 if ( selectedEntry == 0 ) {
                     if ( firstEntry > 0 ) {
-                        firstEntry -= OPENDIALOG_MAX_DISPLAY_DIR_ENTRIES;
+                        firstEntry -= OPENDIALOG_MAX_DIR_ENTRIES;
                         fileDialogBrightSelection( selectedEntry, false );
-                        selectedEntry = OPENDIALOG_MAX_DISPLAY_DIR_ENTRIES - 1;
+                        selectedEntry = OPENDIALOG_MAX_DIR_ENTRIES - 1;
                         refreshDirectory = true;
                     }
                 }
@@ -130,7 +139,7 @@ bool openFileDialog( uint8_t *message, uint8_t *path, int16_t maxPathLength, uin
             // Enter
             case 13:
 
-                numEntries = fileDialogIterateSDDirectory( path, firstEntry + selectedEntry, 1, fileDialogCallBackSelectEntry, NULL, fileName );
+                numEntries = fileDialogIterateSDDirectory( path, firstEntry + selectedEntry, 1, fileDialogCallBackSelectEntry, NULL, NULL, fileName );
                 if ( numEntries > 0 ) {
                     if ( strcmp( fileName + 1, ".." ) == 0 ) {
                         // Selected ..
@@ -171,7 +180,7 @@ bool openFileDialog( uint8_t *message, uint8_t *path, int16_t maxPathLength, uin
 
 }
 
-uint16_t fileDialogIterateSDDirectory( uint8_t *dirPath, uint16_t firstEntry, uint16_t maxEntries, void *entryCallBack, bool *moreEntries, uint8_t *userData ) {
+uint16_t fileDialogIterateSDDirectory( uint8_t *dirPath, uint16_t firstEntry, uint16_t maxEntries, void *entryCallBack, uint16_t *totalEntries, bool *moreEntries, uint8_t *userData ) {
 
     // Calls entryCallBack( numEntry, entry, userData ) for each directory entry and returns number of iterated entries
     // moreEntries is modified and tells if there are more entries after the last iterated.
@@ -184,6 +193,10 @@ uint16_t fileDialogIterateSDDirectory( uint8_t *dirPath, uint16_t firstEntry, ui
 
     if ( moreEntries != NULL ) {
         *moreEntries = false;
+    }
+
+    if ( totalEntries != NULL ) {
+        *totalEntries = 0;
     }
 
     drive = ESXDOS_getDefaultDrive();
@@ -204,22 +217,29 @@ uint16_t fileDialogIterateSDDirectory( uint8_t *dirPath, uint16_t firstEntry, ui
             break;
         }
 
+        if ( totalEntries != NULL ) {
+            (*totalEntries)++;
+        }
+
         if ( numEntries >= maxEntries ) {
             if ( moreEntries != NULL ) {
                 *moreEntries = true;
             }
-            break;
-        }
-
-        if ( firstEntry == 0 ) {
-
-            entryCallBack( numEntries, entry, userData );
-
-            numEntries++;
-
+            if ( totalEntries == NULL ) {
+                break;
+            }
         }
         else {
-            firstEntry--;
+            if ( firstEntry == 0 ) {
+
+                entryCallBack( numEntries, entry, userData );
+
+                numEntries++;
+
+            }
+            else {
+                firstEntry--;
+            }
         }
 
     }
@@ -263,7 +283,7 @@ void filedialogCallBackPrintEntry( uint16_t numEntry, uint8_t *entryPtr, uint8_t
         entryPtr++;
         nChars++;
     }
-    while ( nChars < 25 ) {
+    while ( nChars < 24 ) {
         textUtils_print( " " );
         nChars++;
     }
@@ -361,3 +381,63 @@ void fileDialogpathUpOneDir( uint8_t *path ) {
     }
 
 }
+
+
+void updateVerticalBar( uint16_t xPos, uint16_t pos, uint16_t total, uint8_t attrs1, uint8_t attrs2 ) {
+
+    uint16_t posChars = 0;
+    uint16_t sizeChars = OPENDIALOG_MAX_DIR_ENTRIES;
+    uint16_t end;
+    uint16_t i;
+    float totalInverse;
+    float fraction;
+
+    if ( total > OPENDIALOG_MAX_DIR_ENTRIES ) {
+
+        totalInverse = (int32_t)total;
+        totalInverse = 1.0 / totalInverse;
+        fraction = ((int32_t)pos);
+        fraction *= totalInverse;
+
+        posChars = (uint16_t)( fraction * ((float)OPENDIALOG_MAX_DIR_ENTRIES) );
+        sizeChars = (uint16_t)( ((float)OPENDIALOG_MAX_DIR_ENTRIES_2 ) * totalInverse );
+        if ( sizeChars == 0 ) {
+            sizeChars = 1;
+        }
+
+    }
+
+    // Adjust to the end
+    end = posChars + sizeChars;
+    if ( end > OPENDIALOG_MAX_DIR_ENTRIES ) {
+        posChars -= end - OPENDIALOG_MAX_DIR_ENTRIES;
+    }
+
+    // Print bar background
+    textUtils_setAttributes( attrs1 );
+    for ( i = 3; i < 23; i++ ) {
+        textUtils_printAt32( xPos, i );
+        fputc_cons( '=' );
+    }
+
+
+    // Print bar
+    textUtils_setAttributes( attrs2 );
+    for ( i = 3 + posChars; i < 3 + posChars + sizeChars; i++ ) {
+        textUtils_printAt32( xPos, i );
+        fputc_cons( '|' );
+    }
+
+/*
+    textUtils_setAttributes( attrs2 );
+    textUtils_printAt32( 0, 10 );
+    textUtils_print( "DEBUG:" );
+    textUtils_printAt32( 0, 11 );
+    textUtils_print_l( pos );
+    textUtils_printAt32( 0, 12 );
+    textUtils_print_l( total );
+    textUtils_printAt32( 0, 13 );
+    textUtils_print_l( posChars );
+*/
+}
+
