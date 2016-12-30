@@ -417,7 +417,7 @@ void updateVerticalBar( uint16_t xPos, uint16_t pos, uint16_t total, uint8_t att
     textUtils_setAttributes( attrs1 );
     for ( i = 3; i < 23; i++ ) {
         textUtils_printAt32( xPos, i );
-        fputc_cons( '=' );
+        fputc_cons( '|' );
     }
 
 
@@ -425,19 +425,8 @@ void updateVerticalBar( uint16_t xPos, uint16_t pos, uint16_t total, uint8_t att
     textUtils_setAttributes( attrs2 );
     for ( i = 3 + posChars; i < 3 + posChars + sizeChars; i++ ) {
         textUtils_printAt32( xPos, i );
-        fputc_cons( '|' );
+        fputc_cons( '=' );
     }
 
-/*
-    textUtils_setAttributes( attrs2 );
-    textUtils_printAt32( 0, 10 );
-    textUtils_print( "DEBUG:" );
-    textUtils_printAt32( 0, 11 );
-    textUtils_print_l( pos );
-    textUtils_printAt32( 0, 12 );
-    textUtils_print_l( total );
-    textUtils_printAt32( 0, 13 );
-    textUtils_print_l( posChars );
-*/
 }
 
