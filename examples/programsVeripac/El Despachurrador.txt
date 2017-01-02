@@ -1,47 +1,115 @@
+
+# R0 = 2F cuadrado
 60
 2f
+
+# R1 = 33 hombre hacia derecha
 61
 33
+
+# R2 = 27 punto
 62
 27
+
+# R3 = 0C espacio
 63
 0C
+
+# R4 = 09
 64
 09
+
+# R5 = 11
 65
 11
+
+# RB = 0A        PC = 12
 6B
 0A
+
+# out R0
 C0
+
+# buzzer
 05
+
+# buzzer
 05
+
+# out R0      PC = 17
 C0
+
+# out R1
 C1
+
+#inc accum
 03
+
+#RB = accum
 AB
+
+#buzzer
 05
+
+# if R4 > accum then pc=17
 44
 17
+
+# RB = 09
 6B
 09
+
+# out R0
 C0
+
+# buzzer
 05
+
+# buzzer
 05
+
+# RB = 9
 6B
 09
+
+#out R2
 C2
+
+# buzzer
 05
+
+# buzzer
 05
+
+# buzzer
 05
+
+# accum=0
 01
+
+# RB = 0
 6B
 00
+
+# out R3          PC = 38
 C3
+
+# inc accum
 03
+
+# if R5 > accum then PC = 38
 45
 38
+
+# buzzer
 05
+
+# buzzer
 05
+
+# accum=0
 01
+
+# goto 12
 12
 12

@@ -15,8 +15,8 @@
 #include "../src/fileDialog.h"
 
 // Function prototypes
-void refreshDisplay();
-void printMemory( uint8_t *memory );
+void refreshDisplay( bool onlyRegisters );
+void printMemory( uint8_t *memory, bool onlyRegisters );
 void loadFile();
 uint16_t loadProgram();
 
@@ -27,7 +27,7 @@ uint8_t dirPath[ PATH_LENGTH ];
 
 #define STATE_STOP 0
 #define STATE_RUNNING 1
-uint8_t state = STATE_RUNNING;
+uint8_t state = STATE_STOP;
 
 #define DISPLAY_NORMAL 0
 #define DISPLAY_DEBUG 1
@@ -49,6 +49,8 @@ void main(void) {
 
     uint16_t i;
     uint8_t key;
+    bool doStep;
+    uint8_t controlReg;
     uint8_t *ptr;
 
     sprintf( dirPath, "/" );
@@ -56,69 +58,118 @@ void main(void) {
     textUtils_64ColumnsMode();
     textUtils_cls();
 
-/*
-    for ( i = 0; i < 256; i++ ) {
-        if ( i != VERIPAC_CONTROL_REG ) {
-            veripac9_writeMemory( (uint8_t)i, i != VERIPAC_PROGRAM_COUNTER ? (uint8_t)i : 85 );
-        }
-    }
-*/
+    zx_border( INK_BLUE );
 
-    refreshDisplay();
+    veripac9_readAllMemory( memoryBuffer );
+    refreshDisplay( false );
+
+    doStep = false;
 
     while ( 1 ) {
 
-        key = waitKeyPress();
+        //key = waitKeyPress();
+        key = in_Inkey();
 
         switch ( key ) {
             case 'l':
             case 'L':
                 loadFile();
                 break;
+
+            case 's':
+            case 'S':
+                state = STATE_STOP;
+                doStep = true;
+                break;
+
+            case 'r':
+            case 'R':
+                state = STATE_RUNNING;
+                doStep = true;
+                break;
+
+            default:
+                if ( state == STATE_RUNNING ) {
+
+                    doStep = true;
+
+                }
+                break;
         }
 
-        if ( state == STATE_RUNNING ) {
+        if ( doStep == true ) {
 
-            // Step
-            veripac9_writeMemory( 0xCA, 1 );
-            veripac9_writeMemory( 0xCA, 0 );
+            zx_border( INK_MAGENTA );
 
-            refreshDisplay();
+            controlReg = 0xFF;
+            while ( ( controlReg & 0x03 ) != 0 ) {
+
+                // Step
+                veripac9_writeMemory( 0xCA, 1 );
+                veripac9_writeMemory( 0xCA, 0 );
+
+                veripac9_readAllMemory( memoryBuffer );
+                controlReg = memoryBuffer[ VERIPAC_CONTROL_REG ];
+
+                switch ( controlReg & 0x03 ) {
+                    case 0:
+                        // Fetch 1
+                        refreshDisplay( true );
+                        break;
+                    //case 1:
+                        // Fetch 2
+                        //break;
+                    case 2:
+                        // Execution
+                        if ( controlReg & 8 ) {
+                            // Buzzer
+                            zx_border( INK_YELLOW );
+                            delay( 500 );
+                            zx_border( INK_MAGENTA );
+                        }
+                        break;
+                    case 3:
+                        // Halt
+                        break;
+                }
+
+            }
+
+            zx_border( INK_BLUE );
+
+            doStep = false;
 
         }
 
     }
 
-    textUtils_println( "End. Press a key." );
-    waitKeyPress();
 }
 
-void refreshDisplay() {
+void refreshDisplay( bool onlyRegisters ) {
 
     if ( display == DISPLAY_DEBUG ) {
-        veripac9_readAllMemory( memoryBuffer );
-        printMemory( memoryBuffer );
+        printMemory( memoryBuffer, onlyRegisters );
     }
 
 }
 
-void printMemory( uint8_t *memory ) {
+void printMemory( uint8_t *memory, bool onlyRegisters ) {
 
-    int v, i, j;
+    int v, i, j, controlReg;
     uint8_t str[3], p;
 
     textUtils_setAttributes( PAPER_WHITE | INK_BLACK );
+    textUtils_printAt( 0, 0 );
 
-    textUtils_cls();
-
+    
     // Program Counter
     v = memory[ VERIPAC_PROGRAM_COUNTER ];
     sprintf( str, "%02x", v );
     textUtils_print( "PC: " ); textUtils_print( str );
     
     // Control Unit State
-    v = memory[ VERIPAC_CONTROL_REG ];
-    sprintf( str, "%02x", v );
+    controlReg = memory[ VERIPAC_CONTROL_REG ];
+    sprintf( str, "%02x", controlReg );
     textUtils_print( "  UC: " ); textUtils_print( str );
 
     // Instruction Register
@@ -151,24 +202,28 @@ void printMemory( uint8_t *memory ) {
     }
 
     // Print screen
-    textUtils_println( "Screen:" );
-    textUtils_println( " 0   1   2   3   4   5   6   7   8   9   A   B   C   D   E   F" );
-    p = 0;
-    for ( j = 0; j < VERIPAC_NUM_LINES; j++ ) {
-        for ( i = 0; i < VERIPAC_LINE_LENGTH; i++ ) {
-            v = memory[ VERIPAC_SCREEN_START + p++ ];
-            sprintf( str, "%02x", v );
-            textUtils_print( str ); textUtils_print( "  " );
+    if ( onlyRegisters == false || controlReg == 0 ) {
+        textUtils_println( "Screen:" );
+        textUtils_println( " 0   1   2   3   4   5   6   7   8   9   A   B   C   D   E   F" );
+        p = 0;
+        for ( j = 0; j < VERIPAC_NUM_LINES; j++ ) {
+            for ( i = 0; i < VERIPAC_LINE_LENGTH; i++ ) {
+                v = memory[ VERIPAC_SCREEN_START + p++ ];
+                sprintf( str, "%02x", v );
+                textUtils_print( str ); textUtils_print( "  " );
+            }
         }
     }
 
-    // Print memory
-    textUtils_println( "Memory:" );
-    textUtils_println( " 0   2   4   6   8   A   C   E   0   2   4   6   8   A   C   E" );
-    for ( i = 0; i < VERIPAC_RAM_LENGTH; i++ ) {
-        v = memory[ i ];
-        sprintf( str, "%02x", v );
-        textUtils_print( str ); textUtils_print( "  " );
+    if ( onlyRegisters == false ) {
+        // Print memory
+        textUtils_println( "Memory:" );
+        textUtils_println( " 0   1   2   3   4   5   6   7   8   9   A   B   C   D   E   F" );
+        for ( i = 0; i < VERIPAC_RAM_LENGTH; i++ ) {
+            v = memory[ i ];
+            sprintf( str, "%02x", v );
+            textUtils_print( str ); textUtils_print( "  " );
+        }
     }
 
 }
@@ -181,7 +236,7 @@ void loadFile() {
 
     uint16_t i, programNumBytes = 0;
 
-    state = STATE_STOP;
+//    state = STATE_STOP;
 
     textUtils_32ColumnsMode();
     textUtils_cls();
@@ -194,13 +249,12 @@ void loadFile() {
     textUtils_cls();
 
     if ( v == true ) {
-        // Load the file
-        textUtils_printAt64( 10, 10 );
+        textUtils_printAt( 10, 1 );
         textUtils_print( "Selected file: " );
         textUtils_print( filePath );
-        textUtils_printAt64( 10, 11 );
+        textUtils_printAt( 10, 3 );
         textUtils_print( "Loading the file... " );
-        textUtils_printAt64( 10, 12 );
+
         filePointer = 0;
         currentLine = 1;
         
@@ -208,9 +262,10 @@ void loadFile() {
         
         if ( programNumBytes > 0 ) {
 
-            textUtils_print( "\n  Loaded program of " );
+            textUtils_printAt( 10, 5 );
+            textUtils_print( "Loaded program of " );
             textUtils_print_l( programNumBytes );
-            textUtils_println( " bytes." );
+            textUtils_print( " bytes." );
 
             // Loads the memory in the veripac9 subprocessor
             for ( i = 0; i < programNumBytes; i++ ) {
@@ -224,13 +279,15 @@ void loadFile() {
             veripac9_writeMemory( (uint8_t)i, 0 );
         }
 
-        textUtils_print( "\n  Press any key to continue..." );
+        textUtils_printAt( 10, 7 );
+        textUtils_print( "Press any key to continue..." );
         waitKeyPress();
 
-        refreshDisplay();
+        veripac9_readAllMemory( memoryBuffer );
+        refreshDisplay( false );
     }
     else {
-        textUtils_printAt64( 10, 10 );
+        textUtils_printAt( 10, 7 );
         textUtils_print( "Didn't select a file. " );
         waitKeyPress();
     }
@@ -308,54 +365,59 @@ uint16_t loadProgram() {
                     }
                 }
                 else {
-                    switch ( c ) {
-                        case '#':
+
+                    if ( parseState == PARSE_STATE_NIBBLE0 ) {
+                        if ( c == '#' ) {
                             parseState = PARSE_STATE_COMMENT;
-                            break;
-                        case '!':
+                            continue;
+                        }
+                        else if ( c == '!' ) {
                             doEnd = true;
-                            break;
-                        case '$':
+                            continue;
+                        }
+                        else if ( c == '$' ) {
                             filePointer = 0;
                             doEnd = true;
-                            break;
-                        case 13:
+                            continue;
+                        }
+                        else if ( c == 13 ) {
                             currentLine++;
-                            break;
-                        case 10:
-                            break;
-                        default:
-                            if ( c >= '0' && c <= '9' ) {
-                                nibble = c - '0';
-                            }
-                            else if ( c >= 'a' && c <= 'f' ) {
-                                nibble = c - 'a';
-                            }
-                            else if ( c >= 'A' && c <= 'F' ) {
-                                nibble = c - 'A';
-                            }
-                            else {
-                                textUtils_print( "Syntax error in line " );
-                                textUtils_println_l( currentLine );
-                                programNumBytes = 0;
-                                doEnd = true;
-                                break;
-                            }
-                            if ( parseState == PARSE_STATE_NIBBLE0 ) {
-                                nibble0 = ( nibble & 0x0F ) << 4;
-                                parseState = PARSE_STATE_NIBBLE1;
-                            }
-                            else {
-                                nibble0 = nibble0 | ( nibble & 0x0F );
-                                if ( programNumBytes < VERIPAC_RAM_LENGTH ) {
-                                    memoryBuffer[ programNumBytes++ ] = nibble0;
-                                }
-                                parseState = PARSE_STATE_NIBBLE0;
-                            }
-                            break;
+                            continue;
+                        }
+                        else if ( c == 10 ) {
+                            continue;
+                        }
+                    }
+
+                    if ( c >= '0' && c <= '9' ) {
+                        nibble = c - '0';
+                    }
+                    else if ( c >= 'a' && c <= 'f' ) {
+                        nibble = c - 'a' + 0x0A;
+                    }
+                    else if ( c >= 'A' && c <= 'F' ) {
+                        nibble = c - 'A' + 0x0A;
+                    }
+                    else {
+                        textUtils_print( "Syntax error in line " );
+                        textUtils_println_l( currentLine );
+                        programNumBytes = 0;
+                        doEnd = true;
+                        break;
+                    }
+
+                    if ( parseState == PARSE_STATE_NIBBLE0 ) {
+                        nibble0 = ( nibble & 0x0F ) << 4;
+                        parseState = PARSE_STATE_NIBBLE1;
+                    }
+                    else {
+                        nibble0 = nibble0 | ( nibble & 0x0F );
+                        if ( programNumBytes < VERIPAC_RAM_LENGTH ) {
+                            memoryBuffer[ programNumBytes++ ] = nibble0;
+                        }
+                        parseState = PARSE_STATE_NIBBLE0;
                     }
                 }
-
             }
         }
 

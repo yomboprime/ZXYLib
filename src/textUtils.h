@@ -26,9 +26,7 @@ extern void textUtils_print_l( long n );
 #define textUtils_println( x ) textUtils_print( x ); fputc_cons( '\n' )
 #define textUtils_println_l( x ) textUtils_print_l( x ); fputc_cons( '\n' )
 
-extern void textUtils_printAt32( int x, int y );
-
-extern void textUtils_printAt64( int x, int y );
+extern void textUtils_printAt( int x, int y );
 
 extern void textUtils_setAttributes( uint8_t attributes );
 

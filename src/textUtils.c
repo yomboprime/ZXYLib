@@ -62,27 +62,21 @@ void textUtils_print_l( long n ) {
 
 /*
  * Locates the cursor in 32 column mode
+ *
+ * In 32 columns mode:
  * 0 <= x <= 31
  * 0 <= y <= 23
+ *
+ * In 64 columns mode:
+ * 0 <= x <= 63
+ * 0 <= y <= 23
+ * 
  */
-void textUtils_printAt32( int x, int y ) {
+void textUtils_printAt( int x, int y ) {
 
     fputc_cons( 22 );
     fputc_cons( (char)( y + 0x20 ) );
     fputc_cons( (char)( x + 0x20 ) );
-
-}
-
-/*
- * Locates the cursor in 64 column mode
- * 0 <= x <= 63
- * 0 <= y <= 23
- */
-void textUtils_printAt64( int x, int y ) {
-
-    fputc_cons( 22 );
-    fputc_cons( (char)y );
-    fputc_cons( (char)x );
 
 }
 

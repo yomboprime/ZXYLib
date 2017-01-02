@@ -61,7 +61,7 @@ bool openFileDialog( uint8_t *message, uint8_t *path, int16_t maxPathLength, uin
     textUtils_cls();
 
     // Print title
-    textUtils_printAt32( titleX, 1 );
+    textUtils_printAt( titleX, 1 );
     textUtils_print( message );
     
     while ( 1 ) {
@@ -266,7 +266,7 @@ void filedialogCallBackPrintEntry( uint16_t numEntry, uint8_t *entryPtr, uint8_t
     uint8_t nChars;
     uint8_t * ptr;
 
-    textUtils_printAt32( 2, numEntry + 3 );
+    textUtils_printAt( 2, numEntry + 3 );
 
     if ( *entryPtr++ == ESXDOS_FILE_ATTRIBUTE_DIR_BIT ) {
         textUtils_print( "DIR " );
@@ -416,7 +416,7 @@ void updateVerticalBar( uint16_t xPos, uint16_t pos, uint16_t total, uint8_t att
     // Print bar background
     textUtils_setAttributes( attrs1 );
     for ( i = 3; i < 23; i++ ) {
-        textUtils_printAt32( xPos, i );
+        textUtils_printAt( xPos, i );
         fputc_cons( '|' );
     }
 
@@ -424,7 +424,7 @@ void updateVerticalBar( uint16_t xPos, uint16_t pos, uint16_t total, uint8_t att
     // Print bar
     textUtils_setAttributes( attrs2 );
     for ( i = 3 + posChars; i < 3 + posChars + sizeChars; i++ ) {
-        textUtils_printAt32( xPos, i );
+        textUtils_printAt( xPos, i );
         fputc_cons( '=' );
     }
 

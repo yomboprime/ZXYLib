@@ -12,6 +12,8 @@
         <group>
             <file>file:/media/datos/Devel/spectrum/ZXYLib/src/fileDialog.c</file>
             <file>file:/media/datos/Devel/spectrum/ZXYLib/src/zxuno/veripac9.c</file>
+            <file>file:/media/datos/Devel/spectrum/ZXYLib/Makefile</file>
+            <file>file:/media/datos/Devel/spectrum/ZXYLib/examples/exampleSDRead.c</file>
             <file>file:/media/datos/Devel/spectrum/ZXYLib/examples/exampleVeripac9.c</file>
             <file>file:/media/datos/Devel/spectrum/ZXYLib/src/esxdos.c</file>
             <file>file:/media/datos/Devel/spectrum/ZXYLib/src/fileDialog.h</file>
