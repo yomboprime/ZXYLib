@@ -16,8 +16,6 @@
 uint16_t fileDialogIterateSDDirectory( uint8_t *dirPath, uint16_t firstEntry, uint16_t maxEntries, void *entryCallBack, uint16_t *totalEntries, bool *moreEntries, uint8_t *userData );
 void filedialogCallBackPrintEntry( uint16_t numEntry, uint8_t *entry, uint8_t *userData );
 void fileDialogCallBackSelectEntry( uint16_t numEntry, uint8_t *entryPtr, uint8_t *userData );
-bool fileDialogConcatPath( uint8_t *string1, uint8_t *string2, uint16_t maxSize, bool appendBar );
-void fileDialogpathUpOneDir( uint8_t *path );
 void fileDialogBrightSelection( uint16_t selectedEntry, bool bright );
 void updateVerticalBar( uint16_t xPos, uint16_t pos, uint16_t total, uint8_t attrs1, uint8_t attrs2 );
 

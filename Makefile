@@ -23,8 +23,10 @@ srcFilesExampleUARTTerminal = src/textUtils.c src/esxdos.c src/zxuno/uart.c src/
 
 srcFilesExampleVeripac = src/textUtils.c src/esxdos.c src/zxuno/zxuno.c src/fileDialog.c src/zxuno/veripac9.c examples/exampleVeripac9.c
 
+srcFilesExampleVideoPlayer = src/textUtils.c src/esxdos.c src/zxuno/zxuno.c src/fileDialog.c src/zxuno/radas.c examples/exampleVideoPlayer.c
+
 # All the targets:
-all: generateBASICLoader createExample1 createExample2 createExample3 createExample4 createExample5 createExample6 createExample7
+all: generateBASICLoader createExample1 createExample2 createExample3 createExample4 createExample5 createExample6 createExample7 createExample8
 
 
 # Targets:
@@ -160,6 +162,25 @@ generateWav7:
 
 generateWavLeches7:
 	./CgLeches VERIPAC9.tap VERIPAC9.wav 3 > ultimolog.txt
+
+#------------------------------------------------------------------------------
+
+createExample8: compile8 createTAP8 concatenateTAPs8 generateWavLeches8
+
+compile8:
+	zcc +zx -o f8.bin -lndos -lmzx $(srcFilesExampleVideoPlayer) > ultimolog.txt
+
+createTAP8:
+	$(node) ./bin2tap-js/bin2tap.js ../f8.bin > ultimolog.txt
+
+concatenateTAPs8:
+	cat ./cargadorBASIC/cargador.tap f8.tap > PLAYVID.tap
+
+generateWav8:
+	tape2wav ./PLAYVID.tap ./PLAYVID.wav > ultimolog.txt
+
+generateWavLeches8:
+	./CgLeches PLAYVID.tap PLAYVID.wav 3 > ultimolog.txt
 
 #------------------------------------------------------------------------------
 

@@ -17,7 +17,7 @@
 // Function prototypes
 void refreshDisplay( bool onlyRegisters );
 void printMemory( uint8_t *memory, bool onlyRegisters );
-void loadFile();
+bool loadFile();
 uint16_t loadProgram();
 
 // Global variables
@@ -57,7 +57,6 @@ void main(void) {
 
     textUtils_64ColumnsMode();
     textUtils_cls();
-
     zx_border( INK_BLUE );
 
     veripac9_readAllMemory( memoryBuffer );
@@ -71,9 +70,19 @@ void main(void) {
         key = in_Inkey();
 
         switch ( key ) {
+
             case 'l':
             case 'L':
-                loadFile();
+                
+                if ( loadFile() == true ) {
+                    veripac9_readAllMemory( memoryBuffer );
+                    refreshDisplay( false );
+                }
+
+                textUtils_64ColumnsMode();
+                textUtils_cls();
+                zx_border( INK_BLUE );
+
                 break;
 
             case 's':
@@ -111,7 +120,7 @@ void main(void) {
                 veripac9_readAllMemory( memoryBuffer );
                 controlReg = memoryBuffer[ VERIPAC_CONTROL_REG ];
 
-                switch ( controlReg & 0x03 ) {
+                switch ( controlReg ) {
                     case 0:
                         // Fetch 1
                         refreshDisplay( true );
@@ -119,17 +128,17 @@ void main(void) {
                     //case 1:
                         // Fetch 2
                         //break;
-                    case 2:
+                    //case 2:
                         // Execution
-                        if ( controlReg & 8 ) {
-                            // Buzzer
-                            zx_border( INK_YELLOW );
-                            delay( 500 );
-                            zx_border( INK_MAGENTA );
-                        }
-                        break;
+                        //break;
                     case 3:
                         // Halt
+                        break;
+                    case 6:
+                        // Execution, buzzer enabled
+                        zx_border( INK_YELLOW );
+//                        delay( 1500 );
+                        zx_border( INK_MAGENTA );
                         break;
                 }
 
@@ -161,17 +170,22 @@ void printMemory( uint8_t *memory, bool onlyRegisters ) {
     textUtils_setAttributes( PAPER_WHITE | INK_BLACK );
     textUtils_printAt( 0, 0 );
 
+
     
+//    no leer toda la memoria cada vez!!!
+
+
+
     // Program Counter
     v = memory[ VERIPAC_PROGRAM_COUNTER ];
     sprintf( str, "%02x", v );
     textUtils_print( "PC: " ); textUtils_print( str );
-    
+
     // Control Unit State
     controlReg = memory[ VERIPAC_CONTROL_REG ];
     sprintf( str, "%02x", controlReg );
     textUtils_print( "  UC: " ); textUtils_print( str );
-
+/*
     // Instruction Register
     v = memory[ VERIPAC_INSTRUCTION_REG ];
     sprintf( str, "%02x", v );
@@ -214,7 +228,7 @@ void printMemory( uint8_t *memory, bool onlyRegisters ) {
             }
         }
     }
-
+*/
     if ( onlyRegisters == false ) {
         // Print memory
         textUtils_println( "Memory:" );
@@ -228,27 +242,27 @@ void printMemory( uint8_t *memory, bool onlyRegisters ) {
 
 }
 
-void loadFile() {
+bool loadFile() {
 
     // Opens file dialog to select a file to load.
 
-    uint8_t v;
+    bool selectedAFile;
 
     uint16_t i, programNumBytes = 0;
 
-//    state = STATE_STOP;
+    state = STATE_STOP;
 
     textUtils_32ColumnsMode();
     textUtils_cls();
 
     sprintf( filePath, "%s", dirPath );
-    v = openFileDialog( "Open program file", filePath, PATH_LENGTH, INK_BLUE | PAPER_WHITE, INK_WHITE | PAPER_CYAN );
+    selectedAFile = openFileDialog( "Open program file", filePath, PATH_LENGTH, INK_BLUE | PAPER_WHITE, INK_WHITE | PAPER_CYAN );
 
     textUtils_64ColumnsMode();
     textUtils_setAttributes( PAPER_WHITE | INK_BLACK );
     textUtils_cls();
 
-    if ( v == true ) {
+    if ( selectedAFile == true ) {
         textUtils_printAt( 10, 1 );
         textUtils_print( "Selected file: " );
         textUtils_print( filePath );
@@ -283,14 +297,16 @@ void loadFile() {
         textUtils_print( "Press any key to continue..." );
         waitKeyPress();
 
-        veripac9_readAllMemory( memoryBuffer );
-        refreshDisplay( false );
+        return true;
+
     }
     else {
         textUtils_printAt( 10, 7 );
         textUtils_print( "Didn't select a file. " );
         waitKeyPress();
     }
+
+    return false;
 
 }
 
