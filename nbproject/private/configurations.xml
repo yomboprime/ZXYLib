@@ -14,7 +14,11 @@
         <in>leches.c</in>
       </df>
       <df name="examples">
-        <df name="programsVeripac">
+        <df name="veripac">
+          <df name="programs">
+          </df>
+          <in>exampleVeripac9.c</in>
+          <in>veripacCharsetGraphics.h</in>
         </df>
         <in>exampleSDList.c</in>
         <in>exampleSDRead.c</in>
@@ -42,6 +46,8 @@
         <in>esxdos.h</in>
         <in>fileDialog.c</in>
         <in>fileDialog.h</in>
+        <in>graphics.c</in>
+        <in>graphics.h</in>
         <in>integerTypes.h</in>
         <in>textUtils.c</in>
         <in>textUtils.h</in>

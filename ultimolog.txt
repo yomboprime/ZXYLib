@@ -1,0 +1,19 @@
+Looking for label ESXDOS_fseek_returnValue
+cp /media/datos/soft/z88dk/z88dk//lib/config//../..//lib/spec_crt0.opt /tmp/tmpXXNSFmVd.opt
+cp /tmp/tmpXXNSFmVd.opt /tmp/tmpXXNSFmVd.asm
+zcpp -I. -DZ80 -DSPECTRUM -D__SPECTRUM__ -D__SPECTRUM  -DSCCZ80 -DSMALL_C -I/media/datos/soft/z88dk/z88dk//lib/config//../..//include  src/textUtils.c /tmp/tmpXXtHaRBP.i
+sccz80  -asm=z80asm  /tmp/tmpXXtHaRBP.i
+copt /media/datos/soft/z88dk/z88dk//lib/config//../..//lib/z80rules.2 < /tmp/tmpXXtHaRBP.asm > /tmp/tmpXXtHaRBP.op1
+copt /media/datos/soft/z88dk/z88dk//lib/config//../..//lib/z80rules.1 < /tmp/tmpXXtHaRBP.op1 > /tmp/tmpXXtHaRBP.opt
+z80asm  -eopt  -ns -Mo -I/media/datos/soft/z88dk/z88dk//lib/config//../..//lib /tmp/tmpXXtHaRBP.opt
+zcpp -I. -DZ80 -DSPECTRUM -D__SPECTRUM__ -D__SPECTRUM  -DSCCZ80 -DSMALL_C -I/media/datos/soft/z88dk/z88dk//lib/config//../..//include  src/esxdos.c /tmp/tmpXX9ob12C.i
+sccz80  -asm=z80asm  /tmp/tmpXX9ob12C.i
+copt /media/datos/soft/z88dk/z88dk//lib/config//../..//lib/z80rules.2 < /tmp/tmpXX9ob12C.asm > /tmp/tmpXX9ob12C.op1
+copt /media/datos/soft/z88dk/z88dk//lib/config//../..//lib/z80rules.1 < /tmp/tmpXX9ob12C.op1 > /tmp/tmpXX9ob12C.opt
+z80asm  -eopt  -ns -Mo -I/media/datos/soft/z88dk/z88dk//lib/config//../..//lib /tmp/tmpXX9ob12C.opt
+zcpp -I. -DZ80 -DSPECTRUM -D__SPECTRUM__ -D__SPECTRUM  -DSCCZ80 -DSMALL_C -I/media/datos/soft/z88dk/z88dk//lib/config//../..//include  examples/exampleSDWrite.c /tmp/tmpXXsyibuq.i
+sccz80  -asm=z80asm  /tmp/tmpXXsyibuq.i
+copt /media/datos/soft/z88dk/z88dk//lib/config//../..//lib/z80rules.2 < /tmp/tmpXXsyibuq.asm > /tmp/tmpXXsyibuq.op1
+copt /media/datos/soft/z88dk/z88dk//lib/config//../..//lib/z80rules.1 < /tmp/tmpXXsyibuq.op1 > /tmp/tmpXXsyibuq.opt
+z80asm  -eopt  -ns -Mo -I/media/datos/soft/z88dk/z88dk//lib/config//../..//lib /tmp/tmpXXsyibuq.opt
+z80asm -a -m -Mo -L/media/datos/soft/z88dk/z88dk//lib/config//../..//lib/clibs -I/media/datos/soft/z88dk/z88dk//lib/config//../..//lib -of1.bin -izx_clib -indos -iz80_crt0  /tmp/tmpXXNSFmVd.opt /tmp/tmpXXtHaRBP.o /tmp/tmpXX9ob12C.o /tmp/tmpXXsyibuq.o

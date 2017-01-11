@@ -1,0 +1,10 @@
+# Contador super reducido:
+
+# Estas 100 iteraciones del acumulador tarda a ojo unos 200 milisegundos
+
+01
+0B
+02
+11
+01
+04

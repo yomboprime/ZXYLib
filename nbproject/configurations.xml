@@ -10,6 +10,10 @@
         <in>leches.c</in>
       </df>
       <df name="examples">
+        <df name="veripac">
+          <in>exampleVeripac9.c</in>
+          <in>veripacCharsetGraphics.h</in>
+        </df>
         <in>exampleSDList.c</in>
         <in>exampleUARTTerminal.c</in>
         <in>exampleVeripac9.c</in>
@@ -24,6 +28,7 @@
         </df>
         <in>fileDialog.c</in>
         <in>fileDialog.h</in>
+        <in>graphics.c</in>
         <in>textUtils.c</in>
       </df>
     </df>
@@ -83,9 +88,18 @@
       </item>
       <item path="examples/exampleVideoPlayer.c" ex="false" tool="0" flavor2="0">
       </item>
+      <item path="examples/veripac/exampleVeripac9.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="examples/veripac/veripacCharsetGraphics.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
       <item path="src/fileDialog.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="src/fileDialog.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/graphics.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="src/textUtils.c" ex="false" tool="0" flavor2="0">
       </item>

@@ -207,3 +207,19 @@ uint16_t waitKeyPress() {
 
     return k;
 }
+
+/*
+ * Waits for a key press
+ */
+uint16_t waitKey() {
+
+    uint16_t k = 0;
+
+    while ( in_Inkey() > 0 );
+
+    while ( k == 0 ) {
+        k = in_Inkey();
+    };
+
+    return k;
+}

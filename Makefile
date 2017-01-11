@@ -21,7 +21,7 @@ srcFilesExampleSDSeek = src/textUtils.c src/esxdos.c examples/exampleSDSeek.c
 
 srcFilesExampleUARTTerminal = src/textUtils.c src/esxdos.c src/zxuno/uart.c src/zxuno/zxuno.c examples/exampleUARTTerminal.c
 
-srcFilesExampleVeripac = src/textUtils.c src/esxdos.c src/zxuno/zxuno.c src/fileDialog.c src/zxuno/veripac9.c examples/exampleVeripac9.c
+srcFilesExampleVeripac = src/textUtils.c src/esxdos.c src/zxuno/zxuno.c src/fileDialog.c src/graphics.c src/zxuno/veripac9.c examples/veripac/exampleVeripac9.c
 
 srcFilesExampleVideoPlayer = src/textUtils.c src/esxdos.c src/zxuno/zxuno.c src/fileDialog.c src/zxuno/radas.c examples/exampleVideoPlayer.c
 
