@@ -25,6 +25,7 @@ uint16_t veripacFrequence( uint8_t freq );
 void drawAskForKeyboard( bool drawNoErase );
 void printGraphicDisplay( uint8_t *memory );
 void printDebug( uint8_t *memory, bool onlyRegisters );
+void clearState();
 bool loadFile();
 uint16_t loadProgram();
 
@@ -49,6 +50,9 @@ uint8_t fileBuffer[ FILE_BUFFER_SIZE ];
 uint32_t filePointer = 0;
 uint32_t currentLine = 1;
 
+bool flagResetFilePointer = false;
+bool flagClearScreen = false;
+
 #define PARSE_STATE_NIBBLE0 0
 #define PARSE_STATE_NIBBLE1 1
 #define PARSE_STATE_COMMENT 2
@@ -60,6 +64,8 @@ void main(void) {
     bool drawScreen;
     uint8_t controlReg;
     uint8_t instructionReg;
+    uint8_t regB;
+    uint16_t i;
 
     sprintf( filePath, "/" );
 
@@ -104,6 +110,8 @@ void main(void) {
                 if ( display == DISPLAY_NORMAL ) {
 
                     display = DISPLAY_DEBUG;
+
+                    veripac9_readRegistersAndScreen( memoryBuffer );
 
                     state = STATE_STOP;
                     doStep = false;
@@ -157,19 +165,19 @@ void main(void) {
             while ( ( controlReg & 0x03 ) != 0 ) {
 
                 // Step
-                veripac9_writeMemory( VERIPAC_CONTROL_REG, 1 );
-                veripac9_writeMemory( VERIPAC_CONTROL_REG, 0 );
-
-//                veripac9_readRegistersAndScreen( memoryBuffer );
-//                controlReg = memoryBuffer[ VERIPAC_CONTROL_REG ];
+                veripac9_step();
 
                 controlReg = veripac9_readMemory( VERIPAC_CONTROL_REG );
 
                 switch ( controlReg ) {
                     case 0:
                         // Fetch 1
-                        veripac9_readScreen( memoryBuffer );
-                        //memoryBuffer[ VERIPAC_SCREEN_START ] = 3;
+                        if ( display == DISPLAY_DEBUG ) {
+                            veripac9_readRegistersAndScreen( memoryBuffer );
+                        }
+                        else if ( drawScreen ) {
+                            veripac9_readScreen( memoryBuffer );
+                        }
                         refreshDisplay( true, drawScreen );
                         break;
                     //case 1:
@@ -178,7 +186,6 @@ void main(void) {
                     case 2:
                         // Execution
                         instructionReg = veripac9_readMemory( VERIPAC_INSTRUCTION_REG );
-//                        instructionReg = memoryBuffer[ VERIPAC_INSTRUCTION_REG ];
                         if ( instructionReg == 0x0B || ( instructionReg & 0xF0 ) == 0xC0 ) {
                             drawScreen = true;
                         }
@@ -190,10 +197,10 @@ void main(void) {
                             key = 0xFF;
                             while ( key == 0xFF ) {
                                 key = mapASCII2Veripac( waitKey() );
-                                //if ( key == 0 ) {
+                                if ( key == 0 ) {
                                     // Small beep
                                     
-                                //}
+                                }
                             }
 
                             while ( in_Inkey() > 0 ) {
@@ -207,13 +214,36 @@ void main(void) {
                         }
                         break;
                     case 3:
-                        // Halt
-                        loadProgram();
+                        // Halt: restart and load next program in the file
+                        veripac9_reset();
+                        controlReg = 0;
+                        if ( flagResetFilePointer == true ) {
+                            if ( veripac9_readMemory( VERIPAC_ACCUMULATOR ) != 0 ) {
+                                filePointer = 0;
+                            }
+                            flagResetFilePointer = false;
+                        }
+                        else if ( flagClearScreen == true ) {
+                            for ( i = VERIPAC_SCREEN_START; i < VERIPAC_SCREEN_START + VERIPAC_SCREEN_LENGTH; i++ ) {
+                                veripac9_writeMemory( (uint8_t)i, 0x0C );
+                            }
+                            flagClearScreen = false;
+                        }
+                        if ( loadProgram() > 0 ) {
+                            veripac9_readAllMemory( memoryBuffer );
+                        }
+                        else {
+                            state = STATE_STOP;
+                        }
+                        refreshDisplay( false, true );
                         break;
                     case 6:
                         // Execution, buzzer enabled
                         zx_border( INK_YELLOW );
-                        bit_beep( 500, veripacFrequence( veripac9_readMemory( VERIPAC_REGS_START + 0x0B ) & 0xE0 ) );
+                        regB = veripac9_readMemory( VERIPAC_REGS_START + 0x0B ) & 0xE0;
+                        if ( regB != 0xE0 ) {
+                            bit_beep( 500, veripacFrequence( regB ) );
+                        }
                         zx_border( INK_MAGENTA );
                         break;
                 }
@@ -244,13 +274,13 @@ void refreshDisplay( bool onlyRegisters, bool drawDisplay ) {
 uint8_t veripac9Color( uint8_t color ) {
 
     switch ( color ) {
-        case 0:
+        case 0x00:
             return INK_GREEN;
-        case 1:
+        case 0x40:
             return INK_RED;
-        case 2:
+        case 0x80:
             return INK_BLUE;
-        case 3:
+        case 0xC0:
             return INK_YELLOW;
         default:
             return INK_WHITE;
@@ -403,7 +433,7 @@ void printGraphicDisplay( uint8_t *memory ) {
         for ( i = 0; i < 32; i+= 2 ) {
             c = memory[ VERIPAC_SCREEN_START + p ];
             
-            attrs = veripac9Color( ( c & 0x0C ) >> 5 );
+            attrs = veripac9Color( c & 0xC0 );
             c &= 0x3F;
 
             paintGraphicBlockPositionReadOrder( i, j, 2, 2, veripacCharsetGraphics + ( c << 5 ) );
@@ -494,11 +524,11 @@ void drawAskForKeyboard( bool drawNoErase ) {
 
         if ( drawNoErase == true ) {
             paintGraphicBlockPositionReadOrder( 4, 4, 2, 2, veripacCharsetGraphics + ( 0x0D << 5 ) );
-            textUtils_paintRectangleWithAttributes( 4, 5, 4, 5, PAPER_BLACK | INK_RED );
+            textUtils_paintRectangleWithAttributes( 4, 5, 4, 5, PAPER_BLACK | INK_YELLOW );
         }
         else {
             paintGraphicBlockPositionReadOrder( 4, 4, 2, 2, veripacCharsetGraphics + ( 0x0C << 5 ) );
-            textUtils_paintRectangleWithAttributes( 4, 5, 4, 5, PAPER_BLACK | INK_RED );
+            textUtils_paintRectangleWithAttributes( 4, 5, 4, 5, PAPER_BLACK | INK_YELLOW );
         }
 
     }
@@ -509,13 +539,13 @@ void drawAskForKeyboard( bool drawNoErase ) {
         if ( drawNoErase == true ) {
 
             textUtils_print( "?" );
-            textUtils_paintRectangleWithAttributes( 8, 8, 1, 1, PAPER_BLACK | INK_RED );
+            textUtils_paintRectangleWithAttributes( 8, 8, 1, 1, PAPER_BLACK | INK_YELLOW );
             
         }
         else {
 
             textUtils_print( " " );
-            textUtils_paintRectangleWithAttributes( 8, 8, 1, 1, PAPER_BLACK | INK_RED );
+            textUtils_paintRectangleWithAttributes( 8, 8, 1, 1, PAPER_BLACK | INK_YELLOW );
 
         }
 
@@ -523,6 +553,26 @@ void drawAskForKeyboard( bool drawNoErase ) {
 
 }
 
+void clearState() {
+
+    uint16_t i;
+
+    // Clear all memory behind the program, resetting Veripac state
+    for ( i = VERIPAC_RAM_LENGTH; i < VERIPAC_SCREEN_START; i++ ) {
+        veripac9_writeMemory( (uint8_t)i, 0 );
+    }
+
+    // Clear screen
+    for ( ; i < VERIPAC_REGS_START; i++ ) {
+        veripac9_writeMemory( (uint8_t)i, 0x0C );
+    }
+
+    // Clear registers
+    for ( ; i < 256; i++ ) {
+        veripac9_writeMemory( (uint8_t)i, 0 );
+    }
+
+}
 
 bool loadFile() {
 
@@ -557,7 +607,7 @@ bool loadFile() {
         currentLine = 1;
         
         programNumBytes = loadProgram();
-        
+
         if ( programNumBytes > 0 ) {
 
             textUtils_printAt( 10, 5 );
@@ -565,25 +615,7 @@ bool loadFile() {
             textUtils_print_l( programNumBytes );
             textUtils_print( " bytes." );
 
-            // Loads the memory in the veripac9 subprocessor
-            for ( i = 0; i < programNumBytes; i++ ) {
-                veripac9_writeMemory( (uint8_t)i, memoryBuffer[ i ] );
-            }
-
-            // Clear all memory behind the program, resetting Veripac state
-            for ( ; i < VERIPAC_SCREEN_START; i++ ) {
-                veripac9_writeMemory( (uint8_t)i, 0 );
-            }
-
-            // Clear screen
-            for ( ; i < VERIPAC_REGS_START; i++ ) {
-                veripac9_writeMemory( (uint8_t)i, 0x0C );
-            }
-
-            // Clear registers
-            for ( ; i < 256; i++ ) {
-                veripac9_writeMemory( (uint8_t)i, 0 );
-            }
+            clearState();
 
         }
 
@@ -673,34 +705,51 @@ uint16_t loadProgram() {
                 filePointer++;
 
                 if ( parseState == PARSE_STATE_COMMENT ) {
-                    if ( c == 13 ) {
+                    if ( c == 10 ) {
                         parseState = PARSE_STATE_NIBBLE0;
+                        currentLine++;
                     }
                 }
                 else {
 
                     if ( parseState == PARSE_STATE_NIBBLE0 ) {
                         if ( c == '#' ) {
+                            // Comment
                             parseState = PARSE_STATE_COMMENT;
                             continue;
                         }
                         else if ( c == '!' ) {
+                            // Program separation
                             doEnd = true;
                             continue;
                         }
                         else if ( c == '$' ) {
-                            filePointer = 0;
+                            // End of file, restart from beggining of file
+                            flagResetFilePointer = true;
                             doEnd = true;
                             continue;
                         }
-                        else if ( c == 13 ) {
+                        else if ( c == 10 ) {
+                            // new line
                             currentLine++;
                             continue;
                         }
-                        else if ( c == 10 ) {
+                        else if ( c == 13 ) {
+                            // Ignore line feed
                             continue;
                         }
                         else if ( c == 32 ) {
+                            // Ignore space
+                            continue;
+                        }
+                        else if ( c == 9 ) {
+                            // Ignore tab
+                            continue;
+                        }
+                        else if ( c == '@' ) {
+                            // Program separation & Clear screen
+                            flagClearScreen = true;
+                            doEnd = true;
                             continue;
                         }
                     }
@@ -743,6 +792,20 @@ uint16_t loadProgram() {
     iferror {
         textUtils_println( "Error closing the file." );
         programNumBytes = 0;
+    }
+
+    if ( programNumBytes > 0 ) {
+
+        // Load the memory in the veripac9 subprocessor
+        for ( i = 0; i < programNumBytes; i++ ) {
+            veripac9_writeMemory( (uint8_t)i, memoryBuffer[ i ] );
+        }
+
+    }
+
+    // Clear all memory behind the program to the end of ram
+    for ( ; i < VERIPAC_RAM_LENGTH; i++ ) {
+        veripac9_writeMemory( (uint8_t)i, 0 );
     }
 
     return programNumBytes;

@@ -1,0 +1,12 @@
+#Test de RND
+08 #A=rnd
+1100 #A!=0? otroRND
+05 #Beep
+04 #Pausa Tecla
+1200 #Repetimos sin fin
+
+#08 Produce un núm. entre 0h y ffh
+#1100 producirá nuevos RNDs hasta que A sea cero
+#05 zumbador=1 de aviso de que RND entregó un cero
+#04 Pausa tecla para...
+#1200 ...iniciar nuevo ciclo de intentos

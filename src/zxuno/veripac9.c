@@ -9,6 +9,20 @@
 
 #include "zxuno.h"
 
+void veripac9_reset() {
+
+    veripac9_writeMemory( VERIPAC_CONTROL_REG, 3 );
+    veripac9_writeMemory( VERIPAC_CONTROL_REG, 0 );
+
+}
+
+void veripac9_step() {
+
+    veripac9_writeMemory( VERIPAC_CONTROL_REG, 1 );
+    veripac9_writeMemory( VERIPAC_CONTROL_REG, 0 );
+
+}
+
 /*
  * Read one memory position
  */

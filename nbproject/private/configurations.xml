@@ -16,6 +16,8 @@
       <df name="examples">
         <df name="veripac">
           <df name="programs">
+            <df name="tests">
+            </df>
           </df>
           <in>exampleVeripac9.c</in>
           <in>veripacCharsetGraphics.h</in>

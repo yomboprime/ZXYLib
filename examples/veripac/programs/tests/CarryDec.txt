@@ -1,0 +1,7 @@
+#Test de Carry=1 con decrementos del acumulador
+0aff #A=255d
+02 #A-1
+1607 #Carry=1? jpBeep
+1202 #otro
+05 #Zumbador a 1
+ff #Halt

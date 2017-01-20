@@ -64,7 +64,7 @@ void main(void) {
     uint8_t key;
 
     sprintf( filePath, "/dummy/" );
-    sprintf( errorString, "No error.")
+    sprintf( errorString, "No error." );
 
     textUtils_32ColumnsMode();
     textUtils_cls();

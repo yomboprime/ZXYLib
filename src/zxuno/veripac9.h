@@ -29,6 +29,9 @@
 #define VERIPAC_NUM_REGS 16
 #define VERIPAC_REGS_START 0xF0
 
+extern void veripac9_reset();
+extern void veripac9_step();
+
 extern uint8_t veripac9_readMemory( uint8_t address );
 extern void veripac9_writeMemory( uint8_t address, uint8_t value );
 

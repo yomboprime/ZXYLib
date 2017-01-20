@@ -1,0 +1,18 @@
+#Nuevo test de velocidad sin impresiones en pantalla
+#mediante 2 bucles anidados de 10 veces de 1 a 255
+
+0a0a #A=10d
+
+02 #A-1 #bucle2
+0c #Push A
+0AFF #A=255
+
+02 #A-1 #bucle1
+1106 #A!=0? #bucle1
+
+0d #Pop A
+1102 #A!=0? #bucle2
+
+05 # Beep
+04
+ff # Halt

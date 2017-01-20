@@ -1,0 +1,22 @@
+#Test de la pila y el carry
+
+
+
+0adf #A=224d
+
+0c #Push A
+03 #A+1
+1502 #Carry=0? otroPush
+
+6020 #reg.0=32d
+
+0d #pop a
+0b #print a
+04 #Pausa Tecla
+90 #A=reg.0
+02 #A=A-1
+a0 #re.0=A
+1508 # carry=0? otroPop
+
+04 #Pausa Tecla
+ff #Halt

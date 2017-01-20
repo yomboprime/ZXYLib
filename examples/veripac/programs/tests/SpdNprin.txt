@@ -1,0 +1,17 @@
+#Nuevo test de velocidad sin impresiones en pantalla
+#mediante 3 bucles anidados de 1 a 255 cada uno.
+01 #A=0
+03 #A+1
+0c #Push A
+01 #A=0
+03 #A+1
+0c #Push A
+01 #A=0
+03 #A+1
+1107 #A!=0? #bucle3
+0d #Pop A
+1104 #A!=0? #bucle2
+0d #Pop A
+1101 #A!=0? #bucle1
+04 # Pausa Tecla
+ff # Halt
