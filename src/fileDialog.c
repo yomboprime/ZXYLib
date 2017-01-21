@@ -250,7 +250,7 @@ uint16_t fileDialogIterateSDDirectory( uint8_t *dirPath, uint16_t firstEntry, ui
 
 void fileDialogBrightSelection( uint16_t selectedEntry, bool bright ) {
 
-    textUtils_paintSegmentWithBright( 2, 30, 3 + selectedEntry, bright );
+    textUtils_paintSegmentWithBright( 2, 29, 3 + selectedEntry, bright );
 
 }
 

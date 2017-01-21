@@ -144,8 +144,6 @@ void textUtils_paintRectangleWithAttributes( uint8_t x0, uint8_t x1, uint8_t y0,
  */
 void textUtils_paintSegmentWithBright( uint8_t x0, uint8_t x1, uint8_t y, bool bright ) {
 
-    // TODO not tested
-
     uint8_t x;
     uint8_t attr;
     uint8_t *ptrAttr = ( (uint8_t *)COLOR_ATTRIBUTE_START_ADDRESS );

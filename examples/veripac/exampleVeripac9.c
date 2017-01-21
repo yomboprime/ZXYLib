@@ -32,6 +32,7 @@ uint16_t loadProgram();
 void initTurbo();
 void setTurbo();
 void quitTurbo();
+void setULAPlusColors();
 
 // Global variables
 #define PATH_LENGTH 200
@@ -77,6 +78,8 @@ void main(void) {
     uint16_t i;
 
     initTurbo();
+
+    setULAPlusColors();
 
     sprintf( filePath, "/" );
 
@@ -292,9 +295,9 @@ uint8_t veripac9Color( uint8_t color ) {
 
     switch ( color ) {
         case 0x00:
-            return INK_GREEN;
-        case 0x40:
             return INK_RED;
+        case 0x40:
+            return INK_GREEN;
         case 0x80:
             return INK_BLUE;
         case 0xC0:
@@ -627,6 +630,59 @@ void quitTurbo() {
         currentTurbo = previousTurbo;
 
     }
+
+}
+
+void setULAPlusColors() {
+
+    uint8_t i = 0;
+
+    // Ink, bright = 0
+    ulaplus_set( i++, 0x00 );
+    ulaplus_set( i++, 0x73 ); // Blue
+    ulaplus_set( i++, 0xE9 ); // Red
+    ulaplus_set( i++, 0x12 );
+    ulaplus_set( i++, 0x3D ); // Green
+    ulaplus_set( i++, 0x82 );
+    ulaplus_set( i++, 0xD1 ); // Yellow
+    ulaplus_set( i++, 0x92 );
+
+    // Paper, bright = 0
+    ulaplus_set( i++, 0x00 );
+    ulaplus_set( i++, 0x73 );
+    ulaplus_set( i++, 0xE9 );
+    ulaplus_set( i++, 0x12 );
+    ulaplus_set( i++, 0x3D );
+    ulaplus_set( i++, 0x82 );
+    ulaplus_set( i++, 0xD1 );
+    ulaplus_set( i++, 0x92 );
+
+    // Ink, bright = 1
+    ulaplus_set( i++, 0x00 );
+    ulaplus_set( i++, 0x73 );
+    ulaplus_set( i++, 0xE9 );
+    ulaplus_set( i++, 0x12 );
+    ulaplus_set( i++, 0x3D );
+    ulaplus_set( i++, 0x1F );
+    ulaplus_set( i++, 0xD1 );
+    ulaplus_set( i++, 0x49 );
+
+    // Paper, bright = 1
+    ulaplus_set( i++, 0x00 );
+    ulaplus_set( i++, 0x73 );
+    ulaplus_set( i++, 0xE9 );
+    ulaplus_set( i++, 0x12 );
+    ulaplus_set( i++, 0x3D );
+    ulaplus_set( i++, 0x1F );
+    ulaplus_set( i++, 0xD1 );
+    ulaplus_set( i++, 0x49 );
+
+    // Flash =
+    for ( i = 32; i < 64; i++ ) {
+        ulaplus_set( i, 0x00 );
+    }
+
+    ula_plus_mode();
 
 }
 

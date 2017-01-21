@@ -107,7 +107,7 @@ C0 #pinto el reg cero (espacio)
 09 #acc = peek de C
 0B #pinta el acc.
 0A
-1D #cargo acc. con 29 decimal
+31 #cargo acc. con 49 decimal
 5C 
 0A #bucle2
 
