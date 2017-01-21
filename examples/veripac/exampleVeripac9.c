@@ -22,7 +22,7 @@
 void refreshDisplay( bool onlyRegisters, bool drawDisplay );
 uint8_t veripac9Color( uint8_t color );
 uint16_t mapASCII2Veripac( uint16_t asciiKey );
-uint16_t veripacFrequence( uint8_t freq );
+void beep( uint8_t freq );
 void drawAskForKeyboard( bool drawNoErase );
 void printGraphicDisplay( uint8_t *memory );
 void printDebug( uint8_t *memory, bool onlyRegisters );
@@ -63,6 +63,8 @@ bool flagClearScreen = false;
 
 uint8_t previousTurbo;
 uint8_t currentTurbo;
+
+#define BEEP_DURATION_MS 0.5
 
 void main(void) {
 
@@ -213,7 +215,7 @@ void main(void) {
                                 key = mapASCII2Veripac( waitKey() );
                                 if ( key == 0 ) {
                                     // Small beep
-                                    
+                                    bit_frequency( 0.1, 400.0 );
                                 }
                             }
 
@@ -257,7 +259,7 @@ void main(void) {
                         zx_border( INK_YELLOW );
                         regB = veripac9_readMemory( VERIPAC_REGS_START + 0x0B ) & 0xE0;
                         if ( regB != 0xE0 ) {
-                            bit_beep( 500, veripacFrequence( regB ) );
+                            beep( regB );
                         }
                         zx_border( INK_MAGENTA );
                         break;
@@ -416,25 +418,35 @@ uint16_t mapASCII2Veripac( uint16_t asciiKey ) {
 
 }
 
-uint16_t veripacFrequence( uint8_t freq ) {
+void beep( uint8_t freq ) {
+
     switch ( freq ) {
         case 0x00:
-            return 523;
+            bit_frequency( BEEP_DURATION_MS, 523.251 );
+            break;
         case 0x20:
-            return 587;
+            bit_frequency( BEEP_DURATION_MS, 587.330 );
+            break;
         case 0x40:
-            return 659;
+            bit_frequency( BEEP_DURATION_MS, 659.255 );
+            break;
         case 0x60:
-            return 698;
+            bit_frequency( BEEP_DURATION_MS, 698.456 );
+            break;
         case 0x80:
-            return 784;
+            bit_frequency( BEEP_DURATION_MS, 783.991 );
+            break;
         case 0xA0:
-            return 880;
+            bit_frequency( BEEP_DURATION_MS, 880.000 );
+            break;
         case 0xC0:
-            return 988;
+            bit_frequency( BEEP_DURATION_MS, 987.767 );
+            break;
         default:
-            return 523;
+            bit_frequency( BEEP_DURATION_MS, 523.251 );
+            break;
     }
+
 }
 
 void printGraphicDisplay( uint8_t *memory ) {
