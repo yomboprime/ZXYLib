@@ -26,6 +26,7 @@ void beep( uint8_t freq );
 void drawAskForKeyboard( bool drawNoErase );
 void printGraphicDisplay( uint8_t *memory );
 void printDebug( uint8_t *memory, bool onlyRegisters );
+void refreshCharacter( uint8_t drawnCharPos, uint8_t drawnChar );
 void clearState();
 bool loadFile();
 uint16_t loadProgram();
@@ -67,15 +68,17 @@ uint8_t currentTurbo;
 
 #define BEEP_DURATION_MS 0.5
 
-void main(void) {
+uint8_t key;
+bool doStep;
+bool drawScreen;
+uint8_t drawnChar;
+uint8_t drawnCharPos;
+uint8_t controlReg;
+uint8_t instructionReg;
+uint8_t regB;
+uint16_t i;
 
-    uint8_t key;
-    bool doStep;
-    bool drawScreen;
-    uint8_t controlReg;
-    uint8_t instructionReg;
-    uint8_t regB;
-    uint16_t i;
+void main(void) {
 
     initTurbo();
 
@@ -191,6 +194,7 @@ void main(void) {
                 switch ( controlReg ) {
                     case 0:
                         // Fetch 1
+                        /*
                         if ( display == DISPLAY_DEBUG ) {
                             veripac9_readRegistersAndScreen( memoryBuffer );
                         }
@@ -198,15 +202,28 @@ void main(void) {
                             veripac9_readScreen( memoryBuffer );
                         }
                         refreshDisplay( true, drawScreen );
+                        */
+                        if ( drawScreen ) {
+                            refreshCharacter( drawnCharPos, drawnChar );
+                        }
+
                         break;
+
                     //case 1:
                         // Fetch 2
                         //break;
                     case 2:
                         // Execution
                         instructionReg = veripac9_readMemory( VERIPAC_INSTRUCTION_REG );
-                        if ( instructionReg == 0x0B || ( instructionReg & 0xF0 ) == 0xC0 ) {
+                        if ( instructionReg == 0x0B ) {
                             drawScreen = true;
+                            drawnChar = veripac9_readMemory( VERIPAC_ACCUMULATOR );
+                            drawnCharPos = veripac9_readMemory( VERIPAC_REGS_START + 0x0B );
+                        }
+                        else if ( ( instructionReg & 0xF0 ) == 0xC0 ) {
+                            drawScreen = true;
+                            drawnChar = veripac9_readMemory( VERIPAC_REGS_START + ( instructionReg & 0x0F ) );
+                            drawnCharPos = veripac9_readMemory( VERIPAC_REGS_START + 0x0B );
                         }
                         else if ( ( veripac9_readMemory( VERIPAC_KEYBOARD_REG ) & 1 ) != 0 ) {
                             
@@ -545,6 +562,21 @@ void printDebug( uint8_t *memory, bool onlyRegisters ) {
             textUtils_print( str ); textUtils_print( "  " );
         }
     }
+
+}
+
+void refreshCharacter( uint8_t drawnCharPos, uint8_t drawnChar ) {
+
+    uint16_t i, j;
+    uint8_t attrs = veripac9Color( drawnChar & 0xC0 );
+
+    drawnChar &= 0x3F;
+
+    i = ( drawnCharPos & 0x0F ) << 1;
+    j = ( drawnCharPos & 0x10 ) != 0 ? 12 : 10;
+
+    paintGraphicBlockPositionReadOrder( i, j, 2, 2, veripacCharsetGraphics + ( drawnChar << 5 ) );
+    textUtils_paintRectangleWithAttributes( i, i + 1, j, j + 1, attrs );
 
 }
 
