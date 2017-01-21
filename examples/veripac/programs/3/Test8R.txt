@@ -1,0 +1,8 @@
+#Test del opcode 8R
+
+6503 #Registro 5=03 h
+668d #Registro 6=8d h
+85 #Combinar en el acumulador los registros 5 y 6
+0b #Pintamos el acumulador (un avión)
+04 #Pausa tecla
+ff #Halt

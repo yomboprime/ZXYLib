@@ -16,7 +16,11 @@
       <df name="examples">
         <df name="veripac">
           <df name="programs">
-            <df name="tests">
+            <df name="1">
+            </df>
+            <df name="2">
+            </df>
+            <df name="3">
             </df>
           </df>
           <in>exampleVeripac9.c</in>
@@ -37,6 +41,8 @@
         <df name="zxuno">
           <in>radas.c</in>
           <in>radas.h</in>
+          <in>turbo.c</in>
+          <in>turbo.h</in>
           <in>uart.c</in>
           <in>uart.h</in>
           <in>veripac9.c</in>

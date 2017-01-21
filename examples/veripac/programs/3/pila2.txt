@@ -1,0 +1,33 @@
+#Probando la pila con el acumulador
+
+6001 # Cargo el reg. "0" con "01"
+6102 # Cargo el reg. "1" con "02"
+6203 # Cargo el reg. "2" con "03"
+6304 # Cargo el reg. "3" con "04"
+
+90 # acc.=reg. "0"
+0c # Push acc
+91 # acc.=reg. "1"
+0c # Push acc
+
+01 # acc.= 0 yombo
+
+0d # Pop acc.
+0b # Pinto el acc. en pantalla
+
+92 # acc.=reg. "2"
+0c # Push acc
+93 # acc.=reg. "3"
+0c # Push acc
+
+01 # acc.= 0  yombo
+
+0d # Pop acc.
+0b # Pinto el acc. en pantalla
+0d # Pop acc.
+0b # Pinto el acc. en pantalla
+0d # Pop acc.
+0b # Pinto el acc. en pantalla
+
+04 # Pausa tecla
+ff # Halt

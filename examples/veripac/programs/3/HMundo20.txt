@@ -1,0 +1,165 @@
+# Pintamos en verde...
+# HOLA
+# MUNDO
+#
+# Cargo registros
+60
+1D
+61
+17
+62
+0E
+63
+20
+64
+26
+65
+15
+66
+2D
+67
+1A
+68
+17
+
+# Muestro los registros en pantalla y "sueno notas"
+
+#H
+6B
+00
+C0
+05
+
+#O
+6B
+21
+C1
+05
+
+#L
+6B
+42
+C2
+05
+
+#A
+6B
+63
+C3
+05
+
+#M
+6B
+90
+C4
+05
+
+#U
+6B
+B1
+C5
+05
+
+#N
+6B
+D2
+C6
+05
+
+#D
+6B
+13
+C7
+05
+
+#O
+6B
+34
+C8
+05
+
+# Espero tecla a modo de STOP de programa
+04
+
+FF
+# Salto al siguiente programa de este fichero
+!
+
+#Pintamos ROJO en rojo y VERDE en verde, en la 1º línea
+#Pintamos AZUL en azul y AMARRILLO en amarillo en la 2ª línea
+#y espera una tecla para recargar de nuevo todo desde el 1º programa
+
+#Borro la pantalla
+6B #reg B a cero
+00
+60 #reg cero con espacio
+0C
+#bucle
+9B #acc = reg B
+C0 #pinto el reg cero (espacio)
+11 #Si acc. <> 0 entonces vamos a...
+04 #...bucle
+
+#Leo los 'datas' de las letras y las pinto
+6C
+14 #reg C con dirección de DATOS
+#bucle2
+09 #acc = peek de C
+0B #pinta el acc.
+0A
+1D #cargo acc. con 29 decimal
+5C 
+0A #bucle2
+
+04 #Esperamos tecla
+
+0A
+01 #acc a 1 decimal
+FF #Halt!
+
+#DATOS
+
+#rojo
+53 #14hex
+57
+5E
+57
+
+0C #espacio
+
+#verde
+24
+12
+13
+1A #Esto es una "D"
+12
+
+#espacios
+0C
+0C
+0C
+0C
+0C
+0C
+
+#azul
+A0
+A1
+95
+8E
+
+0C #espacio
+
+#amarillo
+E0
+E6
+E0
+D3
+D6
+CE
+CE
+D7
+
+04 #pausa tecla
+ff #halt
+$ #regresamos al primer programa de la lista

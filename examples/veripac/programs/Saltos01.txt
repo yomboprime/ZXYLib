@@ -1,0 +1,35 @@
+# Test de marcas de salto
+
+13 #Compruebo si el acc. es cero
+05
+0a
+0b #pintamos "$" si venimos
+0b #del programa nº 6
+cb #pintamos "0" (o tal vez agregamos "1")
+04 #pausa tecla
+ff
+!
+cb #agregamos "1" a la pantalla (o tal vez "2")
+04 #pausa tecla
+ff
+!
+cb #agregamos "2" a la pantalla (o tal vez "3")
+04 #pausa tecla
+ff
+!
+cb #agregamos "3" a la pantalla (o tal vez "4")
+04 #pausa tecla
+ff
+@
+cb #pintamos "    4" (o tal vez "     5")
+04 #pausa tecla
+ff
+@
+cb #pintamos "     5" (o tal vez "      6")
+04 #El user decide si poner en el accumulador un cero o un uno
+ff
+$ #Si user pulsó cero seguimos bajando else subimos
+0a
+16 #pintamos "I" sin borrar la pantalla.
+0b #Es decir, tenemos ahora "     5I" o "      6I"
+ff #Halt de fin de programa

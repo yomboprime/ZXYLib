@@ -21,6 +21,7 @@
       </df>
       <df name="src">
         <df name="zxuno">
+          <in>turbo.c</in>
           <in>uart.c</in>
           <in>veripac9.c</in>
           <in>veripac9.h</in>
@@ -102,6 +103,8 @@
       <item path="src/graphics.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="src/textUtils.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="src/zxuno/turbo.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="src/zxuno/uart.c" ex="false" tool="0" flavor2="0">
       </item>

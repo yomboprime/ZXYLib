@@ -1,0 +1,10 @@
+60 #reg cero = a barco
+3f
+6b #reg b = cero
+00
+c0 #pinto un barco en 00
+06 #reseteo Reg b
+17 #acc = a la posicion de pantalla 00
+6b #reg b=01
+01
+0b #pinto el acc (es decir un barco) 

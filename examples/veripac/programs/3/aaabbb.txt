@@ -1,0 +1,39 @@
+
+6020
+6B00
+C0  	
+C0  # imprime R0
+C0  # imprime R0
+05  # Beep
+05  # Beep
+05  # Beep
+
+FF  # Halt
+
+!
+
+60 25 # R0 = 25 ("B")
+6B 00 # RB = 0
+C0  # imprime R0
+C0  # imprime R0
+C0  # imprime R0
+05  # Beep
+05  # Beep
+05  # Beep
+
+FF # Halt
+
+!
+
+60 23 # R0 = 23 ("C")
+6B 00 # RB = 0
+C0  # imprime R0
+C0  # imprime R0
+C0  # imprime R0
+05  # Beep
+05  # Beep
+05  # Beep
+
+FF # Halt
+
+$

@@ -10,6 +10,7 @@
 #include <sound.h>
 
 #include "../../src/zxuno/zxuno.h"
+#include "../../src/zxuno/turbo.h"
 #include "../../src/zxuno/veripac9.h"
 #include "../../src/esxdos.h"
 #include "../../src/textUtils.h"
@@ -28,6 +29,9 @@ void printDebug( uint8_t *memory, bool onlyRegisters );
 void clearState();
 bool loadFile();
 uint16_t loadProgram();
+void initTurbo();
+void setTurbo();
+void quitTurbo();
 
 // Global variables
 #define PATH_LENGTH 200
@@ -57,6 +61,9 @@ bool flagClearScreen = false;
 #define PARSE_STATE_NIBBLE1 1
 #define PARSE_STATE_COMMENT 2
 
+uint8_t previousTurbo;
+uint8_t currentTurbo;
+
 void main(void) {
 
     uint8_t key;
@@ -66,6 +73,8 @@ void main(void) {
     uint8_t instructionReg;
     uint8_t regB;
     uint16_t i;
+
+    initTurbo();
 
     sprintf( filePath, "/" );
 
@@ -91,6 +100,7 @@ void main(void) {
             case 'S':
                 state = STATE_STOP;
                 doStep = doStep == true ? false : true;
+                quitTurbo();
                 while ( in_Inkey() > 0 ) {
                     // Wait key release
                 }
@@ -100,6 +110,7 @@ void main(void) {
             case 'R':
                 state = STATE_RUNNING;
                 doStep = true;
+                setTurbo();
                 break;
 
             case 'd':
@@ -115,6 +126,7 @@ void main(void) {
 
                     state = STATE_STOP;
                     doStep = false;
+                    quitTurbo();
 
                     textUtils_64ColumnsMode();
 
@@ -134,6 +146,8 @@ void main(void) {
 
             case 'l':
             case 'L':
+
+                quitTurbo();
 
                 if ( loadFile() == true ) {
                     veripac9_readAllMemory( memoryBuffer );
@@ -234,6 +248,7 @@ void main(void) {
                         }
                         else {
                             state = STATE_STOP;
+                            quitTurbo();
                         }
                         refreshDisplay( false, true );
                         break;
@@ -570,6 +585,35 @@ void clearState() {
     // Clear registers
     for ( ; i < 256; i++ ) {
         veripac9_writeMemory( (uint8_t)i, 0 );
+    }
+
+}
+
+void initTurbo() {
+
+    previousTurbo = TURBO_get();
+    currentTurbo = previousTurbo;
+
+}
+
+void setTurbo() {
+
+    if ( currentTurbo != ZXUNO_TURBO_X4 ) {
+        
+        TURBO_set( ZXUNO_TURBO_X4 );
+        currentTurbo = ZXUNO_TURBO_X4;
+        
+    }
+
+}
+
+void quitTurbo() {
+
+    if ( currentTurbo != previousTurbo ) {
+
+        TURBO_set( previousTurbo );
+        currentTurbo = previousTurbo;
+
     }
 
 }

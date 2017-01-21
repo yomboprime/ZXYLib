@@ -1,0 +1,8 @@
+#Test del opcode BR
+
+0a23 #acumulador=23 h
+b4 #partimos el contenido del acumulador entre regs. 4 y 5
+c4 #Pintamos un "2"
+c5 #Pintamos un "3"
+04 #Pausa tecla
+ff #Halt
