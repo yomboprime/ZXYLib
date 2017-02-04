@@ -27,8 +27,6 @@ bool openMediaFile();
 bool closeMediaFile();
 bool readVideoFrame( uint8_t *screen );
 
-void resetRAMPointer();
-
 // Global variables
 
 #define PATH_SIZE ( 200 )
@@ -53,30 +51,8 @@ uint8_t *buffer = RADAS_SCREEN_ADDR_1;
 #define WAV_SAMPLE_DATA 44
 
 #define SRAM_LENGTH 524288
-
-
-#define WAVUNO_DATA_REG 250
-#define WAVUNO_STAT_REG 251
-
-#define WAVUNO_REG_USER_POINTER0 0
-#define WAVUNO_REG_USER_POINTER1 1
-#define WAVUNO_REG_USER_POINTER2 2
-
-#define WAVUNO_REG_SAMPLE_WRITE 3
-#define WAVUNO_REG_SAMPLE_READ 4
-
-#define WAVUNO_REG_CONTROL 5
-
-#define WAVUNO_REG_FREQ_DIVIDER0 6
-#define WAVUNO_REG_FREQ_DIVIDER1 7
-
-#define WAVUNO_REG_START_LOOP0 8
-#define WAVUNO_REG_START_LOOP1 9
-#define WAVUNO_REG_START_LOOP2 10
-
-#define WAVUNO_REG_END_LOOP0 11
-#define WAVUNO_REG_END_LOOP1 12
-#define WAVUNO_REG_END_LOOP2 13
+#define RAM_DATA_REG 250
+#define RAM_STAT_REG 251
 
 int16_t drive;
 int16_t mediaFileHandle;
@@ -218,11 +194,17 @@ void playWAVFile() {
 
     bool doEnd = false;
 
+    // Reset ram pointer
+    outp( ZXUNO_ADDR, RAM_STAT_REG );
+    outp( ZXUNO_REG, 4 );
+    outp( ZXUNO_ADDR, RAM_DATA_REG );
+    outp( ZXUNO_REG, 85 );
+
     // Play the wav file
-    outp( ZXUNO_ADDR, WAVUNO_STAT_REG );
-    outp( ZXUNO_REG, WAVUNO_REG_CONTROL );
-    outp( ZXUNO_ADDR, WAVUNO_DATA_REG );
-    outp( ZXUNO_REG, 1 );
+    outp( ZXUNO_ADDR, RAM_STAT_REG );
+    outp( ZXUNO_REG, 8 );
+    outp( ZXUNO_ADDR, RAM_DATA_REG );
+    outp( ZXUNO_REG, 85 );
 
     while ( doEnd == false ) {
         if ( in_Inkey() != 0 ) {
@@ -231,6 +213,7 @@ void playWAVFile() {
             break;
         }
 
+        outp( ZXUNO_ADDR, RAM_STAT_REG );
         if ( inp( ZXUNO_REG ) == 0 ) {
             sprintf( errorString, "Finished playing." );
             doEnd = true;
@@ -272,12 +255,16 @@ uint32_t loadWAVFile() {
 
         ESXDOS_fseek( 44, ESXDOS_SEEK_FROM_START, mediaFileHandle );
 
-        resetRAMPointer();
+        // Reset ram pointer
+        outp( ZXUNO_ADDR, RAM_STAT_REG );
+        outp( ZXUNO_REG, 4 );
+        outp( ZXUNO_ADDR, RAM_DATA_REG );
+        outp( ZXUNO_REG, 85 );
 
         // Write to sram
-        outp( ZXUNO_ADDR, WAVUNO_STAT_REG );
-        outp( ZXUNO_REG, WAVUNO_REG_SAMPLE_WRITE );
-        outp( ZXUNO_ADDR, WAVUNO_DATA_REG );
+        outp( ZXUNO_ADDR, RAM_STAT_REG );
+        outp( ZXUNO_REG, 0 );
+        outp( ZXUNO_ADDR, RAM_DATA_REG );
 
         while ( doEnd == false && bytesLeftToLoad > 0 ) {
 
@@ -369,24 +356,5 @@ bool closeMediaFile() {
     }
 
     return true;
-
-}
-
-void resetRAMPointer() {
-
-    // Reset ram pointer
-
-    outp( ZXUNO_ADDR, WAVUNO_STAT_REG );
-    outp( ZXUNO_REG, WAVUNO_REG_USER_POINTER2 );
-    outp( ZXUNO_ADDR, WAVUNO_DATA_REG );
-    outp( ZXUNO_REG, 0 );
-    outp( ZXUNO_ADDR, WAVUNO_STAT_REG );
-    outp( ZXUNO_REG, WAVUNO_REG_USER_POINTER1 );
-    outp( ZXUNO_ADDR, WAVUNO_DATA_REG );
-    outp( ZXUNO_REG, 0 );
-    outp( ZXUNO_ADDR, WAVUNO_STAT_REG );
-    outp( ZXUNO_REG, WAVUNO_REG_USER_POINTER0 );
-    outp( ZXUNO_ADDR, WAVUNO_DATA_REG );
-    outp( ZXUNO_REG, 0 );
 
 }

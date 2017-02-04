@@ -23,16 +23,18 @@ srcFilesExampleUARTTerminal = src/textUtils.c src/esxdos.c src/zxuno/uart.c src/
 
 srcFilesExampleVeripac = src/textUtils.c src/esxdos.c src/zxuno/zxuno.c src/zxuno/turbo.c src/fileDialog.c src/graphics.c src/zxuno/veripac9.c examples/veripac/exampleVeripac9.c
 
-srcFilesExampleVideoPlayer = src/textUtils.c src/esxdos.c src/zxuno/zxuno.c src/fileDialog.c src/zxuno/radas.c examples/exampleVideoPlayer.c
+srcFilesExampleVideoPlayer = src/textUtils.c src/esxdos.c src/zxuno/zxuno.c src/zxuno/turbo.c src/fileDialog.c src/zxuno/radas.c examples/exampleVideoPlayer.c
 
 # All the targets:
-all: generateBASICLoader createExample1 createExample2 createExample3 createExample4 createExample5 createExample6 createExample7 createExample8
+#all: generateBASICLoader createExample1 createExample2 createExample3 createExample4 createExample5 createExample6 createExample7 createExample8
+
+all: generateBASICLoader createExample8
 
 
 # Targets:
 
 generateBASICLoader:
-	./bas2tap/bas2tap -q -a10 -sftpUno ./cargadorBASIC/cargador.bas
+	./bas2tap/bas2tap -q -a10 -sprogram ./cargadorBASIC/cargador.bas
 
 #------------------------------------------------------------------------------
 createExample1: compile1 createTAP1 concatenateTAPs1 generateWavLeches1

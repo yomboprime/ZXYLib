@@ -14,6 +14,8 @@
         <in>leches.c</in>
       </df>
       <df name="examples">
+        <df name="printer">
+        </df>
         <df name="veripac">
           <df name="programs">
             <df name="1">
@@ -24,8 +26,10 @@
             </df>
           </df>
           <in>exampleVeripac9.c</in>
+          <in>theProgramInMemory.h</in>
           <in>veripacCharsetGraphics.h</in>
         </df>
+        <in>backup_3_exampleVideoPlayer.c</in>
         <in>exampleSDList.c</in>
         <in>exampleSDRead.c</in>
         <in>exampleSDSeek.c</in>
@@ -34,6 +38,7 @@
         <in>exampleUARTTerminal.c</in>
         <in>exampleVeripac9.c</in>
         <in>exampleVideoPlayer.c</in>
+        <in>testSRAM.c</in>
       </df>
       <df name="lib">
       </df>

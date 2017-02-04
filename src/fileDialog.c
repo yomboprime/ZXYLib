@@ -61,7 +61,7 @@ bool openFileDialog( uint8_t *message, uint8_t *path, int16_t maxPathLength, uin
     // Print title
     textUtils_printAt( titleX, 1 );
     textUtils_print( message );
-    
+
     while ( 1 ) {
 
         if ( refreshDirectory == true ) {
@@ -328,13 +328,9 @@ void fileDialogCallBackSelectEntry( uint16_t numEntry, uint8_t *entryPtr, uint8_
 
 }
 
-//uint32_t concat4Bytes( uint8_t b1, b2, b3, b4 ) {
-
-//}
-
 bool fileDialogConcatPath( uint8_t *string1, uint8_t *string2, uint16_t maxSize, bool appendBar ) {
 
-    // COncats string2 to string1
+    // Concats string2 to string1
 
     uint16_t l1 = strlen( string1 );
     uint16_t l2 = strlen( string2 );

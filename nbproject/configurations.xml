@@ -12,11 +12,11 @@
       <df name="examples">
         <df name="veripac">
           <in>exampleVeripac9.c</in>
+          <in>theProgramInMemory.h</in>
           <in>veripacCharsetGraphics.h</in>
         </df>
         <in>exampleSDList.c</in>
         <in>exampleUARTTerminal.c</in>
-        <in>exampleVeripac9.c</in>
         <in>exampleVideoPlayer.c</in>
       </df>
       <df name="src">
@@ -85,11 +85,14 @@
       </item>
       <item path="examples/exampleUARTTerminal.c" ex="false" tool="0" flavor2="0">
       </item>
-      <item path="examples/exampleVeripac9.c" ex="false" tool="0" flavor2="0">
-      </item>
       <item path="examples/exampleVideoPlayer.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="examples/veripac/exampleVeripac9.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="examples/veripac/theProgramInMemory.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
       </item>
       <item path="examples/veripac/veripacCharsetGraphics.h"
             ex="false"

@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <input.h>
 #include <stdlib.h>
+#include <string.h>
 #include <spectrum.h>
 #include <sound.h>
 
@@ -17,6 +18,8 @@
 #include "../../src/fileDialog.h"
 #include "../../src/graphics.h"
 #include "veripacCharsetGraphics.h"
+
+#include "theProgramInMemory.h"
 
 // Function prototypes
 void refreshDisplay( bool onlyRegisters, bool drawDisplay );
@@ -30,6 +33,7 @@ void refreshCharacter( uint8_t drawnCharPos, uint8_t drawnChar );
 void clearState();
 bool loadFile();
 uint16_t loadProgram();
+uint16_t loadProgramFromMemory( uint8_t *theProgram, uint16_t programSize );
 void initTurbo();
 void setTurbo();
 void quitTurbo();
@@ -66,7 +70,8 @@ bool flagClearScreen = false;
 uint8_t previousTurbo;
 uint8_t currentTurbo;
 
-#define BEEP_DURATION_MS 0.5
+// Beep duration multiplied by 4 due to the turbo
+#define BEEP_DURATION_MS 2.0
 
 uint8_t key;
 bool doStep;
@@ -92,12 +97,13 @@ void main(void) {
     textUtils_cls();
     zx_border( INK_BLUE );
 
+    loadProgramFromMemory( theProgramInMemory, strlen( theProgramInMemory ) );
+
     veripac9_readAllMemory( memoryBuffer );
     refreshDisplay( false, true );
 
     while ( 1 ) {
 
-        //key = waitKeyPress();
         key = in_Inkey();
 
         doStep = state == STATE_RUNNING ? true : false;
@@ -194,16 +200,11 @@ void main(void) {
                 switch ( controlReg ) {
                     case 0:
                         // Fetch 1
-                        /*
                         if ( display == DISPLAY_DEBUG ) {
                             veripac9_readRegistersAndScreen( memoryBuffer );
+                            refreshDisplay( true, drawScreen );
                         }
                         else if ( drawScreen ) {
-                            veripac9_readScreen( memoryBuffer );
-                        }
-                        refreshDisplay( true, drawScreen );
-                        */
-                        if ( drawScreen ) {
                             refreshCharacter( drawnCharPos, drawnChar );
                         }
 
@@ -421,8 +422,6 @@ uint16_t mapASCII2Veripac( uint16_t asciiKey ) {
             return 0x28;
         case '*':
             return 0x29;
-        case '/':
-            return 0x2A;
         case '=':
             return 0x2B;
         case 'y':
@@ -431,6 +430,10 @@ uint16_t mapASCII2Veripac( uint16_t asciiKey ) {
         case 'n':
         case 'N':
             return 0x2D;
+        case '/':
+            return 0x2E;
+        case '\\':
+            return 0x3B;
 
         default:
             return 0xFF;
@@ -442,28 +445,28 @@ void beep( uint8_t freq ) {
 
     switch ( freq ) {
         case 0x00:
-            bit_frequency( BEEP_DURATION_MS, 523.251 );
+            bit_frequency( BEEP_DURATION_MS, 130.812 ); // 523.251
             break;
         case 0x20:
-            bit_frequency( BEEP_DURATION_MS, 587.330 );
+            bit_frequency( BEEP_DURATION_MS, 146.832 ); // 587.330
             break;
         case 0x40:
-            bit_frequency( BEEP_DURATION_MS, 659.255 );
+            bit_frequency( BEEP_DURATION_MS, 164.813 ); // 659.255
             break;
         case 0x60:
-            bit_frequency( BEEP_DURATION_MS, 698.456 );
+            bit_frequency( BEEP_DURATION_MS, 174.614 ); // 698.456
             break;
         case 0x80:
-            bit_frequency( BEEP_DURATION_MS, 783.991 );
+            bit_frequency( BEEP_DURATION_MS, 195.997 ); // 783.991
             break;
         case 0xA0:
-            bit_frequency( BEEP_DURATION_MS, 880.000 );
+            bit_frequency( BEEP_DURATION_MS, 220.0 ); // 880.000
             break;
         case 0xC0:
-            bit_frequency( BEEP_DURATION_MS, 987.767 );
+            bit_frequency( BEEP_DURATION_MS, 246.941 ); // 987.767
             break;
         default:
-            bit_frequency( BEEP_DURATION_MS, 523.251 );
+            bit_frequency( BEEP_DURATION_MS, 130.812 ); // 523.251
             break;
     }
 
@@ -671,7 +674,7 @@ void setULAPlusColors() {
 
     // Ink, bright = 0
     ulaplus_set( i++, 0x00 );
-    ulaplus_set( i++, 0x73 ); // Blue
+    ulaplus_set( i++, 0x77 ); // Blue
     ulaplus_set( i++, 0xE9 ); // Red
     ulaplus_set( i++, 0x12 );
     ulaplus_set( i++, 0x3D ); // Green
@@ -681,7 +684,7 @@ void setULAPlusColors() {
 
     // Paper, bright = 0
     ulaplus_set( i++, 0x00 );
-    ulaplus_set( i++, 0x73 );
+    ulaplus_set( i++, 0x77 );
     ulaplus_set( i++, 0xE9 );
     ulaplus_set( i++, 0x12 );
     ulaplus_set( i++, 0x3D );
@@ -691,7 +694,7 @@ void setULAPlusColors() {
 
     // Ink, bright = 1
     ulaplus_set( i++, 0x00 );
-    ulaplus_set( i++, 0x73 );
+    ulaplus_set( i++, 0x77 );
     ulaplus_set( i++, 0xE9 );
     ulaplus_set( i++, 0x12 );
     ulaplus_set( i++, 0x3D );
@@ -701,7 +704,7 @@ void setULAPlusColors() {
 
     // Paper, bright = 1
     ulaplus_set( i++, 0x00 );
-    ulaplus_set( i++, 0x73 );
+    ulaplus_set( i++, 0x77 );
     ulaplus_set( i++, 0xE9 );
     ulaplus_set( i++, 0x12 );
     ulaplus_set( i++, 0x3D );
@@ -936,6 +939,156 @@ uint16_t loadProgram() {
     iferror {
         textUtils_println( "Error closing the file." );
         programNumBytes = 0;
+    }
+
+    if ( programNumBytes > 0 ) {
+
+        // Load the memory in the veripac9 subprocessor
+        for ( i = 0; i < programNumBytes; i++ ) {
+            veripac9_writeMemory( (uint8_t)i, memoryBuffer[ i ] );
+        }
+
+    }
+
+    // Clear all memory behind the program to the end of ram
+    for ( ; i < VERIPAC_RAM_LENGTH; i++ ) {
+        veripac9_writeMemory( (uint8_t)i, 0 );
+    }
+
+    return programNumBytes;
+}
+
+uint16_t loadProgramFromMemory( uint8_t *theProgram, uint16_t programSize ) {
+
+    // Loads the program in the text array
+    // It is loaded in the memoryBuffer array.
+    // Returns number of bytes of the loaded program, 0 if error or last program.
+
+    uint16_t i, numBytes;
+    uint16_t programNumBytes = 0;
+
+    uint8_t parseState = PARSE_STATE_NIBBLE0;
+
+    uint8_t c;
+    uint8_t nibble, nibble0;
+
+    bool doEnd = false;
+
+    uint8_t * memoryFilePointer = theProgram + filePointer;
+    uint8_t * memoryFileEnd = theProgram + programSize;
+    uint8_t * fileBufferPointer;
+
+    while ( doEnd == false ) {
+
+        //numBytes = ESXDOS_fread( fileBuffer, FILE_BUFFER_SIZE, fileHandle );
+        numBytes = 0;
+        fileBufferPointer = fileBuffer;
+        for ( i = 0; i < FILE_BUFFER_SIZE && memoryFilePointer < memoryFileEnd; i++ ) {
+            *fileBufferPointer++ = *memoryFilePointer++;
+            numBytes++;
+        }
+
+        if ( numBytes == 0 ) {
+
+            // Reached end of file
+            if ( parseState == PARSE_STATE_NIBBLE1 ) {
+                textUtils_println( "Unexpected end of file in line " );
+                textUtils_println_l( currentLine );
+                programNumBytes = 0;
+            }
+            doEnd = true;
+            break;
+        }
+        else {
+
+            for ( i = 0; i < numBytes && doEnd == false; i++ ) {
+
+                c = fileBuffer[ i ];
+                filePointer++;
+
+                if ( parseState == PARSE_STATE_COMMENT ) {
+                    if ( c == 10 ) {
+                        parseState = PARSE_STATE_NIBBLE0;
+                        currentLine++;
+                    }
+                }
+                else {
+
+                    if ( parseState == PARSE_STATE_NIBBLE0 ) {
+                        if ( c == '#' ) {
+                            // Comment
+                            parseState = PARSE_STATE_COMMENT;
+                            continue;
+                        }
+                        else if ( c == '!' ) {
+                            // Program separation
+                            doEnd = true;
+                            continue;
+                        }
+                        else if ( c == '$' ) {
+                            // End of file, restart from beggining of file
+                            flagResetFilePointer = true;
+                            doEnd = true;
+                            continue;
+                        }
+                        else if ( c == 10 ) {
+                            // new line
+                            currentLine++;
+                            continue;
+                        }
+                        else if ( c == 13 ) {
+                            // Ignore line feed
+                            continue;
+                        }
+                        else if ( c == 32 ) {
+                            // Ignore space
+                            continue;
+                        }
+                        else if ( c == 9 ) {
+                            // Ignore tab
+                            continue;
+                        }
+                        else if ( c == '@' ) {
+                            // Program separation & Clear screen
+                            flagClearScreen = true;
+                            doEnd = true;
+                            continue;
+                        }
+                    }
+
+                    if ( c >= '0' && c <= '9' ) {
+                        nibble = c - '0';
+                    }
+                    else if ( c >= 'a' && c <= 'f' ) {
+                        nibble = c - 'a' + 0x0A;
+                    }
+                    else if ( c >= 'A' && c <= 'F' ) {
+                        nibble = c - 'A' + 0x0A;
+                    }
+                    else {
+
+                        textUtils_print( "Syntax error in line " );
+                        textUtils_println_l( currentLine );
+                        programNumBytes = 0;
+                        doEnd = true;
+                        break;
+                    }
+
+                    if ( parseState == PARSE_STATE_NIBBLE0 ) {
+                        nibble0 = ( nibble & 0x0F ) << 4;
+                        parseState = PARSE_STATE_NIBBLE1;
+                    }
+                    else {
+                        nibble0 = nibble0 | ( nibble & 0x0F );
+                        if ( programNumBytes < VERIPAC_RAM_LENGTH ) {
+                            memoryBuffer[ programNumBytes++ ] = nibble0;
+                        }
+                        parseState = PARSE_STATE_NIBBLE0;
+                    }
+                }
+            }
+        }
+
     }
 
     if ( programNumBytes > 0 ) {
