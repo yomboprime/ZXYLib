@@ -26,9 +26,8 @@ srcFilesExampleVeripac = src/textUtils.c src/esxdos.c src/zxuno/zxuno.c src/zxun
 srcFilesExampleVideoPlayer = src/textUtils.c src/esxdos.c src/zxuno/zxuno.c src/zxuno/turbo.c src/fileDialog.c src/zxuno/radas.c examples/exampleVideoPlayer.c
 
 # All the targets:
-#all: generateBASICLoader createExample1 createExample2 createExample3 createExample4 createExample5 createExample6 createExample7 createExample8
+all: generateBASICLoader createExample1 createExample2 createExample3 createExample4 createExample5 createExample6 createExample7 createExample8
 
-all: generateBASICLoader createExample8
 
 
 # Targets:

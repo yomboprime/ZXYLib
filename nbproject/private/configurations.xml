@@ -36,7 +36,6 @@
         <in>exampleSDStat.c</in>
         <in>exampleSDWrite.c</in>
         <in>exampleUARTTerminal.c</in>
-        <in>exampleVeripac9.c</in>
         <in>exampleVideoPlayer.c</in>
         <in>testSRAM.c</in>
       </df>
@@ -145,6 +144,10 @@
                 </df>
               </df>
             </df>
+          </df>
+        </df>
+        <df name="wavuno">
+          <df name="DRCLookUpTableGenerator">
           </df>
         </df>
       </df>
