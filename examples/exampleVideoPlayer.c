@@ -65,7 +65,6 @@ uint8_t buffer[ BUFFER_SIZE ];
 
 #define SRAM_LENGTH 524288
 
-
 #define WAVUNO_DATA_REG 250
 #define WAVUNO_STAT_REG 251
 
@@ -140,7 +139,7 @@ uint32_t numBytesWAV;
 
 void main(void) {
 
-    sprintf( filePath, "/sonidos/probando.wav" );
+    sprintf( filePath, "/sonidos/stereo.wav" );
     sprintf( errorString, "No error." );
 
     textUtils_32ColumnsMode();
@@ -151,6 +150,13 @@ void main(void) {
     textUtils_println( "\nLoading /sonidos/probando.wav... " );
     numBytesWAV = loadWAVFile();
     TURBO_set( ZXUNO_TURBO_X1 );
+
+    // Set external sram frequency
+    outp( ZXUNO_ADDR, WAVUNO_STAT_REG );
+    outp( ZXUNO_REG, WAVUNO_REG_EXT_FREQ_DIVIDER0 );
+    outp( ZXUNO_ADDR, WAVUNO_DATA_REG );
+    // mono: 159, stereo: 79
+    outp( ZXUNO_REG, 79 );
 
     while ( 1 ) {
 
@@ -351,6 +357,12 @@ uint32_t loadWAVFile() {
 
         setWavunoExtUserPointer( 0 );
 
+        // Make sure no channel is playing
+        outp( ZXUNO_ADDR, WAVUNO_STAT_REG );
+        outp( ZXUNO_REG, WAVUNO_REG_EXT_CONTROL_BEGIN_REPROD );
+        outp( ZXUNO_ADDR, WAVUNO_DATA_REG );
+        outp( ZXUNO_REG, 0 );
+
         // Write to sram
         outp( ZXUNO_ADDR, WAVUNO_STAT_REG );
         outp( ZXUNO_REG, WAVUNO_REG_EXT_SAMPLE_WRITE );
@@ -432,6 +444,12 @@ void playWavFileContinuously( uint16_t bufferSize ) {
 
     sprintf( errorString, "Finished playing WAV file." );
 
+    // Set internal ram frequency. TODO should use value based on WAV frequency
+    outp( ZXUNO_ADDR, WAVUNO_STAT_REG );
+    outp( ZXUNO_REG, WAVUNO_REG_INT_FREQ_DIVIDER0 );
+    outp( ZXUNO_ADDR, WAVUNO_DATA_REG );
+    outp( ZXUNO_REG, 159 );
+
     // Set looping and
     // TODO stereo
     outp( ZXUNO_ADDR, WAVUNO_STAT_REG );
@@ -450,11 +468,11 @@ void playWavFileContinuously( uint16_t bufferSize ) {
 
             setWavunoExtBeginAndEndAddress( 0, numBytesWAV - 1 );
 
-            // Set looping
+            // Set looping + stereo
             outp( ZXUNO_ADDR, WAVUNO_STAT_REG );
             outp( ZXUNO_REG, WAVUNO_REG_EXT_CONTROL_FORMAT );
             outp( ZXUNO_ADDR, WAVUNO_DATA_REG );
-            outp( ZXUNO_REG, 0 );
+            outp( ZXUNO_REG, 2 );
 
             // Play the wav file
             outp( ZXUNO_ADDR, WAVUNO_STAT_REG );
