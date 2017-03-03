@@ -34,10 +34,13 @@ bool closeMediaFile();
 bool readVideoFrame( uint8_t *screen );
 
 void resetWavunoIntUserPointer();
-void setWavunoIntBeginAndEndAddress( uint32_t beginAddress, uint32_t endAddress );
+void setWavunoIntBeginEnd( uint32_t beginAddress, uint32_t endAddress );
 
 void setWavunoExtUserPointer( uint32_t value );
-void setWavunoExtBeginAndEndAddress( uint32_t beginAddress, uint32_t endAddress );
+void setWavunoExtBeginEndA( uint32_t beginAddress, uint32_t endAddress );
+void setWavunoExtBeginEndB( uint32_t beginAddress, uint32_t endAddress );
+void setWavunoExtBeginEndC( uint32_t beginAddress, uint32_t endAddress );
+void setWavunoExtBeginEndD( uint32_t beginAddress, uint32_t endAddress );
 
 // Global variables
 
@@ -70,7 +73,7 @@ uint8_t buffer[ BUFFER_SIZE ];
 
 #define WAVUNO_REG_INT_SAMPLE_RESET 0
 #define WAVUNO_REG_INT_SAMPLE_WRITE 1
-#define WAVUNO_REG_INT_SAMPLE_READ 2
+//#define WAVUNO_REG_INT_SAMPLE_READ 2
 
 #define WAVUNO_REG_INT_CONTROL_FORMAT 3
 #define WAVUNO_REG_INT_CONTROL_BEGIN_REPROD 4
@@ -96,16 +99,57 @@ uint8_t buffer[ BUFFER_SIZE ];
 #define WAVUNO_REG_EXT_CONTROL_BEGIN_REPROD 18
 #define WAVUNO_REG_EXT_CONTROL_END_REPROD 19
 
-#define WAVUNO_REG_EXT_FREQ_DIVIDER0 20
-#define WAVUNO_REG_EXT_FREQ_DIVIDER1 21
+// Channel A
 
-#define WAVUNO_REG_EXT_START_LOOP0 22
-#define WAVUNO_REG_EXT_START_LOOP1 23
-#define WAVUNO_REG_EXT_START_LOOP2 24
+#define WAVUNO_REG_EXT_FREQ_DIVIDER_A_0 20
+#define WAVUNO_REG_EXT_FREQ_DIVIDER_A_1 21
 
-#define WAVUNO_REG_EXT_END_LOOP0 25
-#define WAVUNO_REG_EXT_END_LOOP1 26
-#define WAVUNO_REG_EXT_END_LOOP2 27
+#define WAVUNO_REG_EXT_START_LOOP_A_0 22
+#define WAVUNO_REG_EXT_START_LOOP_A_1 23
+#define WAVUNO_REG_EXT_START_LOOP_A_2 24
+
+#define WAVUNO_REG_EXT_END_LOOP_A_0 25
+#define WAVUNO_REG_EXT_END_LOOP_A_1 26
+#define WAVUNO_REG_EXT_END_LOOP_A_2 27
+
+// Channel B
+
+#define WAVUNO_REG_EXT_FREQ_DIVIDER_B_0 28
+#define WAVUNO_REG_EXT_FREQ_DIVIDER_B_1 29
+
+#define WAVUNO_REG_EXT_START_LOOP_B_0 30
+#define WAVUNO_REG_EXT_START_LOOP_B_1 31
+#define WAVUNO_REG_EXT_START_LOOP_B_2 32
+
+#define WAVUNO_REG_EXT_END_LOOP_B_0 33
+#define WAVUNO_REG_EXT_END_LOOP_B_1 34
+#define WAVUNO_REG_EXT_END_LOOP_B_2 35
+
+// Channel C
+
+#define WAVUNO_REG_EXT_FREQ_DIVIDER_C_0 36
+#define WAVUNO_REG_EXT_FREQ_DIVIDER_C_1 37
+
+#define WAVUNO_REG_EXT_START_LOOP_C_0 38
+#define WAVUNO_REG_EXT_START_LOOP_C_1 39
+#define WAVUNO_REG_EXT_START_LOOP_C_2 40
+
+#define WAVUNO_REG_EXT_END_LOOP_C_0 41
+#define WAVUNO_REG_EXT_END_LOOP_C_1 42
+#define WAVUNO_REG_EXT_END_LOOP_C_2 43
+
+// Channel D
+
+#define WAVUNO_REG_EXT_FREQ_DIVIDER_D_0 44
+#define WAVUNO_REG_EXT_FREQ_DIVIDER_D_1 45
+
+#define WAVUNO_REG_EXT_START_LOOP_D_0 46
+#define WAVUNO_REG_EXT_START_LOOP_D_1 47
+#define WAVUNO_REG_EXT_START_LOOP_D_2 48
+
+#define WAVUNO_REG_EXT_END_LOOP_D_0 49
+#define WAVUNO_REG_EXT_END_LOOP_D_1 50
+#define WAVUNO_REG_EXT_END_LOOP_D_2 51
 
 
 int16_t drive;
@@ -136,27 +180,109 @@ static uint8_t paleta[] = {
 };
 
 uint32_t numBytesWAV;
+uint32_t beginPos, endPos;
 
 void main(void) {
 
-    sprintf( filePath, "/sonidos/stereo.wav" );
+    sprintf( filePath, "/" );
     sprintf( errorString, "No error." );
 
     textUtils_32ColumnsMode();
     textUtils_cls();
     zx_border( INK_BLUE );
 
+
+
     TURBO_set( ZXUNO_TURBO_X4 );
-    textUtils_println( "\nLoading /sonidos/probando.wav... " );
+
+    beginPos = 0;
+
+//    setWavunoExtUserPointer( 0 );
+
+
+    sprintf( filePath, "/sonidos/probando.wav" );
+    textUtils_print( "\nLoading " );
+    textUtils_println( filePath );
+    setWavunoExtUserPointer( beginPos );
     numBytesWAV = loadWAVFile();
-    TURBO_set( ZXUNO_TURBO_X1 );
+    endPos = beginPos + numBytesWAV - 1;
+    setWavunoExtBeginEndA( beginPos, endPos );
+    beginPos = endPos + 1;
+
+
+/*
+    sprintf( filePath, "/sonidos/stereo.wav" );
+    textUtils_print( "\nLoading " );
+    textUtils_println( filePath );
+    setWavunoExtUserPointer( beginPos );
+    numBytesWAV = loadWAVFile();
+    endPos = beginPos + numBytesWAV - 1;
+    setWavunoExtBeginEndA( beginPos, endPos );
+    beginPos = endPos + 1;
+
+    sprintf( filePath, "/sonidos/probando.wav" );
+    textUtils_print( "\nLoading " );
+    textUtils_println( filePath );
+    setWavunoExtUserPointer( beginPos );
+    numBytesWAV = loadWAVFile();
+    endPos = beginPos + numBytesWAV - 1;
+    setWavunoExtBeginEndB( beginPos, endPos );
+    beginPos = endPos + 1;
+
+    sprintf( filePath, "/sonidos/gameover.wav" );
+    textUtils_print( "\nLoading " );
+    textUtils_println( filePath );
+    setWavunoExtUserPointer( beginPos );
+    numBytesWAV = loadWAVFile();
+    endPos = beginPos + numBytesWAV - 1;
+    setWavunoExtBeginEndC( beginPos, endPos );
+    beginPos = endPos + 1;
+
+    sprintf( filePath, "/sonidos/zxcorto.wav" );
+    textUtils_print( "\nLoading " );
+    textUtils_println( filePath );
+    setWavunoExtUserPointer( beginPos );
+    numBytesWAV = loadWAVFile();
+    endPos = beginPos + numBytesWAV - 1;
+    setWavunoExtBeginEndD( beginPos, endPos );
+    beginPos = endPos + 1;
+*/
+
+    // Set looping + stereo
+    outp( ZXUNO_ADDR, WAVUNO_STAT_REG );
+    outp( ZXUNO_REG, WAVUNO_REG_EXT_CONTROL_FORMAT );
+    outp( ZXUNO_ADDR, WAVUNO_DATA_REG );
+    //outp( ZXUNO_REG, 2 );
+    outp( ZXUNO_REG, 0 );
 
     // Set external sram frequency
     outp( ZXUNO_ADDR, WAVUNO_STAT_REG );
-    outp( ZXUNO_REG, WAVUNO_REG_EXT_FREQ_DIVIDER0 );
+    outp( ZXUNO_REG, WAVUNO_REG_EXT_FREQ_DIVIDER_A_0 );
     outp( ZXUNO_ADDR, WAVUNO_DATA_REG );
     // mono: 159, stereo: 79
-    outp( ZXUNO_REG, 79 );
+    //outp( ZXUNO_REG, 79 );
+    outp( ZXUNO_REG, 159 );
+
+/*
+    outp( ZXUNO_ADDR, WAVUNO_STAT_REG );
+    outp( ZXUNO_REG, WAVUNO_REG_EXT_FREQ_DIVIDER_B_0 );
+    outp( ZXUNO_ADDR, WAVUNO_DATA_REG );
+    // mono: 159, stereo: 79
+    outp( ZXUNO_REG, 159 );
+
+        outp( ZXUNO_ADDR, WAVUNO_STAT_REG );
+    outp( ZXUNO_REG, WAVUNO_REG_EXT_FREQ_DIVIDER_C_0 );
+    outp( ZXUNO_ADDR, WAVUNO_DATA_REG );
+    // mono: 159, stereo: 79
+    outp( ZXUNO_REG, 159 );
+
+        outp( ZXUNO_ADDR, WAVUNO_STAT_REG );
+    outp( ZXUNO_REG, WAVUNO_REG_EXT_FREQ_DIVIDER_D_0 );
+    outp( ZXUNO_ADDR, WAVUNO_DATA_REG );
+    // mono: 159, stereo: 79
+    outp( ZXUNO_REG, 159 );
+*/
+    TURBO_set( ZXUNO_TURBO_X1 );
 
     while ( 1 ) {
 
@@ -271,9 +397,11 @@ void playRadastanVideoFile() {
 
 void playWAVFile( uint32_t start, uint32_t end ) {
 
+    // TODO obsolete (1 channel)
+
     bool doEnd = false;
 
-    setWavunoExtBeginAndEndAddress( start, end );
+    setWavunoExtBeginEndA( start, end );
 
     // Set looping
     outp( ZXUNO_ADDR, WAVUNO_STAT_REG );
@@ -355,8 +483,6 @@ uint32_t loadWAVFile() {
 
         ESXDOS_fseek( 44, ESXDOS_SEEK_FROM_START, mediaFileHandle );
 
-        setWavunoExtUserPointer( 0 );
-
         // Make sure no channel is playing
         outp( ZXUNO_ADDR, WAVUNO_STAT_REG );
         outp( ZXUNO_REG, WAVUNO_REG_EXT_CONTROL_BEGIN_REPROD );
@@ -427,6 +553,8 @@ void playWavFileContinuously( uint16_t bufferSize ) {
     uint8_t bufferTurn = 0;
     bool flagStart = true;
 
+    uint8_t key;
+
     if ( openMediaFile() == false ) {
         sprintf( errorString, "Couldn't open WAV file." );
         return;
@@ -457,27 +585,22 @@ void playWavFileContinuously( uint16_t bufferSize ) {
     outp( ZXUNO_ADDR, WAVUNO_DATA_REG );
     outp( ZXUNO_REG, 1 );
 
-    setWavunoIntBeginAndEndAddress( 0, bufferSizeMinusOne );
+    setWavunoIntBeginEnd( 0, bufferSizeMinusOne );
 
     while ( doEnd == false && bytesLeftToLoad > 0 ) {
 
-        if ( in_Inkey() != 0 ) {
+        key = in_Inkey();
+        if ( key >= '1' && key <= '4' ) {
 //            sprintf( errorString, "Interrupted by user." );
 //            doEnd = true;
 //            break;
-
-            setWavunoExtBeginAndEndAddress( 0, numBytesWAV - 1 );
-
-            // Set looping + stereo
-            outp( ZXUNO_ADDR, WAVUNO_STAT_REG );
-            outp( ZXUNO_REG, WAVUNO_REG_EXT_CONTROL_FORMAT );
-            outp( ZXUNO_ADDR, WAVUNO_DATA_REG );
-            outp( ZXUNO_REG, 2 );
 
             // Play the wav file
             outp( ZXUNO_ADDR, WAVUNO_STAT_REG );
             outp( ZXUNO_REG, WAVUNO_REG_EXT_CONTROL_BEGIN_REPROD );
             outp( ZXUNO_ADDR, WAVUNO_DATA_REG );
+            //outp( ZXUNO_REG, ( 1 << ( key - '1' ) ) | inp( ZXUNO_REG ) );
+            //outp( ZXUNO_REG, 2 );
             outp( ZXUNO_REG, 1 );
 
         }
@@ -552,11 +675,11 @@ void playWavFileContinuously( uint16_t bufferSize ) {
 
         // Switch begin and end addresses of next buffer to play
         if ( bufferTurn == 0 ) {
-            setWavunoIntBeginAndEndAddress( bufferSize , twoBufferSizeMinusOne );
+            setWavunoIntBeginEnd( bufferSize , twoBufferSizeMinusOne );
             bufferTurn = 1;
         }
         else {
-            setWavunoIntBeginAndEndAddress( 0, bufferSizeMinusOne );
+            setWavunoIntBeginEnd( 0, bufferSizeMinusOne );
             bufferTurn = 0;
         }
 
@@ -628,7 +751,7 @@ void resetWavunoIntUserPointer() {
 
 }
 
-void setWavunoIntBeginAndEndAddress( uint32_t beginAddress, uint32_t endAddress ) {
+void setWavunoIntBeginEnd( uint32_t beginAddress, uint32_t endAddress ) {
 
     // TODO remove "& 0xFF"
 
@@ -671,34 +794,131 @@ void setWavunoExtUserPointer( uint32_t value ) {
 
 }
 
-void setWavunoExtBeginAndEndAddress( uint32_t beginAddress, uint32_t endAddress ) {
+void setWavunoExtBeginEndA( uint32_t beginAddress, uint32_t endAddress ) {
 
     // TODO remove "& 0xFF"
 
     outp( ZXUNO_ADDR, WAVUNO_STAT_REG );
-    outp( ZXUNO_REG, WAVUNO_REG_EXT_START_LOOP2 );
+    outp( ZXUNO_REG, WAVUNO_REG_EXT_START_LOOP_A_2 );
     outp( ZXUNO_ADDR, WAVUNO_DATA_REG );
     outp( ZXUNO_REG, ( beginAddress >> 16 ) & 0x0FF );
     outp( ZXUNO_ADDR, WAVUNO_STAT_REG );
-    outp( ZXUNO_REG, WAVUNO_REG_EXT_START_LOOP1 );
+    outp( ZXUNO_REG, WAVUNO_REG_EXT_START_LOOP_A_1 );
     outp( ZXUNO_ADDR, WAVUNO_DATA_REG );
     outp( ZXUNO_REG, ( beginAddress >> 8 ) & 0x0FF );
     outp( ZXUNO_ADDR, WAVUNO_STAT_REG );
-    outp( ZXUNO_REG, WAVUNO_REG_EXT_START_LOOP0 );
+    outp( ZXUNO_REG, WAVUNO_REG_EXT_START_LOOP_A_0 );
     outp( ZXUNO_ADDR, WAVUNO_DATA_REG );
     outp( ZXUNO_REG, beginAddress & 0x0FF );
 
     outp( ZXUNO_ADDR, WAVUNO_STAT_REG );
-    outp( ZXUNO_REG, WAVUNO_REG_EXT_END_LOOP2 );
+    outp( ZXUNO_REG, WAVUNO_REG_EXT_END_LOOP_A_2 );
     outp( ZXUNO_ADDR, WAVUNO_DATA_REG );
     outp( ZXUNO_REG, ( endAddress >> 16 ) & 0x0FF );
     outp( ZXUNO_ADDR, WAVUNO_STAT_REG );
-    outp( ZXUNO_REG, WAVUNO_REG_EXT_END_LOOP1 );
+    outp( ZXUNO_REG, WAVUNO_REG_EXT_END_LOOP_A_1 );
     outp( ZXUNO_ADDR, WAVUNO_DATA_REG );
     outp( ZXUNO_REG, ( endAddress >> 8 ) & 0x0FF );
     outp( ZXUNO_ADDR, WAVUNO_STAT_REG );
-    outp( ZXUNO_REG, WAVUNO_REG_EXT_END_LOOP0 );
+    outp( ZXUNO_REG, WAVUNO_REG_EXT_END_LOOP_A_0 );
     outp( ZXUNO_ADDR, WAVUNO_DATA_REG );
     outp( ZXUNO_REG, endAddress & 0x0FF );
 
 }
+
+void setWavunoExtBeginEndB( uint32_t beginAddress, uint32_t endAddress ) {
+
+    // TODO remove "& 0xFF"
+
+    outp( ZXUNO_ADDR, WAVUNO_STAT_REG );
+    outp( ZXUNO_REG, WAVUNO_REG_EXT_START_LOOP_B_2 );
+    outp( ZXUNO_ADDR, WAVUNO_DATA_REG );
+    outp( ZXUNO_REG, ( beginAddress >> 16 ) & 0x0FF );
+    outp( ZXUNO_ADDR, WAVUNO_STAT_REG );
+    outp( ZXUNO_REG, WAVUNO_REG_EXT_START_LOOP_B_1 );
+    outp( ZXUNO_ADDR, WAVUNO_DATA_REG );
+    outp( ZXUNO_REG, ( beginAddress >> 8 ) & 0x0FF );
+    outp( ZXUNO_ADDR, WAVUNO_STAT_REG );
+    outp( ZXUNO_REG, WAVUNO_REG_EXT_START_LOOP_B_0 );
+    outp( ZXUNO_ADDR, WAVUNO_DATA_REG );
+    outp( ZXUNO_REG, beginAddress & 0x0FF );
+
+    outp( ZXUNO_ADDR, WAVUNO_STAT_REG );
+    outp( ZXUNO_REG, WAVUNO_REG_EXT_END_LOOP_B_2 );
+    outp( ZXUNO_ADDR, WAVUNO_DATA_REG );
+    outp( ZXUNO_REG, ( endAddress >> 16 ) & 0x0FF );
+    outp( ZXUNO_ADDR, WAVUNO_STAT_REG );
+    outp( ZXUNO_REG, WAVUNO_REG_EXT_END_LOOP_B_1 );
+    outp( ZXUNO_ADDR, WAVUNO_DATA_REG );
+    outp( ZXUNO_REG, ( endAddress >> 8 ) & 0x0FF );
+    outp( ZXUNO_ADDR, WAVUNO_STAT_REG );
+    outp( ZXUNO_REG, WAVUNO_REG_EXT_END_LOOP_B_0 );
+    outp( ZXUNO_ADDR, WAVUNO_DATA_REG );
+    outp( ZXUNO_REG, endAddress & 0x0FF );
+
+}
+
+void setWavunoExtBeginEndC( uint32_t beginAddress, uint32_t endAddress ) {
+
+    // TODO remove "& 0xFF"
+
+    outp( ZXUNO_ADDR, WAVUNO_STAT_REG );
+    outp( ZXUNO_REG, WAVUNO_REG_EXT_START_LOOP_C_2 );
+    outp( ZXUNO_ADDR, WAVUNO_DATA_REG );
+    outp( ZXUNO_REG, ( beginAddress >> 16 ) & 0x0FF );
+    outp( ZXUNO_ADDR, WAVUNO_STAT_REG );
+    outp( ZXUNO_REG, WAVUNO_REG_EXT_START_LOOP_C_1 );
+    outp( ZXUNO_ADDR, WAVUNO_DATA_REG );
+    outp( ZXUNO_REG, ( beginAddress >> 8 ) & 0x0FF );
+    outp( ZXUNO_ADDR, WAVUNO_STAT_REG );
+    outp( ZXUNO_REG, WAVUNO_REG_EXT_START_LOOP_C_0 );
+    outp( ZXUNO_ADDR, WAVUNO_DATA_REG );
+    outp( ZXUNO_REG, beginAddress & 0x0FF );
+
+    outp( ZXUNO_ADDR, WAVUNO_STAT_REG );
+    outp( ZXUNO_REG, WAVUNO_REG_EXT_END_LOOP_C_2 );
+    outp( ZXUNO_ADDR, WAVUNO_DATA_REG );
+    outp( ZXUNO_REG, ( endAddress >> 16 ) & 0x0FF );
+    outp( ZXUNO_ADDR, WAVUNO_STAT_REG );
+    outp( ZXUNO_REG, WAVUNO_REG_EXT_END_LOOP_C_1 );
+    outp( ZXUNO_ADDR, WAVUNO_DATA_REG );
+    outp( ZXUNO_REG, ( endAddress >> 8 ) & 0x0FF );
+    outp( ZXUNO_ADDR, WAVUNO_STAT_REG );
+    outp( ZXUNO_REG, WAVUNO_REG_EXT_END_LOOP_C_0 );
+    outp( ZXUNO_ADDR, WAVUNO_DATA_REG );
+    outp( ZXUNO_REG, endAddress & 0x0FF );
+
+}
+
+void setWavunoExtBeginEndD( uint32_t beginAddress, uint32_t endAddress ) {
+
+    // TODO remove "& 0xFF"
+
+    outp( ZXUNO_ADDR, WAVUNO_STAT_REG );
+    outp( ZXUNO_REG, WAVUNO_REG_EXT_START_LOOP_D_2 );
+    outp( ZXUNO_ADDR, WAVUNO_DATA_REG );
+    outp( ZXUNO_REG, ( beginAddress >> 16 ) & 0x0FF );
+    outp( ZXUNO_ADDR, WAVUNO_STAT_REG );
+    outp( ZXUNO_REG, WAVUNO_REG_EXT_START_LOOP_D_1 );
+    outp( ZXUNO_ADDR, WAVUNO_DATA_REG );
+    outp( ZXUNO_REG, ( beginAddress >> 8 ) & 0x0FF );
+    outp( ZXUNO_ADDR, WAVUNO_STAT_REG );
+    outp( ZXUNO_REG, WAVUNO_REG_EXT_START_LOOP_D_0 );
+    outp( ZXUNO_ADDR, WAVUNO_DATA_REG );
+    outp( ZXUNO_REG, beginAddress & 0x0FF );
+
+    outp( ZXUNO_ADDR, WAVUNO_STAT_REG );
+    outp( ZXUNO_REG, WAVUNO_REG_EXT_END_LOOP_D_2 );
+    outp( ZXUNO_ADDR, WAVUNO_DATA_REG );
+    outp( ZXUNO_REG, ( endAddress >> 16 ) & 0x0FF );
+    outp( ZXUNO_ADDR, WAVUNO_STAT_REG );
+    outp( ZXUNO_REG, WAVUNO_REG_EXT_END_LOOP_D_1 );
+    outp( ZXUNO_ADDR, WAVUNO_DATA_REG );
+    outp( ZXUNO_REG, ( endAddress >> 8 ) & 0x0FF );
+    outp( ZXUNO_ADDR, WAVUNO_STAT_REG );
+    outp( ZXUNO_REG, WAVUNO_REG_EXT_END_LOOP_D_0 );
+    outp( ZXUNO_ADDR, WAVUNO_DATA_REG );
+    outp( ZXUNO_REG, endAddress & 0x0FF );
+
+}
+

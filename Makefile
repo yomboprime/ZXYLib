@@ -25,9 +25,10 @@ srcFilesExampleVeripac = src/textUtils.c src/esxdos.c src/zxuno/zxuno.c src/zxun
 
 srcFilesExampleVideoPlayer = src/textUtils.c src/esxdos.c src/zxuno/zxuno.c src/zxuno/turbo.c src/fileDialog.c src/zxuno/radas.c examples/exampleVideoPlayer.c
 
-# All the targets:
-all: generateBASICLoader createExample1 createExample2 createExample3 createExample4 createExample5 createExample6 createExample7 createExample8
+srcFilesExampleSRAMTest = src/textUtils.c src/zxuno/zxuno.c src/zxuno/turbo.c examples/exampleSRAMTest.c
 
+# All the targets:
+all: generateBASICLoader createExample1 createExample2 createExample3 createExample4 createExample5 createExample6 createExample7 createExample8 createExample9
 
 
 # Targets:
@@ -182,6 +183,25 @@ generateWav8:
 
 generateWavLeches8:
 	./CgLeches PLAYVID.tap PLAYVID.wav 3 > ultimolog.txt
+
+#------------------------------------------------------------------------------
+
+createExample9: compile9 createTAP9 concatenateTAPs9 generateWavLeches9
+
+compile9:
+	zcc +zx -o f9.bin -lndos -lmzx $(srcFilesExampleSRAMTest) > ultimolog.txt
+
+createTAP9:
+	$(node) ./bin2tap-js/bin2tap.js ../f9.bin > ultimolog.txt
+
+concatenateTAPs9:
+	cat ./cargadorBASIC/cargador.tap f9.tap > SRAMTEST.tap
+
+generateWav9:
+	tape2wav ./SRAMTEST.tap ./SRAMTEST.wav > ultimolog.txt
+
+generateWavLeches9:
+	./CgLeches SRAMTEST.tap SRAMTEST.wav 3 > ultimolog.txt
 
 #------------------------------------------------------------------------------
 

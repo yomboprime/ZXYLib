@@ -12,6 +12,7 @@
 #include <time.h>
 
 #include "../src/zxuno/zxuno.h"
+#include "../src/zxuno/turbo.h"
 #include "../src/textUtils.h"
 
 // Function prototypes
@@ -48,7 +49,7 @@ void main(void) {
     zx_border( INK_BLUE );
 
 
-    //TURBO_set( ZXUNO_TURBO_X1 );
+    TURBO_set( ZXUNO_TURBO_X4 );
 
     while ( 1 ) {
 
@@ -140,6 +141,8 @@ void main(void) {
         waitKeyPress();
 
     }
+
+    TURBO_set( ZXUNO_TURBO_X1 );
 
 }
 
