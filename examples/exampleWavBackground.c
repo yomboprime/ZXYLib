@@ -47,7 +47,6 @@ bool readStringFromFile( uint8_t *string, uint8_t size );
 bool skipBytesFile( uint16_t numBytes );
 uint16_t readByteFile();
 
-
 // Global variables
 
 #define PATH_SIZE ( 200 )
@@ -201,6 +200,12 @@ void main(void) {
     zx_border( INK_BLUE );
 
 
+    // Make sure no channel is playing
+    outp( ZXUNO_ADDR, WAVUNO_STAT_REG );
+    outp( ZXUNO_REG, WAVUNO_REG_EXT_CONTROL_BEGIN_REPROD );
+    outp( ZXUNO_ADDR, WAVUNO_DATA_REG );
+    outp( ZXUNO_REG, 0 );
+
 
     TURBO_set( ZXUNO_TURBO_X4 );
 
@@ -291,9 +296,12 @@ void main(void) {
     // mono: 159, stereo: 79
     outp( ZXUNO_REG, 159 );
 */
-    TURBO_set( ZXUNO_TURBO_X1 );
 
     while ( 1 ) {
+
+        TURBO_set( ZXUNO_TURBO_X1 );
+
+
 /*
         if ( numBytesWAV <= 0 ) {
             textUtils_println( "Error loading WAV file." );
@@ -301,7 +309,6 @@ void main(void) {
             continue;
         }
 */
-
         fileDialogpathUpOneDir( filePath );
         while ( openFileDialog( "Open media file", filePath, PATH_SIZE, INK_BLUE | PAPER_WHITE, INK_WHITE | PAPER_CYAN ) == false ) {
 
@@ -324,9 +331,10 @@ void main(void) {
             // Wait for user to release key
         }
 
-/*
+
         textUtils_println( "\nLoading WAV file... " );
 
+        setWavunoExtUserPointer( 0 );
         numBytesWAV = loadWAVFile();
         //numBytesWAV = 1;
 
@@ -336,9 +344,14 @@ void main(void) {
 
         if ( numBytesWAV <= 0 ) {
             textUtils_println( "Error loading WAV file." );
+            textUtils_print( "\nMessage: " );
+            textUtils_println( errorString );
+            textUtils_println( "Press any key..." );
             waitKeyPress();
             continue;
         }
+
+        TURBO_set( ZXUNO_TURBO_X1 );
 
         textUtils_println( "Press a key to play..." );
         waitKeyPress();
@@ -350,18 +363,16 @@ void main(void) {
         playWAVFile( 0, numBytesWAV - 1 );
 
         //playRadastanVideoFile();
-*/
 
 
+/*
         textUtils_println( "\nPlaying WAV file... " );
         playWavFileContinuously( BUFFER_SIZE );
-
+*/
 
         textUtils_print( "\nMessage: " );
         textUtils_println( errorString );
         textUtils_println( "Press any key..." );
-
-        TURBO_set( ZXUNO_TURBO_X1 );
 
         waitKeyPress();
 
@@ -414,13 +425,35 @@ void playWAVFile( uint32_t start, uint32_t end ) {
 
     bool doEnd = false;
 
+    uint32_t freqValue = 3500;
+    freqValue *= 1000;
+    freqValue /= sampleFrequency;
+    if ( sampleIsStereo == true ) {
+        freqValue >>= 1;
+    }
+
+    textUtils_print( "sampleFrequency: " );
+    textUtils_println_l( sampleFrequency );
+
+    textUtils_print( "sampleIsStereo: " );
+    textUtils_println( sampleIsStereo == true ? "true" : "false" );
+
+    textUtils_print( "freqValue: " );
+    textUtils_println_l( freqValue );
+
     setWavunoExtBeginEndA( start, end );
 
-    // Set looping
+    // Set looping and stereo
     outp( ZXUNO_ADDR, WAVUNO_STAT_REG );
     outp( ZXUNO_REG, WAVUNO_REG_EXT_CONTROL_FORMAT );
     outp( ZXUNO_ADDR, WAVUNO_DATA_REG );
-    outp( ZXUNO_REG, 1 );
+    outp( ZXUNO_REG, 1 | ( sampleIsStereo == true ? 2 : 0) );
+
+    // Set external sram sample frequency
+    outp( ZXUNO_ADDR, WAVUNO_STAT_REG );
+    outp( ZXUNO_REG, WAVUNO_REG_EXT_FREQ_DIVIDER_A_0 );
+    outp( ZXUNO_ADDR, WAVUNO_DATA_REG );
+    outp( ZXUNO_REG, (uint8_t)freqValue );
 
     // Play the wav file
     outp( ZXUNO_ADDR, WAVUNO_STAT_REG );
@@ -464,6 +497,54 @@ void playWAVFile( uint32_t start, uint32_t end ) {
 
 }
 
+bool readStringFromFile( uint8_t *string, uint8_t size ) {
+
+    uint16_t numBytesRead;
+
+    numBytesRead = ESXDOS_fread( buffer, size, mediaFileHandle );
+
+    iferror {
+        return false;
+    }
+
+    if ( numBytesRead < size ) {
+        return false;
+    }
+
+    buffer[ size ] = 0;
+
+    return strcmp( string, buffer ) == 0 ? true : false;
+
+}
+
+bool skipBytesFile( uint16_t numBytes ) {
+    ESXDOS_fseek( numBytes, ESXDOS_SEEK_FORWARD_FROM_CURRENT, mediaFileHandle );
+    iferror {
+        return false;
+    }
+    return true;
+}
+
+uint16_t readByteFile() {
+
+    // Returns byte read or 0xFFFF if error
+
+    uint16_t numBytesRead;
+
+    numBytesRead = ESXDOS_fread( buffer, 1, mediaFileHandle );
+
+    iferror {
+        return 0xFFFF;
+    }
+
+    if ( numBytesRead < 1 ) {
+        return 0xFFFF;
+    }
+
+    return buffer[ 0 ];
+
+}
+
 uint32_t loadWAVFile() {
 
     // Loads a PCM 8 bit mono sample to wavuno external sram
@@ -475,6 +556,7 @@ uint32_t loadWAVFile() {
     uint8_t c;
     uint8_t * p;
     bool doEnd = false;
+    uint16_t tempValue;
 
     if ( openMediaFile() == true ) {
 
@@ -494,7 +576,121 @@ uint32_t loadWAVFile() {
 
         bytesLeftToLoad = numBytesToLoad;
 
-        ESXDOS_fseek( 44, ESXDOS_SEEK_FROM_START, mediaFileHandle );
+        sprintf( errorString, "Selected file is not WAV uncompressed unsigned 8 bit." );
+        if ( readStringFromFile( "RIFF", 4 ) == false ) {
+            closeMediaFile();
+            return 0;
+        }
+
+        if ( skipBytesFile( 4 ) == false ) {
+            closeMediaFile();
+            return 0;
+        }
+
+        if ( readStringFromFile( "WAVEfmt ", 8 ) == false ) {
+            closeMediaFile();
+            return 0;
+        }
+
+        if ( readByteFile() != 16 ) {
+            closeMediaFile();
+            return 0;
+        }
+
+        if ( readByteFile() != 0 ) {
+            closeMediaFile();
+            return 0;
+        }
+
+        if ( readByteFile() != 0 ) {
+            closeMediaFile();
+            return 0;
+        }
+
+        if ( readByteFile() != 0 ) {
+            closeMediaFile();
+            return 0;
+        }
+
+        if ( readByteFile() != 1 ) {
+            closeMediaFile();
+            return 0;
+        }
+
+        if ( readByteFile() != 0 ) {
+            closeMediaFile();
+            return 0;
+        }
+
+        // Num channels
+        sprintf( errorString, "Unsupported number of channels. Must be 1 or 2" );
+        tempValue = readByteFile();
+        if ( tempValue != 1 && tempValue != 2 ) {
+            closeMediaFile();
+            return 0;
+        }
+
+        if ( readByteFile() != 0 ) {
+            closeMediaFile();
+            return 0;
+        }
+
+        sampleIsStereo = tempValue == 2;
+
+        sprintf( errorString, "Invalid sample frequency." );
+        tempValue = readByteFile();
+        if ( tempValue == 0xFFFF ) {
+            closeMediaFile();
+            return 0;
+        }
+        sampleFrequency = tempValue;
+
+        tempValue = readByteFile();
+        if ( tempValue == 0xFFFF ) {
+            closeMediaFile();
+            return 0;
+        }
+        sampleFrequency = sampleFrequency  | ( ((uint32_t)tempValue) << 8 );
+
+        tempValue = readByteFile();
+        if ( tempValue == 0xFFFF ) {
+            closeMediaFile();
+            return 0;
+        }
+        sampleFrequency = sampleFrequency  | ( ((uint32_t)tempValue) << 16 );
+
+        tempValue = readByteFile();
+        if ( tempValue == 0xFFFF ) {
+            closeMediaFile();
+            return 0;
+        }
+        sampleFrequency = sampleFrequency  | ( ((uint32_t)tempValue) << 24 );
+
+        sprintf( errorString, "Selected file is not WAV uncompressed unsigned 8 bit." );
+        if ( skipBytesFile( 6 ) == false ) {
+            closeMediaFile();
+            return 0;
+        }
+        
+        if ( readByteFile() != 8 ) {
+            closeMediaFile();
+            return 0;
+        }
+        
+        if ( readByteFile() != 0 ) {
+            closeMediaFile();
+            return 0;
+        }
+
+        if ( readStringFromFile( "data", 4 ) == false ) {
+            closeMediaFile();
+            return 0;
+        }
+
+        if ( skipBytesFile( 4 ) == false ) {
+            closeMediaFile();
+            return 0;
+        }
 
         // Make sure no channel is playing
         outp( ZXUNO_ADDR, WAVUNO_STAT_REG );
@@ -568,10 +764,6 @@ void playWavFileContinuously( uint16_t bufferSize ) {
 
     uint8_t key;
 
-    uint16_t tempValue;
-
-    uint32_t freqValue = 3500;
-
     if ( openMediaFile() == false ) {
         sprintf( errorString, "Couldn't open WAV file." );
         return;
@@ -585,137 +777,15 @@ void playWavFileContinuously( uint16_t bufferSize ) {
     }
     bytesLeftToLoad -= 44;
 
-    sprintf( errorString, "Selected file is not WAV uncompressed unsigned 8 bit." );
-    if ( readStringFromFile( "RIFF", 4 ) == false ) {
-        closeMediaFile();
-        return;
-    }
-
-    if ( skipBytesFile( 4 ) == false ) {
-        closeMediaFile();
-        return;
-    }
-
-    if ( readStringFromFile( "WAVEfmt ", 8 ) == false ) {
-        closeMediaFile();
-        return;
-    }
-
-    if ( readByteFile() != 16 ) {
-        closeMediaFile();
-        return;
-    }
-
-    if ( readByteFile() != 0 ) {
-        closeMediaFile();
-        return;
-    }
-
-    if ( readByteFile() != 0 ) {
-        closeMediaFile();
-        return;
-    }
-
-    if ( readByteFile() != 0 ) {
-        closeMediaFile();
-        return;
-    }
-
-    if ( readByteFile() != 1 ) {
-        closeMediaFile();
-        return;
-    }
-
-    if ( readByteFile() != 0 ) {
-        closeMediaFile();
-        return;
-    }
-
-    // Num channels
-    sprintf( errorString, "Unsupported number of channels. Must be 1 or 2" );
-    tempValue = readByteFile();
-    if ( tempValue != 1 && tempValue != 2 ) {
-        closeMediaFile();
-        return;
-    }
-
-    if ( readByteFile() != 0 ) {
-        closeMediaFile();
-        return;
-    }
-
-    sampleIsStereo = tempValue == 2;
-
-    if ( sampleIsStereo == true ) {
-        sprintf( errorString, "Unsupported number of channels. Internal channel only suppports mono samples for now." );
-        closeMediaFile();
-        return;
-    }
-
-    sprintf( errorString, "Invalid sample frequency." );
-    tempValue = readByteFile();
-    if ( tempValue == 0xFFFF ) {
-        closeMediaFile();
-        return;
-    }
-    sampleFrequency = tempValue;
-
-    tempValue = readByteFile();
-    if ( tempValue == 0xFFFF ) {
-        closeMediaFile();
-        return;
-    }
-    sampleFrequency = sampleFrequency  | ( ((uint32_t)tempValue) << 8 );
-
-    tempValue = readByteFile();
-    if ( tempValue == 0xFFFF ) {
-        closeMediaFile();
-        return;
-    }
-    sampleFrequency = sampleFrequency  | ( ((uint32_t)tempValue) << 16 );
-
-    tempValue = readByteFile();
-    if ( tempValue == 0xFFFF ) {
-        closeMediaFile();
-        return;
-    }
-    sampleFrequency = sampleFrequency  | ( ((uint32_t)tempValue) << 24 );
-
-    sprintf( errorString, "Selected file is not WAV uncompressed unsigned 8 bit." );
-    if ( skipBytesFile( 6 ) == false ) {
-        closeMediaFile();
-        return;
-    }
-
-    if ( readByteFile() != 8 ) {
-        closeMediaFile();
-        return;
-    }
-
-    if ( readByteFile() != 0 ) {
-        closeMediaFile();
-        return;
-    }
-
-    if ( readStringFromFile( "data", 4 ) == false ) {
-        closeMediaFile();
-        return;
-    }
-
-    if ( skipBytesFile( 4 ) == false ) {
-        closeMediaFile();
-        return;
-    }
+    ESXDOS_fseek( 44, ESXDOS_SEEK_FROM_START, mediaFileHandle );
 
     sprintf( errorString, "Finished playing WAV file." );
 
-    // Set internal ram frequency.
-    freqValue *= 1000;
-    freqValue /= sampleFrequency;
+    // Set internal ram frequency. TODO should use value based on WAV frequency
     outp( ZXUNO_ADDR, WAVUNO_STAT_REG );
     outp( ZXUNO_REG, WAVUNO_REG_INT_FREQ_DIVIDER0 );
     outp( ZXUNO_ADDR, WAVUNO_DATA_REG );
-    outp( ZXUNO_REG, (uint8_t)freqValue );
+    outp( ZXUNO_REG, 159 );
 
     // Set looping and
     // TODO stereo
@@ -1063,50 +1133,3 @@ void setWavunoExtBeginEndD( uint32_t beginAddress, uint32_t endAddress ) {
 
 }
 
-bool readStringFromFile( uint8_t *string, uint8_t size ) {
-
-    uint16_t numBytesRead;
-
-    numBytesRead = ESXDOS_fread( buffer, size, mediaFileHandle );
-
-    iferror {
-        return false;
-    }
-
-    if ( numBytesRead < size ) {
-        return false;
-    }
-
-    buffer[ size ] = 0;
-
-    return strcmp( string, buffer ) == 0 ? true : false;
-
-}
-
-bool skipBytesFile( uint16_t numBytes ) {
-    ESXDOS_fseek( numBytes, ESXDOS_SEEK_FORWARD_FROM_CURRENT, mediaFileHandle );
-    iferror {
-        return false;
-    }
-    return true;
-}
-
-uint16_t readByteFile() {
-
-    // Returns byte read or 0xFFFF if error
-
-    uint16_t numBytesRead;
-
-    numBytesRead = ESXDOS_fread( buffer, 1, mediaFileHandle );
-
-    iferror {
-        return 0xFFFF;
-    }
-
-    if ( numBytesRead < 1 ) {
-        return 0xFFFF;
-    }
-
-    return buffer[ 0 ];
-
-}

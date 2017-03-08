@@ -27,8 +27,10 @@ srcFilesExampleVideoPlayer = src/textUtils.c src/esxdos.c src/zxuno/zxuno.c src/
 
 srcFilesExampleSRAMTest = src/textUtils.c src/zxuno/zxuno.c src/zxuno/turbo.c examples/exampleSRAMTest.c
 
+srcFilesExampleWavBackground = src/textUtils.c src/esxdos.c src/zxuno/zxuno.c src/zxuno/turbo.c src/fileDialog.c src/zxuno/radas.c examples/exampleWavBackground.c
+
 # All the targets:
-all: generateBASICLoader createExample1 createExample2 createExample3 createExample4 createExample5 createExample6 createExample7 createExample8 createExample9
+all: generateBASICLoader createExample1 createExample2 createExample3 createExample4 createExample5 createExample6 createExample7 createExample8 createExample9 createExample10
 
 
 # Targets:
@@ -202,6 +204,25 @@ generateWav9:
 
 generateWavLeches9:
 	./CgLeches SRAMTEST.tap SRAMTEST.wav 3 > ultimolog.txt
+
+#------------------------------------------------------------------------------
+
+createExample10: compile10 createTAP10 concatenateTAPs10 generateWavLeches10
+
+compile10:
+	zcc +zx -o f10.bin -lndos -lmzx $(srcFilesExampleWavBackground) > ultimolog.txt
+
+createTAP10:
+	$(node) ./bin2tap-js/bin2tap.js ../f10.bin > ultimolog.txt
+
+concatenateTAPs10:
+	cat ./cargadorBASIC/cargador.tap f10.tap > WAVBACKG.tap
+
+generateWav10:
+	tape2wav ./WAVBACKG.tap ./WAVBACKG.wav > ultimolog.txt
+
+generateWavLeches10:
+	./CgLeches WAVBACKG.tap WAVBACKG.wav 3 > ultimolog.txt
 
 #------------------------------------------------------------------------------
 

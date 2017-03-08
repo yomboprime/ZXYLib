@@ -19,6 +19,7 @@
         <in>exampleSRAMTest.c</in>
         <in>exampleUARTTerminal.c</in>
         <in>exampleVideoPlayer.c</in>
+        <in>exampleWavBackground.c</in>
       </df>
       <df name="src">
         <df name="zxuno">
@@ -89,6 +90,8 @@
       <item path="examples/exampleUARTTerminal.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="examples/exampleVideoPlayer.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="examples/exampleWavBackground.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="examples/veripac/exampleVeripac9.c" ex="false" tool="0" flavor2="0">
       </item>
