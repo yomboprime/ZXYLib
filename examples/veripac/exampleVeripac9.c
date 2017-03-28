@@ -30,6 +30,7 @@ void drawAskForKeyboard( bool drawNoErase );
 void printGraphicDisplay( uint8_t *memory );
 void printDebug( uint8_t *memory, bool onlyRegisters );
 void refreshCharacter( uint8_t drawnCharPos, uint8_t drawnChar );
+void clearRegisters();
 void clearState();
 bool loadFile();
 uint16_t loadProgram();
@@ -99,6 +100,7 @@ void main(void) {
 
     loadProgramFromMemory( theProgramInMemory, strlen( theProgramInMemory ) );
 
+    clearRegisters();
     veripac9_readAllMemory( memoryBuffer );
     refreshDisplay( false, true );
 
@@ -257,10 +259,11 @@ void main(void) {
                         if ( flagResetFilePointer == true ) {
                             if ( veripac9_readMemory( VERIPAC_ACCUMULATOR ) != 0 ) {
                                 filePointer = 0;
+                                clearRegisters();
                             }
                             flagResetFilePointer = false;
                         }
-                        else if ( flagClearScreen == true ) {
+                        if ( flagClearScreen == true ) {
                             for ( i = VERIPAC_SCREEN_START; i < VERIPAC_SCREEN_START + VERIPAC_SCREEN_LENGTH; i++ ) {
                                 veripac9_writeMemory( (uint8_t)i, 0x0C );
                             }
@@ -618,6 +621,16 @@ void drawAskForKeyboard( bool drawNoErase ) {
 
 }
 
+void clearRegisters() {
+    
+    uint16_t i;
+
+    // Clear registers
+    for ( i = VERIPAC_REGS_START; i < 256; i++ ) {
+        veripac9_writeMemory( (uint8_t)i, 0 );
+    }
+}
+
 void clearState() {
 
     uint16_t i;
@@ -632,10 +645,7 @@ void clearState() {
         veripac9_writeMemory( (uint8_t)i, 0x0C );
     }
 
-    // Clear registers
-    for ( ; i < 256; i++ ) {
-        veripac9_writeMemory( (uint8_t)i, 0 );
-    }
+    clearRegisters();
 
 }
 
@@ -873,6 +883,7 @@ uint16_t loadProgram() {
                         else if ( c == '$' ) {
                             // End of file, restart from beggining of file
                             flagResetFilePointer = true;
+                            flagClearScreen = true;
                             doEnd = true;
                             continue;
                         }
@@ -1028,6 +1039,7 @@ uint16_t loadProgramFromMemory( uint8_t *theProgram, uint16_t programSize ) {
                         else if ( c == '$' ) {
                             // End of file, restart from beggining of file
                             flagResetFilePointer = true;
+                            flagClearScreen = true;
                             doEnd = true;
                             continue;
                         }

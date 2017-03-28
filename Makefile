@@ -29,9 +29,12 @@ srcFilesExampleSRAMTest = src/textUtils.c src/zxuno/zxuno.c src/zxuno/turbo.c ex
 
 srcFilesExampleWavBackground = src/textUtils.c src/esxdos.c src/zxuno/zxuno.c src/zxuno/turbo.c src/fileDialog.c src/zxuno/radas.c examples/exampleWavBackground.c
 
-# All the targets:
-all: generateBASICLoader createExample1 createExample2 createExample3 createExample4 createExample5 createExample6 createExample7 createExample8 createExample9 createExample10
+srcFilesExampleWavman = src/textUtils.c src/esxdos.c src/zxuno/zxuno.c src/zxuno/turbo.c src/fileDialog.c src/zxuno/wavunolite.c examples/wavman/exampleWavman.c
 
+# All the targets:
+all: generateBASICLoader createExample1 createExample2 createExample3 createExample4 createExample5 createExample6 createExample7 createExample8 createExample9 createExample10 createExample11
+
+#all: generateBASICLoader createExample8 createExample9 createExample10 createExample11
 
 # Targets:
 
@@ -223,6 +226,25 @@ generateWav10:
 
 generateWavLeches10:
 	./CgLeches WAVBACKG.tap WAVBACKG.wav 3 > ultimolog.txt
+
+#------------------------------------------------------------------------------
+
+createExample11: compile11 createTAP11 concatenateTAPs11 generateWavLeches11
+
+compile11:
+	zcc +zx -o f11.bin -lndos -lmzx $(srcFilesExampleWavman) > ultimolog.txt
+
+createTAP11:
+	$(node) ./bin2tap-js/bin2tap.js ../f11.bin > ultimolog.txt
+
+concatenateTAPs11:
+	cat ./cargadorBASIC/cargador.tap f11.tap > WAVMAN.tap
+
+generateWav11:
+	tape2wav ./WAVMAN.tap ./WAVMAN.wav > ultimolog.txt
+
+generateWavLeches11:
+	./CgLeches WAVMAN.tap WAVMAN.wav 3 > ultimolog.txt
 
 #------------------------------------------------------------------------------
 

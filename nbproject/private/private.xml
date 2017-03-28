@@ -9,15 +9,6 @@
     </data>
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
-        <group>
-            <file>file:/media/datos/Devel/spectrum/ZXYLib/src/fileDialog.c</file>
-            <file>file:/media/datos/Devel/spectrum/ZXYLib/examples/exampleSRAMTest.c</file>
-            <file>file:/media/datos/Devel/spectrum/ZXYLib/Makefile</file>
-            <file>file:/media/datos/Devel/spectrum/ZXYLib/examples/exampleVideoPlayer.c</file>
-            <file>file:/media/datos/Devel/spectrum/ZXYLib/src/zxuno/radas.h</file>
-            <file>file:/media/datos/Devel/spectrum/ZXYLib/src/textUtils.c</file>
-            <file>file:/media/datos/Devel/spectrum/ZXYLib/src/fileDialog.h</file>
-            <file>file:/media/datos/Devel/spectrum/ZXYLib/src/zxuno/turbo.h</file>
-        </group>
+        <group/>
     </open-files>
 </project-private>

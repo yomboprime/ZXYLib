@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<configurationDescriptor version="97">
+<configurationDescriptor version="100">
   <logicalFolder name="root" displayName="root" projectFiles="true" kind="ROOT">
     <df root="." name="0">
       <df name="bas2tap">
@@ -27,6 +27,7 @@
           <in>uart.c</in>
           <in>veripac9.c</in>
           <in>veripac9.h</in>
+          <in>wavunolite.c</in>
           <in>zxuno.c</in>
         </df>
         <in>fileDialog.c</in>
@@ -120,6 +121,8 @@
       <item path="src/zxuno/veripac9.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="src/zxuno/veripac9.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/zxuno/wavunolite.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="src/zxuno/zxuno.c" ex="false" tool="0" flavor2="0">
       </item>

@@ -1,0 +1,13 @@
+
+
+Play/Pausa
+
+F.F/Next Track
+
+F.B./Prev Track
+
+Rand/Reset
+
+Loop One/Loop All
+
+(los 5 botones a un solo beep) 
