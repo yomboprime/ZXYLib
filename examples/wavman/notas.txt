@@ -1,13 +1,21 @@
 
 
-Play/Pausa
+DOWN: Play/Pausa
 
-F.F/Next Track
+RIGHT: F.F/Next Track
 
-F.B./Prev Track
+LEFT: F.B./Prev Track
 
-Rand/Reset
+UP: Rand/Reset
 
-Loop One/Loop All
+FIRE: Loop One/Loop All
 
 (los 5 botones a un solo beep) 
+
+
+
+modos:
+
+estado actual: pausa / play / FForw / FBACKW
+
+estado que maneja el salto entre canciones: loopall / loopone / rand

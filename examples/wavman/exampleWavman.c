@@ -9,8 +9,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <spectrum.h>
-
 #include <time.h>
+#include <sound.h>
 
 #include "../../src/zxuno/zxuno.h"
 #include "../../src/zxuno/wavunolite.h"
@@ -31,6 +31,8 @@ bool readStringFromFile( uint8_t *string, uint8_t size );
 bool skipBytesFile( uint16_t numBytes );
 uint16_t readByteFile();
 
+void resetKeyboard();
+unsigned char readJoystickAndKeyboard();
 
 // Global variables
 
@@ -50,7 +52,46 @@ uint32_t beginPos, endPos;
 bool sampleIsStereo = false;
 uint32_t sampleFrequency = 0;
 
+struct in_UDK keyboardMap;
+uint8_t joystickValue;
+uint8_t joystickValuePrev;
+
+
+
+// Play variables
+
+uint32_t bytesLeftToLoad;
+uint16_t numBytesToRead, numBytesRead;
+uint8_t *p;
+bool doEnd;
+uint32_t bufferSizeMinusOne;
+uint32_t twoBufferSizeMinusOne;
+uint8_t bufferTurn;
+bool flagStart;
+uint8_t key;
+uint16_t tempValue;
+uint32_t freqValue;
+
+uint8_t pressedCounter;
+bool pressedLeft;
+bool pressedRight;
+
+// Play state
+
+#define STATE_PAUSE 0
+#define STATE_PLAYING 1
+#define STATE_FASTFORWARD 2
+#define STATE_FASTBACKWARD 3
+unsigned char playingState = STATE_PAUSE;
+
+#define SONG_LOOPALL 0
+#define SONG_LOOPONE 1
+#define SONG_RAND 2
+unsigned char songState = SONG_LOOPALL;
+
 void main(void) {
+    
+    resetKeyboard();
 
     sprintf( filePath, "/" );
     sprintf( errorString, "No error." );
@@ -67,7 +108,7 @@ void main(void) {
 
         fileDialogpathUpOneDir( filePath );
         while ( openFileDialog( "Open media file", filePath, PATH_SIZE, INK_GREEN | PAPER_WHITE, INK_WHITE | PAPER_GREEN ) == false ) {
-
+            
             textUtils_cls();
             textUtils_println( "Didn't select a file." );
             textUtils_println( "Press any key..." );
@@ -101,20 +142,13 @@ void playWavFileContinuously( uint16_t bufferSize ) {
 
     // Plays a PCM 8 bit sample using ping pong buffers in wavuno internal ram
 
-    uint32_t bytesLeftToLoad;
-    uint16_t numBytesToRead, numBytesRead;
-    uint8_t *p;
-    bool doEnd = false;
-    uint32_t bufferSizeMinusOne = bufferSize - 1;
-    uint32_t twoBufferSizeMinusOne = ( bufferSize << 1 ) - 1;
-    uint8_t bufferTurn = 0;
-    bool flagStart = true;
+    doEnd = false;
+    bufferSizeMinusOne = bufferSize - 1;
+    twoBufferSizeMinusOne = ( bufferSize << 1 ) - 1;
+    bufferTurn = 0;
+    flagStart = true;
 
-    uint8_t key;
-
-    uint16_t tempValue;
-
-    uint32_t freqValue = 3500;
+    freqValue = 3500;
 
     if ( openMediaFile() == false ) {
         sprintf( errorString, "Couldn't open WAV file." );
@@ -269,15 +303,112 @@ void playWavFileContinuously( uint16_t bufferSize ) {
     outp( ZXUNO_REG, 1 );
 
     setWavunoIntBeginEnd( 0, bufferSizeMinusOne );
+    
+    playingState = STATE_PLAYING;
+    joystickValuePrev = 0;
+    pressedCounter = 0;
+    pressedLeft = false;
+    pressedRight = false;
 
     while ( doEnd == false && bytesLeftToLoad > 0 ) {
 
+        // Keyboard input
+        
+        joystickValue = readJoystickAndKeyboard();
+        
+        if ( joystickValuePrev == 0 && joystickValue != 0 ) {
+            bit_frequency( 0.05, 130.812 );
+        }
+        
+        if ( joystickValue & in_LEFT ) {
+            pressedLeft = true;
+            if ( joystickValuePrev != 0 ) {
+                if ( pressedCounter > 10 ) {
+                    playingState = STATE_FASTBACKWARD;
+                    pressedCounter = 11;
+                }
+                else {
+                    pressedCounter++;
+                }
+            }
+            else {
+                pressedCounter = 0;
+                playingState = STATE_PLAYING;
+            }
+        }
+        else if ( joystickValue & in_RIGHT ) {
+            pressedRight = true;
+            if ( joystickValuePrev != 0 ) {
+                if ( pressedCounter > 10 ) {
+                    playingState = STATE_FASTFORWARD;
+                    pressedCounter = 11;
+                }
+                else {
+                    pressedCounter++;
+                }
+            }
+            else {
+                pressedCounter = 0;
+                playingState = STATE_PLAYING;
+            }
+        }
+        else {
+            if ( pressedLeft ) {
+                if ( pressedCounter <= 10 ) {
+                    sprintf( errorString, "Prev" );
+                    doEnd = true;
+                }
+                else {
+                    playingState = STATE_PLAYING;
+                }
+            }
+            else if ( pressedRight ) {
+                if ( pressedCounter <= 10 ) {
+                    sprintf( errorString, "Next" );
+                    doEnd = true;
+                }
+                else {
+                    playingState = STATE_PLAYING;
+                }
+            }
+            pressedLeft = false;
+            pressedRight = false;
+        }
+        
+        if ( joystickValue & in_UP ) {
+            
+        }
+        
+        if ( ( joystickValue & in_DOWN ) && ( joystickValuePrev == 0 ) ) {
+            if ( playingState == STATE_PAUSE ) {
+                playingState = STATE_PLAYING;
+                flagStart = true;
+                bufferTurn = 0;
+            }
+            else {
+                playingState = STATE_PAUSE;
+                // Stop playing
+                outp( ZXUNO_ADDR, WAVUNO_STAT_REG );
+                outp( ZXUNO_REG, WAVUNO_REG_INT_CONTROL_BEGIN_REPROD );
+                outp( ZXUNO_ADDR, WAVUNO_DATA_REG );
+                outp( ZXUNO_REG, 0 );
+            }
+        }
+        
+        if ( joystickValue & in_FIRE ) {
+            
+        }
+        
+        joystickValuePrev = joystickValue;
+
+/*
         key = in_Inkey();
         if ( key >0 ) {
             sprintf( errorString, "Interrupted by user." );
             doEnd = true;
             break;
         }
+*/
 /*
         if ( key >= '1' && key <= '4' ) {
             // Play the wav file
@@ -290,6 +421,11 @@ void playWavFileContinuously( uint16_t bufferSize ) {
 
         }
 */
+        
+        if ( playingState == STATE_PAUSE ) {
+            continue;
+        }
+        
         numBytesToRead = bufferSize;
         if ( numBytesToRead > bytesLeftToLoad ) {
             numBytesToRead = bytesLeftToLoad;
@@ -454,4 +590,16 @@ uint16_t readByteFile() {
 
     return buffer[ 0 ];
 
+}
+
+void resetKeyboard() {
+    keyboardMap.fire = in_LookupKey( ' ' );
+    keyboardMap.left = in_LookupKey( 'o' );
+    keyboardMap.right = in_LookupKey( 'p' );
+    keyboardMap.down = in_LookupKey( 'a' );
+    keyboardMap.up = in_LookupKey( 'q' );
+}
+
+unsigned char readJoystickAndKeyboard() {
+    return ((void*)in_JoyKeyboard)( & keyboardMap ) | ((void*)in_JoyKempston)( & keyboardMap );
 }
