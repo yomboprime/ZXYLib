@@ -422,8 +422,31 @@ void playWavFileContinuously( uint16_t bufferSize ) {
         }
 */
         
-        if ( playingState == STATE_PAUSE ) {
-            continue;
+        switch ( playingState ) {
+            case STATE_PAUSE:
+                continue;
+                
+            case STATE_FASTFORWARD:
+                numBytesToRead = bufferSize;
+                if ( numBytesToRead > bytesLeftToLoad ) {
+                    numBytesToRead = bytesLeftToLoad;
+                }
+                ESXDOS_fseek( numBytesToRead, ESXDOS_SEEK_FORWARD_FROM_CURRENT, mediaFileHandle );
+                bytesLeftToLoad -= numBytesRead;
+                break;
+                
+            case STATE_FASTBACKWARD:
+                numBytesToRead = bufferSize << 2;
+                if ( numBytesToRead > bytesLeftToLoad ) {
+                    numBytesToRead = bytesLeftToLoad;
+                }
+                if ( ESXDOS_fseek( numBytesToRead, ESXDOS_SEEK_BACKWARDS_FROM_CURRENT, mediaFileHandle ) == 0 ) {
+                    bytesLeftToLoad = ESXDOS_fsize( mediaFileHandle ) - 44;
+                }
+                else {
+                    bytesLeftToLoad += numBytesRead;
+                }
+                break;
         }
         
         numBytesToRead = bufferSize;
