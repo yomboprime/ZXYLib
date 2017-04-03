@@ -34,6 +34,16 @@ uint16_t readByteFile();
 void resetKeyboard();
 unsigned char readJoystickAndKeyboard();
 
+#define playBeep() bit_frequency( 0.05, 130.812 )
+
+uint16_t countSongs();
+void getSongFileName();
+
+void callBackDummy( uint16_t numEntry, uint8_t *entryPtr, uint8_t *userData );
+void callBackGetFileName( uint16_t numEntry, uint8_t *entryPtr, uint8_t *userData );
+
+uint16_t getRandomSongIndex();
+
 // Global variables
 
 #define PATH_SIZE ( 200 )
@@ -44,11 +54,8 @@ uint8_t buffer[ BUFFER_SIZE ];
 
 int16_t drive;
 int16_t mediaFileHandle;
-uint8_t *screenPtr;
 uint8_t errorString[ 200 ];
 
-uint32_t numBytesWAV;
-uint32_t beginPos, endPos;
 bool sampleIsStereo = false;
 uint32_t sampleFrequency = 0;
 
@@ -64,6 +71,7 @@ uint32_t bytesLeftToLoad;
 uint16_t numBytesToRead, numBytesRead;
 uint8_t *p;
 bool doEnd;
+bool finishedPlaying;
 uint32_t bufferSizeMinusOne;
 uint32_t twoBufferSizeMinusOne;
 uint8_t bufferTurn;
@@ -75,6 +83,8 @@ uint32_t freqValue;
 uint8_t pressedCounter;
 bool pressedLeft;
 bool pressedRight;
+bool pressedUp;
+bool pressedFire;
 
 // Play state
 
@@ -89,50 +99,78 @@ unsigned char playingState = STATE_PAUSE;
 #define SONG_RAND 2
 unsigned char songState = SONG_LOOPALL;
 
+uint16_t numTotalSongs = 0;
+uint16_t currentSongIndex = 0;
+
+
 void main(void) {
     
     resetKeyboard();
-
-    sprintf( filePath, "/" );
+    
+    sprintf( filePath, "/music" );
     sprintf( errorString, "No error." );
 
     textUtils_32ColumnsMode();
     textUtils_cls();
     zx_border( INK_GREEN );
 
-    beginPos = 0;
-
     TURBO_set( ZXUNO_TURBO_X1 );
+
+    numTotalSongs = countSongs();
+    textUtils_print( "Number of songs: " );
+    textUtils_println_l( numTotalSongs );
+//    waitKeyPress();
+    
+    playBeep();
+
+    playingState = STATE_PAUSE;
+    joystickValuePrev = 0;
+    pressedCounter = 0;
+    pressedLeft = false;
+    pressedRight = false;
+    pressedUp = false;
+    pressedFire = false;
 
     while ( 1 ) {
 
-        fileDialogpathUpOneDir( filePath );
-        while ( openFileDialog( "Open media file", filePath, PATH_SIZE, INK_GREEN | PAPER_WHITE, INK_WHITE | PAPER_GREEN ) == false ) {
-            
-            textUtils_cls();
-            textUtils_println( "Didn't select a file." );
-            textUtils_println( "Press any key..." );
-            waitKeyPress();
-
-        }
-
         TURBO_set( ZXUNO_TURBO_X4 );
 
-        textUtils_cls();
-
+        if ( ! getSongFileName() ) {
+            textUtils_print( "Error getting song name." );
+            waitKeyPress();
+            continue;
+        }
+        
         textUtils_print( "Selected file: " );
+        textUtils_print_l( currentSongIndex );
+        textUtils_print( ", " );
         textUtils_println( filePath );
 
         textUtils_println( "\nPlaying WAV file... " );
+
         playWavFileContinuously( BUFFER_SIZE );
 
         textUtils_print( "\nMessage: " );
         textUtils_println( errorString );
         textUtils_println( "Press any key..." );
+        
+        if ( finishedPlaying ) {
+            switch ( songState ) {
+                case SONG_LOOPALL:
+                    currentSongIndex++;
+                    if ( currentSongIndex >= numTotalSongs ) {
+                        currentSongIndex = 0;
+                    }
+                    break;
+                case SONG_RAND:
+                    currentSongIndex = getRandomSongIndex();
+                    break;
+            }
+        }
 
         TURBO_set( ZXUNO_TURBO_X1 );
 
-        waitKeyPress();
+//        waitKeyPress();
 
     }
 
@@ -141,6 +179,7 @@ void main(void) {
 void playWavFileContinuously( uint16_t bufferSize ) {
 
     // Plays a PCM 8 bit sample using ping pong buffers in wavuno internal ram
+    // Returns true if the song finished playing, false if terminated for another cause
 
     doEnd = false;
     bufferSizeMinusOne = bufferSize - 1;
@@ -149,6 +188,8 @@ void playWavFileContinuously( uint16_t bufferSize ) {
     flagStart = true;
 
     freqValue = 3500;
+    
+    finishedPlaying = true;
 
     if ( openMediaFile() == false ) {
         sprintf( errorString, "Couldn't open WAV file." );
@@ -304,12 +345,6 @@ void playWavFileContinuously( uint16_t bufferSize ) {
 
     setWavunoIntBeginEnd( 0, bufferSizeMinusOne );
     
-    playingState = STATE_PLAYING;
-    joystickValuePrev = 0;
-    pressedCounter = 0;
-    pressedLeft = false;
-    pressedRight = false;
-
     while ( doEnd == false && bytesLeftToLoad > 0 ) {
 
         // Keyboard input
@@ -317,7 +352,7 @@ void playWavFileContinuously( uint16_t bufferSize ) {
         joystickValue = readJoystickAndKeyboard();
         
         if ( joystickValuePrev == 0 && joystickValue != 0 ) {
-            bit_frequency( 0.05, 130.812 );
+            playBeep();
         }
         
         if ( joystickValue & in_LEFT ) {
@@ -356,7 +391,14 @@ void playWavFileContinuously( uint16_t bufferSize ) {
             if ( pressedLeft ) {
                 if ( pressedCounter <= 10 ) {
                     sprintf( errorString, "Prev" );
+                    if ( currentSongIndex > 0 ) {
+                        currentSongIndex--;
+                    }
+                    else {
+                        currentSongIndex = numTotalSongs - 1;
+                    }
                     doEnd = true;
+                    finishedPlaying = false;
                 }
                 else {
                     playingState = STATE_PLAYING;
@@ -365,7 +407,12 @@ void playWavFileContinuously( uint16_t bufferSize ) {
             else if ( pressedRight ) {
                 if ( pressedCounter <= 10 ) {
                     sprintf( errorString, "Next" );
+                    currentSongIndex++;
+                    if ( currentSongIndex >= numTotalSongs ) {
+                        currentSongIndex = 0;
+                    }
                     doEnd = true;
+                    finishedPlaying = false;
                 }
                 else {
                     playingState = STATE_PLAYING;
@@ -376,9 +423,38 @@ void playWavFileContinuously( uint16_t bufferSize ) {
         }
         
         if ( joystickValue & in_UP ) {
-            
+            pressedUp = true;
+            if ( joystickValuePrev != 0 ) {
+                if ( pressedCounter > 10 ) {
+                    playingState = STATE_PLAYING;
+                    songState = SONG_LOOPALL;
+                    currentSongIndex = 0;
+                    doEnd = true;
+                    finishedPlaying = false;
+                    pressedCounter = 11;
+                }
+                else {
+                    pressedCounter++;
+                }
+            }
+            else {
+                pressedCounter = 0;
+                playingState = STATE_PLAYING;
+            }
         }
-        
+        else {
+            if ( pressedUp ) {
+                if ( pressedCounter <= 10 ) {
+                    playingState = STATE_PLAYING;
+                    songState = SONG_RAND;
+                    currentSongIndex = getRandomSongIndex();
+                    doEnd = true;
+                    finishedPlaying = false;
+                }
+            }
+            pressedUp = false;
+        }
+
         if ( ( joystickValue & in_DOWN ) && ( joystickValuePrev == 0 ) ) {
             if ( playingState == STATE_PAUSE ) {
                 playingState = STATE_PLAYING;
@@ -393,34 +469,37 @@ void playWavFileContinuously( uint16_t bufferSize ) {
                 outp( ZXUNO_ADDR, WAVUNO_DATA_REG );
                 outp( ZXUNO_REG, 0 );
             }
+            srand( time(NULL) );
         }
         
         if ( joystickValue & in_FIRE ) {
-            
+            pressedFire = true;
+            if ( joystickValuePrev != 0 ) {
+                if ( pressedCounter > 10 ) {
+                    playingState = STATE_PLAYING;
+                    songState = SONG_LOOPALL;
+                    pressedCounter = 11;
+                }
+                else {
+                    pressedCounter++;
+                }
+            }
+            else {
+                pressedCounter = 0;
+                playingState = STATE_PLAYING;
+            }
         }
-        
+        else {
+            if ( pressedFire ) {
+                if ( pressedCounter <= 10 ) {
+                    playingState = STATE_PLAYING;
+                    songState = SONG_LOOPONE;
+                }
+            }
+            pressedFire = false;
+        }
+
         joystickValuePrev = joystickValue;
-
-/*
-        key = in_Inkey();
-        if ( key >0 ) {
-            sprintf( errorString, "Interrupted by user." );
-            doEnd = true;
-            break;
-        }
-*/
-/*
-        if ( key >= '1' && key <= '4' ) {
-            // Play the wav file
-            outp( ZXUNO_ADDR, WAVUNO_STAT_REG );
-            outp( ZXUNO_REG, WAVUNO_REG_EXT_CONTROL_BEGIN_REPROD );
-            outp( ZXUNO_ADDR, WAVUNO_DATA_REG );
-            //outp( ZXUNO_REG, ( 1 << ( key - '1' ) ) | inp( ZXUNO_REG ) );
-            //outp( ZXUNO_REG, 2 );
-            outp( ZXUNO_REG, 1 );
-
-        }
-*/
         
         switch ( playingState ) {
             case STATE_PAUSE:
@@ -510,12 +589,6 @@ void playWavFileContinuously( uint16_t bufferSize ) {
             outp( ZXUNO_REG, 0 );
 
         }
-
-        // Stop playing
-//        outp( ZXUNO_ADDR, WAVUNO_STAT_REG );
-//        outp( ZXUNO_REG, WAVUNO_REG_CONTROL_BEGIN_REPROD );
-//        outp( ZXUNO_ADDR, WAVUNO_DATA_REG );
-//        outp( ZXUNO_REG, 0 );
 
         // Switch begin and end addresses of next buffer to play
         if ( bufferTurn == 0 ) {
@@ -625,4 +698,50 @@ void resetKeyboard() {
 
 unsigned char readJoystickAndKeyboard() {
     return ((void*)in_JoyKeyboard)( & keyboardMap ) | ((void*)in_JoyKempston)( & keyboardMap );
+}
+
+uint16_t countSongs() {
+    
+    // (-2 for ./ and ../)
+    return fileDialogIterateSDDirectory( "/music", 0, 65535, callBackDummy, NULL, NULL, NULL ) - 2;
+
+}
+
+void getSongFileName() {
+
+    bool found = false;
+    
+    fileDialogIterateSDDirectory( "/music", 0, 65535, callBackGetFileName, NULL, NULL, &found );
+    
+    return found;
+
+}
+
+void callBackDummy( uint16_t numEntry, uint8_t *entryPtr, uint8_t *userData ) {
+    
+    // Nothing to do here
+    
+}
+
+void callBackGetFileName( uint16_t numEntry, uint8_t *entryPtr, uint8_t *userData ) {
+    
+    if ( numEntry == ( currentSongIndex + 2 ) && ( *entryPtr++ != ESXDOS_FILE_ATTRIBUTE_DIR_BIT ) ) {
+
+        strcpy( filePath, "/music/" );
+        p = filePath + 7;
+        while ( *entryPtr ) {
+            *p++ = *entryPtr++;
+        }
+        *p = *entryPtr;
+
+        *((bool*)(userData)) = true;
+        
+    }
+    
+}
+
+uint16_t getRandomSongIndex() {
+    
+    return ((uint16_t)( ( numTotalSongs - 1 ) * ( ((float)rand()) / 32767.0 ) ) );
+    
 }
