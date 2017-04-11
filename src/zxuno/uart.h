@@ -25,10 +25,11 @@ extern void UART_println( uint8_t *s );
 extern int UART_available();
 extern uint8_t UART_readBlocking();
 extern int UART_read();
+extern int UART_read_timeout( long timeout_ms );
 extern int UART_peek();
 
-extern int32_t UART_parseInt();
-extern bool UART_find( uint8_t *s );
+extern int32_t UART_parseInt( long timeout_ms );
+extern bool UART_find( uint8_t *s, long timeout_ms );
 
 #endif /* ZXUNO_UART_H */
 

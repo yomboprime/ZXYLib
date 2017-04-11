@@ -108,6 +108,8 @@ void UART_println( uint8_t *s ) {
 }
 
 int UART_available() {
+    
+    // Returns number of available bytes to read instantly (0 or 1)
 
     int c;
 
@@ -210,7 +212,29 @@ int UART_read() {
 
 }
 
+int UART_read_timeout( long timeout_ms ) {
+    
+    // Wait for a byte a specified time in ms
+    // If no byte was available in the given time, returns -1
+    
+    int c;
+    long t0 = millis();
+    
+    while ( millis() - t0 < timeout_ms ) {
+        c = UART_read();
+        if ( c >= 0 ) {
+            return c;
+        }
+    }
+    
+    return -1;
+    
+}
+
 int UART_peek() {
+    
+    // Read an available byte without consuming it.
+    // Returns -1 if no byte was available.
 
     int c;
 
@@ -239,20 +263,22 @@ int UART_peek() {
 
 }
 
-int32_t UART_parseInt() {
+int32_t UART_parseInt( long timeout_ms ) {
+    
+    // Parses a string representing an integer.
+    // Returns -1 if timeoud passed.
 
     int32_t value = 0;
     int c_int;
     uint8_t c;
-    uint8_t end = false;
     uint8_t numChars = 0;
     uint8_t minusSign = false;
-    long t = millis();
+    long t0 = millis();
 
-    while ( end == false ) {
+    while ( 1 ) {
 
-        if ( millis() - t > 1000 ) {
-            break;
+        if ( millis() - t0 > timeout_ms ) {
+            return -1;
         }
 
         c_int = UART_peek();
@@ -285,8 +311,8 @@ int32_t UART_parseInt() {
                     if ( minusSign == true ) {
                         value = - value;
                     }
-                    numChars++;
-                    end = true;
+                    
+                    return value;
 
                 }
                 else {
@@ -295,18 +321,14 @@ int32_t UART_parseInt() {
                     c_int = UART_read();
 
                 }
-
             }
-
         }
-
     }
-
-    return value;
-
 }
 
-bool UART_find( uint8_t *s ) {
+bool UART_find( uint8_t *s, long timeout_ms ) {
+    
+    // Reads 
 
     int c_int;
     uint8_t c;

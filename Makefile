@@ -19,7 +19,7 @@ srcFilesExampleSDStat = src/textUtils.c src/esxdos.c examples/exampleSDStat.c
 
 srcFilesExampleSDSeek = src/textUtils.c src/esxdos.c examples/exampleSDSeek.c
 
-srcFilesExampleUARTTerminal = src/textUtils.c src/esxdos.c src/zxuno/uart.c src/zxuno/zxuno.c examples/exampleUARTTerminal.c
+srcFilesExampleUARTTerminal = src/textUtils.c src/zxuno/uart.c src/zxuno/zxuno.c examples/exampleUARTTerminal.c
 
 srcFilesExampleVeripac = src/textUtils.c src/esxdos.c src/zxuno/zxuno.c src/zxuno/turbo.c src/fileDialog.c src/graphics.c src/zxuno/veripac9.c examples/veripac/exampleVeripac9.c
 
@@ -31,10 +31,12 @@ srcFilesExampleWavBackground = src/textUtils.c src/esxdos.c src/zxuno/zxuno.c sr
 
 srcFilesExampleWavman = src/textUtils.c src/esxdos.c src/zxuno/zxuno.c src/zxuno/turbo.c src/fileDialog.c src/zxuno/wavunolite.c examples/wavman/exampleWavman.c
 
-# All the targets:
-all: generateBASICLoader createExample1 createExample2 createExample3 createExample4 createExample5 createExample6 createExample7 createExample8 createExample9 createExample10 createExample11
+srcFilesExampleWiFiConfig = src/textUtils.c src/zxuno/uart.c src/zxuno/zxuno.c examples/exampleWiFiConfig.c
 
-#all: generateBASICLoader createExample8 createExample9 createExample10 createExample11
+# All the targets:
+all: generateBASICLoader createExample1 createExample2 createExample3 createExample4 createExample5 createExample6 createExample7 createExample8 createExample9 createExample10 createExample11 createExample12
+
+#all: generateBASICLoader createExample11
 
 # Targets:
 
@@ -245,6 +247,25 @@ generateWav11:
 
 generateWavLeches11:
 	./CgLeches WAVMAN.tap WAVMAN.wav 3 > ultimolog.txt
+
+#------------------------------------------------------------------------------
+
+createExample12: compile12 createTAP12 concatenateTAPs12 generateWavLeches12
+
+compile12:
+	zcc +zx -o f12.bin -lndos -lmzx $(srcFilesExampleWiFiConfig) > ultimolog.txt
+
+createTAP12:
+	$(node) ./bin2tap-js/bin2tap.js ../f12.bin > ultimolog.txt
+
+concatenateTAPs12:
+	cat ./cargadorBASIC/cargador.tap f12.tap > WIFICONF.tap
+
+generateWav12:
+	tape2wav ./WIFICONF.tap ./WIFICONF.wav > ultimolog.txt
+
+generateWavLeches12:
+	./CgLeches WIFICONF.tap WIFICONF.wav 3 > ultimolog.txt
 
 #------------------------------------------------------------------------------
 

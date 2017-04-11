@@ -41,6 +41,7 @@
         <in>exampleUARTTerminal.c</in>
         <in>exampleVideoPlayer.c</in>
         <in>exampleWavBackground.c</in>
+        <in>exampleWiFiConfig.c</in>
         <in>testSRAM.c</in>
       </df>
       <df name="lib">
