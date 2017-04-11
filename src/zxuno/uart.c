@@ -344,7 +344,7 @@ bool UART_find( uint8_t *s, long timeout_ms ) {
 
     t = millis();
 
-    while ( millis() - t < 1000 ) {
+    while ( millis() - t < timeout_ms ) {
 
         c_int = UART_read();
 
