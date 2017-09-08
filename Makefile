@@ -33,10 +33,14 @@ srcFilesExampleWavman = src/textUtils.c src/esxdos.c src/zxuno/zxuno.c src/zxuno
 
 srcFilesExampleWiFiConfig = src/textUtils.c src/zxuno/uart.c src/zxuno/zxuno.c examples/exampleWiFiConfig.c
 
-# All the targets:
-all: generateBASICLoader createExample1 createExample2 createExample3 createExample4 createExample5 createExample6 createExample7 createExample8 createExample9 createExample10 createExample11 createExample12
+srcFilesExampleDrawTriangles = src/zxthree/screen/screen.c src/zxthree/raster/triangle/triangle.c src/zxthree/impl/zxradas/screen/scrradas.c src/zxuno/radas.c src/zxuno/turbo.c src/zxuno/zxuno.c examples/exampleDrawTriangles.c
 
-#all: generateBASICLoader createExample11
+srcFilesExampleSpeederGame = src/zxthree/screen/screen.c src/zxthree/raster/triangle/triangle.c src/zxthree/impl/zxradas/screen/scrradas.c src/zxuno/radas.c src/zxuno/turbo.c src/zxuno/zxuno.c examples/exampleSpeederGame.c
+
+# All the targets:
+#all: generateBASICLoader createExample1 createExample2 createExample3 createExample4 createExample5 createExample6 createExample7 createExample8 createExample9 createExample10 createExample11 createExample12 createExample13 createExample14
+
+all: generateBASICLoader createExample14
 
 # Targets:
 
@@ -266,6 +270,44 @@ generateWav12:
 
 generateWavLeches12:
 	./CgLeches WIFICONF.tap WIFICONF.wav 3 > ultimolog.txt
+
+#------------------------------------------------------------------------------
+
+createExample13: compile13 createTAP13 concatenateTAPs13 generateWavLeches13
+
+compile13:
+	zcc +zx -o f13.bin -lndos -lmzx $(srcFilesExampleDrawTriangles) > ultimolog.txt
+
+createTAP13:
+	$(node) ./bin2tap-js/bin2tap.js ../f13.bin > ultimolog.txt
+
+concatenateTAPs13:
+	cat ./cargadorBASIC/cargador.tap f13.tap > DRAWTRIS.tap
+
+generateWav13:
+	tape2wav ./DRAWTRIS.tap ./DRAWTRIS.wav > ultimolog.txt
+
+generateWavLeches13:
+	./CgLeches DRAWTRIS.tap DRAWTRIS.wav 3 > ultimolog.txt
+
+#------------------------------------------------------------------------------
+
+createExample14: compile14 createTAP14 concatenateTAPs14 generateWavLeches14
+
+compile14:
+	zcc +zx -o f14.bin -lndos -lmzx $(srcFilesExampleSpeederGame) > ultimolog.txt
+
+createTAP14:
+	$(node) ./bin2tap-js/bin2tap.js ../f14.bin > ultimolog.txt
+
+concatenateTAPs14:
+	cat ./cargadorBASIC/cargador.tap f14.tap > _SPEEDER.tap
+
+generateWav14:
+	tape2wav ./_SPEEDER.tap ./_SPEEDER.wav > ultimolog.txt
+
+generateWavLeches14:
+	./CgLeches _SPEEDER.tap _SPEEDER.wav 3 > ultimolog.txt
 
 #------------------------------------------------------------------------------
 

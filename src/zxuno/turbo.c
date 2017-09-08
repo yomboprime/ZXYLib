@@ -25,6 +25,6 @@ void TURBO_set( uint8_t turboMode ) {
     // Sets a turbo mode.
 
     outp( ZXUNO_ADDR, SCANDBLCTRL_REG );
-    outp( ZXUNO_REG, turboMode & ZXUNO_TURBO_MASK );
+    outp( ZXUNO_REG, ( inp( ZXUNO_REG ) & ( ~ ZXUNO_TURBO_MASK ) ) | turboMode );
 
 }

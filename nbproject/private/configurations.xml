@@ -14,6 +14,20 @@
         <in>leches.c</in>
       </df>
       <df name="examples">
+        <df name="backups speeder">
+          <in>1 pinta arbol en screen space exampleSpeederGame.c</in>
+          <in>10 arboles con degradacion exampleSpeederGame.c</in>
+          <in>11 arreglado pintor exampleSpeederGame.c</in>
+          <in>12 degradacion cielo exampleSpeederGame.c</in>
+          <in>2 ya proyecta un arbol exampleSpeederGame.c</in>
+          <in>3 pinta un arbol en 3d exampleSpeederGame.c</in>
+          <in>4 ya se mueve el jugador con un arbol exampleSpeederGame.c</in>
+          <in>5 distribucion bien, antes de reducir espacio z exampleSpeederGame.c</in>
+          <in>6 arreglada distribucion, antes de meter joy exampleSpeederGame.c</in>
+          <in>7 arreglado bug arboles cercanos, hay que meter joystick exampleSpeederGame.c</in>
+          <in>8 mejorada proyeccion exampleSpeederGame.c</in>
+          <in>9 joystick, ultima mejora a la proyeccion exampleSpeederGame.c</in>
+        </df>
         <df name="printer">
         </df>
         <df name="veripac">
@@ -32,12 +46,14 @@
         <df name="wavman">
           <in>exampleWavman.c</in>
         </df>
+        <in>exampleDrawTriangles.c</in>
         <in>exampleSDList.c</in>
         <in>exampleSDRead.c</in>
         <in>exampleSDSeek.c</in>
         <in>exampleSDStat.c</in>
         <in>exampleSDWrite.c</in>
         <in>exampleSRAMTest.c</in>
+        <in>exampleSpeederGame.c</in>
         <in>exampleUARTTerminal.c</in>
         <in>exampleVideoPlayer.c</in>
         <in>exampleWavBackground.c</in>
@@ -47,6 +63,38 @@
       <df name="lib">
       </df>
       <df name="src">
+        <df name="zxthree">
+          <df name="impl">
+            <df name="pcdos">
+              <df name="screen">
+                <in>scrdos.c</in>
+                <in>scrdos.h</in>
+              </df>
+            </df>
+            <df name="zxdefault">
+              <df name="screen">
+              </df>
+            </df>
+            <df name="zxradas">
+              <df name="screen">
+                <in>scrradas.c</in>
+                <in>scrradas.h</in>
+              </df>
+            </df>
+          </df>
+          <df name="raster">
+            <df name="triangle">
+              <in>triangle.c</in>
+              <in>triangle.h</in>
+            </df>
+          </df>
+          <df name="screen">
+            <in>screen.c</in>
+            <in>screen.h</in>
+          </df>
+          <in>bits.h</in>
+          <in>retrosys.h</in>
+        </df>
         <df name="zxuno">
           <in>radas.c</in>
           <in>radas.h</in>
@@ -76,6 +124,8 @@
           <df name="convertRadas">
             <df name="node_modules">
               <df name="canvas">
+                <df name=".github">
+                </df>
                 <df name="build">
                   <df name="Release">
                     <df name=".deps">
@@ -97,32 +147,6 @@
                   </df>
                 </df>
                 <df name="lib">
-                </df>
-                <df name="node_modules">
-                  <df name="nan">
-                    <df name="doc">
-                    </df>
-                    <df name="tools">
-                    </df>
-                    <in>nan.h</in>
-                    <in>nan_callbacks.h</in>
-                    <in>nan_callbacks_12_inl.h</in>
-                    <in>nan_callbacks_pre_12_inl.h</in>
-                    <in>nan_converters.h</in>
-                    <in>nan_converters_43_inl.h</in>
-                    <in>nan_converters_pre_43_inl.h</in>
-                    <in>nan_implementation_12_inl.h</in>
-                    <in>nan_implementation_pre_12_inl.h</in>
-                    <in>nan_maybe_43_inl.h</in>
-                    <in>nan_maybe_pre_43_inl.h</in>
-                    <in>nan_new.h</in>
-                    <in>nan_object_wrap.h</in>
-                    <in>nan_persistent_12_inl.h</in>
-                    <in>nan_persistent_pre_12_inl.h</in>
-                    <in>nan_string_bytes.h</in>
-                    <in>nan_typedarray_contents.h</in>
-                    <in>nan_weak.h</in>
-                  </df>
                 </df>
                 <df name="src">
                   <in>Canvas.cc</in>
@@ -148,6 +172,80 @@
                   <in>init.cc</in>
                 </df>
                 <df name="util">
+                </df>
+              </df>
+              <df name="css-font-size-keywords">
+              </df>
+              <df name="css-font-stretch-keywords">
+              </df>
+              <df name="css-font-style-keywords">
+              </df>
+              <df name="css-font-weight-keywords">
+              </df>
+              <df name="css-global-keywords">
+              </df>
+              <df name="css-list-helpers">
+              </df>
+              <df name="css-system-font-keywords">
+              </df>
+              <df name="isnumeric">
+              </df>
+              <df name="nan">
+                <df name="doc">
+                </df>
+                <df name="tools">
+                </df>
+                <in>nan.h</in>
+                <in>nan_callbacks.h</in>
+                <in>nan_callbacks_12_inl.h</in>
+                <in>nan_callbacks_pre_12_inl.h</in>
+                <in>nan_converters.h</in>
+                <in>nan_converters_43_inl.h</in>
+                <in>nan_converters_pre_43_inl.h</in>
+                <in>nan_implementation_12_inl.h</in>
+                <in>nan_implementation_pre_12_inl.h</in>
+                <in>nan_json.h</in>
+                <in>nan_maybe_43_inl.h</in>
+                <in>nan_maybe_pre_43_inl.h</in>
+                <in>nan_new.h</in>
+                <in>nan_object_wrap.h</in>
+                <in>nan_persistent_12_inl.h</in>
+                <in>nan_persistent_pre_12_inl.h</in>
+                <in>nan_private.h</in>
+                <in>nan_string_bytes.h</in>
+                <in>nan_typedarray_contents.h</in>
+                <in>nan_weak.h</in>
+              </df>
+              <df name="parse-css-font">
+                <df name="lib">
+                </df>
+              </df>
+              <df name="tcomb">
+                <df name="lib">
+                </df>
+              </df>
+              <df name="units-css">
+                <df name="bower_components">
+                  <df name="isnumeric">
+                  </df>
+                  <df name="viewport-dimensions">
+                    <df name="dist">
+                    </df>
+                  </df>
+                </df>
+                <df name="dist">
+                </df>
+                <df name="lib">
+                  <df name="conversions">
+                  </df>
+                </df>
+              </df>
+              <df name="unquote">
+                <df name="test">
+                </df>
+              </df>
+              <df name="viewport-dimensions">
+                <df name="dist">
                 </df>
               </df>
             </df>

@@ -115,6 +115,10 @@ void drawTriangle( int16_t *coordinates, uint8_t color, ScreenScanFunc( screenSc
     xRight = x0;
     y = y0;
     
+    if ( y >= screenSizeY ) {
+        return;
+    }
+    
     if ( y >= 0 ) {
         linePointerValid = true;
         linePointer = screenBuf + screenLineNumBytes * y;
@@ -200,6 +204,10 @@ void drawTriangle( int16_t *coordinates, uint8_t color, ScreenScanFunc( screenSc
     if ( firstHalf ) {
         
         while ( y <= y1 ) {
+            
+            if ( y >= screenSizeY ) {
+                return;
+            }
 
             errorLeft += dxLeft;
             while ( errorLeft >= dyLeft && pixelsLeft > 0 ) {

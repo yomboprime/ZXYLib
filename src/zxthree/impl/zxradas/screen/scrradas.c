@@ -1,9 +1,11 @@
 
 #include <spectrum.h>
 #include <string.h>
+#include <stdlib.h>
 
 #include "../../../screen/screen.h"
 #include "scrradas.h"
+#include "../../../../zxuno/zxuno.h"
 #include "../../../../zxuno/radas.h"
 
 #define SCREEN_X_ZX_DEFAULT ( 256 )
@@ -15,6 +17,37 @@
 #define SCREEN_Y_RADASTAN ( 96 )
 #define SCREEN_RADASTAN_LINE_NUM_BYTES ( 64 )
 #define SCREEN_RADASTAN_NUM_BYTES ( 6144 )
+
+#define DMASRC 0xa1
+#define DMADST 0xa2
+#define DMALEN 0xa4
+#define DMACTR 0xa0
+
+void memsetDMA( uint8_t *mem, uint8_t val, uint16_t len ) {
+
+    *mem = val;
+    len--;
+    if ( ! len ) {
+        return;
+    }
+
+    outp( ZXUNO_ADDR, DMASRC );
+    outp( ZXUNO_REG, mem & 0xff );
+    outp( ZXUNO_REG, ( mem >> 8 ) & 0xff );
+
+    mem++;
+    outp( ZXUNO_ADDR, DMADST );
+    outp( ZXUNO_REG, mem&0xff );
+    outp( ZXUNO_REG, ( mem >> 8 ) & 0xff );
+
+    outp( ZXUNO_ADDR, DMALEN );
+    outp( ZXUNO_REG, len & 0xff );
+    outp( ZXUNO_REG, ( len >> 8 ) & 0xff );
+
+    outp( ZXUNO_ADDR, DMACTR );
+    outp( ZXUNO_REG, 1 ); /* DMA mem->mem, burst */
+
+}
 
 bool setPaletteRadas( uint8_t *palette ) {
 
@@ -53,6 +86,8 @@ void screenScanRadas( uint8_t *pointer, int16_t startx, int16_t endx, uint8_t co
     }
 
     memset( pointer + ( startx >> 1 ), color, ( endx - startx + 1 ) >> 1 );
+    
+    //memsetDMA( pointer + ( startx >> 1 ), color, ( endx - startx + 1 ) >> 1 );
 
 }
 
@@ -110,6 +145,7 @@ void screenScanTrimmedRadas( uint8_t *pointer, int16_t startx, int16_t endx, uin
 
     memset( pointer + ( startx >> 1 ), color, ( endx - startx + 1 ) >> 1 );
 
+    //memsetDMA( pointer + ( startx >> 1 ), color, ( endx - startx + 1 ) >> 1 );
 }
 
 bool setVideoMode( uint8_t mode ) {
