@@ -275,7 +275,7 @@ void main() {
 
 
     // MAIN LOOP
-    while ( true ) {
+    while ( key != in_FIRE ) {
 
         // Player control
         key = readKeyboardAndMouse();
@@ -504,7 +504,7 @@ void main() {
 
     setVideoMode( VIDEO_MODE_ZX_DEFAULT );
 
-    printf( "End.\n" );
+    printf( "Game end. Have a nice day.\n" );
 
     TURBO_set( turbo );
 
