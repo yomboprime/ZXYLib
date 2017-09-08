@@ -38,9 +38,9 @@ srcFilesExampleDrawTriangles = src/zxthree/screen/screen.c src/zxthree/raster/tr
 srcFilesExampleSpeederGame = src/zxthree/screen/screen.c src/zxthree/raster/triangle/triangle.c src/zxthree/impl/zxradas/screen/scrradas.c src/zxuno/radas.c src/zxuno/turbo.c src/zxuno/zxuno.c examples/exampleSpeederGame.c
 
 # All the targets:
-#all: generateBASICLoader createExample1 createExample2 createExample3 createExample4 createExample5 createExample6 createExample7 createExample8 createExample9 createExample10 createExample11 createExample12 createExample13 createExample14
+all: generateBASICLoader createExample1 createExample2 createExample3 createExample4 createExample5 createExample6 createExample7 createExample8 createExample9 createExample10 createExample11 createExample12 createExample13 createExample14
 
-all: generateBASICLoader createExample14
+#all: generateBASICLoader createExample14
 
 # Targets:
 
@@ -301,13 +301,13 @@ createTAP14:
 	$(node) ./bin2tap-js/bin2tap.js ../f14.bin > ultimolog.txt
 
 concatenateTAPs14:
-	cat ./cargadorBASIC/cargador.tap f14.tap > _SPEEDER.tap
+	cat ./cargadorBASIC/cargador.tap f14.tap > SPEEDER.tap
 
 generateWav14:
-	tape2wav ./_SPEEDER.tap ./_SPEEDER.wav > ultimolog.txt
+	tape2wav ./SPEEDER.tap ./SPEEDER.wav > ultimolog.txt
 
 generateWavLeches14:
-	./CgLeches _SPEEDER.tap _SPEEDER.wav 3 > ultimolog.txt
+	./CgLeches SPEEDER.tap SPEEDER.wav 3 > ultimolog.txt
 
 #------------------------------------------------------------------------------
 
