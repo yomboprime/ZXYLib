@@ -133,6 +133,10 @@ void drawMountain( int z );
 // MAIN
 void main() {
     
+    #asm
+        ei
+    #endasm
+    
     // Save turbo and set turbo X8
     turbo = TURBO_get();
     TURBO_set( ZXUNO_TURBO_X8 );

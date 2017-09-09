@@ -292,19 +292,19 @@ generateWavLeches13:
 
 #------------------------------------------------------------------------------
 
-createExample14: compile14 createTAP14 concatenateTAPs14 generateWavLeches14
+createExample14: compile14 concatenateTAPs14 createTAP14 generateWavLeches14
 
 compile14:
 	zcc +zx -o f14.bin -lndos -lmzx $(srcFilesExampleSpeederGame) > ultimolog.txt
 
-createTAP14:
-	$(node) ./bin2tap-js/bin2tap.js ../f14.bin > ultimolog.txt
-
 concatenateTAPs14:
-	cat ./cargadorBASIC/cargador.tap f14.tap > SPEEDER.tap
+	cat ./cargadorBinario/loader.bin f14.bin > SPEEDER.bin
 
-generateWav14:
-	tape2wav ./SPEEDER.tap ./SPEEDER.wav > ultimolog.txt
+#createTAP14:
+#	$(node) ./bin2tap-js/bin2tap.js ../SPEEDER.bin > ultimolog.txt
+
+createTAP14::
+	./gentape/GenTape SPEEDER.tap basic 'SPEEDER' 0 SPEEDER.bin > ultimolog.txt
 
 generateWavLeches14:
 	./CgLeches SPEEDER.tap SPEEDER.wav 3 > ultimolog.txt

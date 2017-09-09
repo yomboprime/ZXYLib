@@ -9,6 +9,9 @@
       </df>
       <df name="cargadorBASIC">
       </df>
+      <df name="cargadorBinario">
+        <in>loader.asm</in>
+      </df>
       <df name="cargandoleches">
         <in>CgLeches.c</in>
         <in>leches.c</in>
@@ -59,6 +62,9 @@
         <in>exampleWavBackground.c</in>
         <in>exampleWiFiConfig.c</in>
         <in>testSRAM.c</in>
+      </df>
+      <df name="gentape">
+        <in>GenTape.c</in>
       </df>
       <df name="lib">
       </df>
