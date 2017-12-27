@@ -2,8 +2,6 @@
 #ifndef __BITS__
 #define __BITS__
 
-#include "retrosys.h"
-
 #ifdef RETRO_SYSTEM_PC_DOS
 
 #include <mem.h>
@@ -23,10 +21,10 @@ enum { false, true };
 
 #endif
 
-#ifdef RETRO_SYSTEM_ZX_UNO
+//#ifdef RETRO_SYSTEM_ZX_UNO
 
 #include "../integerTypes.h"
 
-#endif
+//#endif
 
 #endif //__BITS__

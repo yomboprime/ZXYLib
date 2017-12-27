@@ -37,10 +37,10 @@ srcFilesExampleDrawTriangles = src/zxthree/screen/screen.c src/zxthree/raster/tr
 
 srcFilesExampleSpeederGame = src/zxthree/screen/screen.c src/zxthree/raster/triangle/triangle.c src/zxthree/impl/zxradas/screen/scrradas.c src/zxuno/radas.c src/zxuno/turbo.c src/zxuno/zxuno.c examples/exampleSpeederGame.c
 
-# All the targets:
-all: generateBASICLoader createExample1 createExample2 createExample3 createExample4 createExample5 createExample6 createExample7 createExample8 createExample9 createExample10 createExample11 createExample12 createExample13 createExample14
+srcFilesExampleFelicesFiestas = src/zxthree/screen/screen.c src/zxthree/raster/triangle/triangle.c src/zxthree/impl/zxradas/screen/scrradas.c src/zxuno/radas.c src/zxuno/turbo.c src/zxuno/zxuno.c examples/exampleFelicesFiestas.c
 
-#all: generateBASICLoader createExample14
+# All the targets:
+all: generateBASICLoader createExample1 createExample2 createExample3 createExample4 createExample5 createExample6 createExample7 createExample8 createExample9 createExample10 createExample11 createExample12 createExample13 createExample14 createExample15
 
 # Targets:
 
@@ -303,11 +303,27 @@ concatenateTAPs14:
 #createTAP14:
 #	$(node) ./bin2tap-js/bin2tap.js ../SPEEDER.bin > ultimolog.txt
 
-createTAP14::
+createTAP14:
 	./gentape/GenTape SPEEDER.tap basic 'SPEEDER' 0 SPEEDER.bin > ultimolog.txt
 
 generateWavLeches14:
 	./CgLeches SPEEDER.tap SPEEDER.wav 3 > ultimolog.txt
+
+#------------------------------------------------------------------------------
+
+createExample15: compile15 concatenateTAPs15 createTAP15 generateWavLeches15
+
+compile15:
+	zcc +zx -o f15.bin -lndos -lmzx $(srcFilesExampleFelicesFiestas) > ultimolog.txt
+
+concatenateTAPs15:
+	cat ./cargadorBinario/loader.bin f15.bin > FELICESF.bin
+
+createTAP15:
+	./gentape/GenTape FELICESF.tap basic 'FELICESF' 0 FELICESF.bin > ultimolog.txt
+
+generateWavLeches15:
+	./CgLeches FELICESF.tap FELICESF.wav 3 > ultimolog.txt
 
 #------------------------------------------------------------------------------
 

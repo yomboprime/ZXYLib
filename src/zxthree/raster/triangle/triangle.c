@@ -59,7 +59,7 @@ void drawTriangle( int16_t *coordinates, uint8_t color, ScreenScanFunc( screenSc
     
     bool firstHalf = true;
     bool secondHalf = true;
-    
+
     // Order the three vertices in ascending Y
     
     if ( coordinates[ 1 ] < coordinates[ 3 ] ) {
@@ -197,8 +197,8 @@ void drawTriangle( int16_t *coordinates, uint8_t color, ScreenScanFunc( screenSc
     
     pixelsLeft = dxLeft;
     pixelsRight = dxRight;
-    errorLeft = dxLeft >> 1;
-    errorRight = dxRight >> 1;
+    errorLeft = - ( dyLeft >> 1 );
+    errorRight = - ( dyRight >> 1 );
 
     // Draw the first half of the triangle
     if ( firstHalf ) {
@@ -237,7 +237,7 @@ void drawTriangle( int16_t *coordinates, uint8_t color, ScreenScanFunc( screenSc
 
             y++;
             linePointer += screenLineNumBytes;
-            
+
         }
         
     }
@@ -259,7 +259,7 @@ void drawTriangle( int16_t *coordinates, uint8_t color, ScreenScanFunc( screenSc
             }
 
             pixelsRight = dxRight;
-            errorRight = dxRight >> 1;
+            errorRight = - ( dyRight >> 1 );
 
         }
         else {
@@ -276,10 +276,10 @@ void drawTriangle( int16_t *coordinates, uint8_t color, ScreenScanFunc( screenSc
             }
             
             pixelsLeft = dxLeft;
-            errorLeft = dxLeft >> 1;
+            errorLeft = - ( dyLeft >> 1 );
 
         }
-        
+
         if ( y2 >= screenSizeY ) {
             y2 = screenSizeY - 1;
         }
@@ -301,7 +301,7 @@ void drawTriangle( int16_t *coordinates, uint8_t color, ScreenScanFunc( screenSc
             }
             
             if ( ! linePointerValid ) {
-                // Compute linePointer when y > 0 to prevent pointer overflow
+                // Compute linePointer when y >= 0 to prevent pointer overflow
                 if ( y >= 0 ) {
                     linePointer = screenBuf + screenLineNumBytes * y;
                     linePointerValid = true;
@@ -312,9 +312,10 @@ void drawTriangle( int16_t *coordinates, uint8_t color, ScreenScanFunc( screenSc
                 screenScan( linePointer, xLeft, xRight, color );
             }
 
+            
             y++;
             linePointer += screenLineNumBytes;
-
+                
         }
 
     }
