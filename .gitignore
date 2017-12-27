@@ -1,1 +1,5 @@
 /utilities/radastanMode/convertRadas/node_modules/
+*.bin
+nul
+ultimolog.txt
+zcc_opt.def
