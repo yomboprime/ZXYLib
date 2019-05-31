@@ -1,4 +1,5 @@
 /utilities/radastanMode/convertRadas/node_modules/
+/utilities/8bnet/node_modules/
 *.bin
 nul
 ultimolog.txt
