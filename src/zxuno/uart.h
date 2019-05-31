@@ -9,8 +9,8 @@
 
 #include "../integerTypes.h"
 
-#define UART_DATA_REG 250
-#define UART_STAT_REG 251
+#define UART_DATA_REG 0xc6
+#define UART_STAT_REG 0xc7
 #define UART_BYTE_RECEIVED_BIT 0x80
 #define UART_BYTE_TRANSMITTING_BIT 0x40
 
