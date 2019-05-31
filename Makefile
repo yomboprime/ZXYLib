@@ -39,8 +39,14 @@ srcFilesExampleSpeederGame = src/zxthree/screen/screen.c src/zxthree/raster/tria
 
 srcFilesExampleFelicesFiestas = src/zxthree/screen/screen.c src/zxthree/raster/triangle/triangle.c src/zxthree/impl/zxradas/screen/scrradas.c src/zxuno/radas.c src/zxuno/turbo.c src/zxuno/zxuno.c examples/exampleFelicesFiestas.c
 
+srcFilesTestCoprocesador = src/textUtils.c src/zxuno/zxuno.c src/zxuno/coprocessor.c src/zxuno/turbo.c examples/testCoprocesador.c
+
+srcFilesTestCoprocesador2 = src/zxthree/screen/screen.c src/zxthree/raster/triangle/triangle.c src/zxthree/impl/zxradas/screen/scrradas.c src/zxuno/radas.c src/zxuno/zxuno.c src/zxuno/coprocessor.c src/zxuno/turbo.c examples/testCoprocesador2.c
+
+srcFilesTestMouse = src/zxthree/screen/screen.c src/zxthree/raster/triangle/triangle.c src/zxthree/impl/zxradas/screen/scrradas.c src/zxuno/radas.c src/zxuno/turbo.c src/zxuno/zxuno.c examples/exampleMouse.c
+
 # All the targets:
-all: generateBASICLoader createExample1 createExample2 createExample3 createExample4 createExample5 createExample6 createExample7 createExample8 createExample9 createExample10 createExample11 createExample12 createExample13 createExample14 createExample15
+all: generateBASICLoader createExample1 createExample2 createExample3 createExample4 createExample5 createExample6 createExample7 createExample8 createExample9 createExample10 createExample11 createExample12 createExample13 createExample14 createExample15 createExample16 createExample17 createExample18
 
 # Targets:
 
@@ -324,6 +330,54 @@ createTAP15:
 
 generateWavLeches15:
 	./CgLeches FELICESF.tap FELICESF.wav 3 > ultimolog.txt
+
+#------------------------------------------------------------------------------
+
+createExample16: compile16 concatenateTAPs16 createTAP16 generateWavLeches16
+
+compile16:
+	zcc +zx -o f16.bin -lndos -lmzx $(srcFilesTestCoprocesador) > ultimolog.txt
+
+concatenateTAPs16:
+	cat ./cargadorBinario/loader.bin f16.bin > TESTCOPR.bin
+
+createTAP16:
+	./gentape/GenTape TESTCOPR.tap basic 'TESTCOPR' 0 TESTCOPR.bin > ultimolog.txt
+
+generateWavLeches16:
+	./CgLeches TESTCOPR.tap TESTCOPR.wav 3 > ultimolog.txt
+
+#------------------------------------------------------------------------------
+
+createExample17: compile17 concatenateTAPs17 createTAP17 generateWavLeches17
+
+compile17:
+	zcc +zx -o f17.bin -lndos -lmzx $(srcFilesTestCoprocesador2) > ultimolog.txt
+
+concatenateTAPs17:
+	cat ./cargadorBinario/loader.bin f17.bin > TESTCOP2.bin
+
+createTAP17:
+	./gentape/GenTape TESTCOP2.tap basic 'TESTCOP2' 0 TESTCOP2.bin > ultimolog.txt
+
+generateWavLeches17:
+	./CgLeches TESTCOP2.tap TESTCOP2.wav 3 > ultimolog.txt
+
+#------------------------------------------------------------------------------
+
+createExample18: compile18 concatenateTAPs18 createTAP18 generateWavLeches18
+
+compile18:
+	zcc +zx -o f18.bin -lndos -lmzx $(srcFilesTestMouse) > ultimolog.txt
+
+concatenateTAPs18:
+	cat ./cargadorBinario/loader.bin f18.bin > TESTMOUS.bin
+
+createTAP18:
+	./gentape/GenTape TESTMOUS.tap basic 'TESTMOUSE' 0 TESTMOUS.bin > ultimolog.txt
+
+generateWavLeches18:
+	./CgLeches TESTMOUS.tap TESTMOUS.wav 3 > ultimolog.txt
 
 #------------------------------------------------------------------------------
 

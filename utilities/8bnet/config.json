@@ -1,0 +1,6 @@
+{
+    "serial": {
+        "deviceName": "/dev/ttyUSB0",
+        "bauds": 115200
+    }
+}

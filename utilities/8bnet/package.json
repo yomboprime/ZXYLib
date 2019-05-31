@@ -1,0 +1,9 @@
+{
+    "name": "8bnet",
+    "version": "1.0.0",
+    "author": "yomboprime",
+    "contributors": [],
+    "dependencies": {
+        "serialport": "^6.0.4"
+    }
+}
