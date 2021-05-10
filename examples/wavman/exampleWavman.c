@@ -119,7 +119,7 @@ void main(void) {
     numTotalSongs = countSongs();
     textUtils_print( "Number of songs: " );
     textUtils_println_l( numTotalSongs );
-//    waitKeyPress();
+//    waitKeyPress( 350 );
     
     playBeep();
 
@@ -137,7 +137,7 @@ void main(void) {
 
         if ( ! getSongFileName() ) {
             textUtils_print( "Error getting song name." );
-            waitKeyPress();
+            waitKeyPress( 350 );
             continue;
         }
         
@@ -170,7 +170,7 @@ void main(void) {
 
         TURBO_set( ZXUNO_TURBO_X1 );
 
-//        waitKeyPress();
+//        waitKeyPress( 350 );
 
     }
 

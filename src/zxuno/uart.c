@@ -1,8 +1,32 @@
 /*
- * @author yomboprime
- *
- * ZX-Uno UART functions
+
+ZXLib
+
+MIT License
+
+Copyright (c) 2021 Juan Jose Luna Espinosa
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
 */
+
+// ZX-Uno UART functions
 
 #include "uart.h"
 
@@ -108,7 +132,7 @@ void UART_println( uint8_t *s ) {
 }
 
 int UART_available() {
-    
+
     // Returns number of available bytes to read instantly (0 or 1)
 
     int c;
@@ -213,26 +237,29 @@ int UART_read() {
 }
 
 int UART_read_timeout( long timeout_ms ) {
-    
+
     // Wait for a byte a specified time in ms
     // If no byte was available in the given time, returns -1
-    
+
     int c;
-    long t0 = millis();
-    
+    long t0;
+
+	//timeout_ms += timeout_ms >> 2;
+	t0 = millis();
+
     while ( millis() - t0 < timeout_ms ) {
         c = UART_read();
         if ( c >= 0 ) {
             return c;
         }
     }
-    
+
     return -1;
-    
+
 }
 
 int UART_peek() {
-    
+
     // Read an available byte without consuming it.
     // Returns -1 if no byte was available.
 
@@ -264,7 +291,7 @@ int UART_peek() {
 }
 
 int32_t UART_parseInt( long timeout_ms ) {
-    
+
     // Parses a string representing an integer.
     // Returns -1 if timeoud passed.
 
@@ -273,7 +300,10 @@ int32_t UART_parseInt( long timeout_ms ) {
     uint8_t c;
     uint8_t numChars = 0;
     uint8_t minusSign = false;
-    long t0 = millis();
+    long t0;
+
+	//timeout_ms += timeout_ms >> 2;
+	t0 = millis();
 
     while ( 1 ) {
 
@@ -286,7 +316,7 @@ int32_t UART_parseInt( long timeout_ms ) {
 
             c = (uint8_t)c_int;
 
-            if ( isDigit( c ) ) {
+            if ( textUtils_isDigit( c ) ) {
 
                 c -= '0';
 
@@ -311,7 +341,7 @@ int32_t UART_parseInt( long timeout_ms ) {
                     if ( minusSign == true ) {
                         value = - value;
                     }
-                    
+
                     return value;
 
                 }
@@ -327,8 +357,8 @@ int32_t UART_parseInt( long timeout_ms ) {
 }
 
 bool UART_find( uint8_t *s, long timeout_ms ) {
-    
-    // Reads 
+
+    // Reads
 
     int c_int;
     uint8_t c;
@@ -342,6 +372,7 @@ bool UART_find( uint8_t *s, long timeout_ms ) {
         return false;
     }
 
+    //timeout_ms += timeout_ms >> 2;
     t = millis();
 
     while ( millis() - t < timeout_ms ) {
@@ -351,6 +382,7 @@ bool UART_find( uint8_t *s, long timeout_ms ) {
         if ( c_int >= 0 ) {
 
             c = (uint8_t)c_int;
+			//fputc_cons( c );
 
             if ( *ps == c ) {
 

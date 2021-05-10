@@ -297,7 +297,7 @@ void main(void) {
 /*
         if ( numBytesWAV <= 0 ) {
             textUtils_println( "Error loading WAV file." );
-            waitKeyPress();
+            waitKeyPress( 350 );
             continue;
         }
 */
@@ -308,7 +308,7 @@ void main(void) {
             textUtils_cls();
             textUtils_println( "Didn't select a file." );
             textUtils_println( "Press any key..." );
-            waitKeyPress();
+            waitKeyPress( 350 );
 
         }
 
@@ -319,7 +319,7 @@ void main(void) {
         textUtils_print( "Selected file: " );
         textUtils_println( filePath );
         textUtils_println( "Press any key..." );
-        waitKeyPress();
+        waitKeyPress( 350 );
         while ( in_Inkey() != 0 ) {
             // Wait for user to release key
         }
@@ -336,12 +336,12 @@ void main(void) {
 
         if ( numBytesWAV <= 0 ) {
             textUtils_println( "Error loading WAV file." );
-            waitKeyPress();
+            waitKeyPress( 350 );
             continue;
         }
 
         textUtils_println( "Press a key to play..." );
-        waitKeyPress();
+        waitKeyPress( 350 );
         while ( in_Inkey() != 0 ) {
             // Wait for user to release key
         }
@@ -363,7 +363,7 @@ void main(void) {
 
         TURBO_set( ZXUNO_TURBO_X1 );
 
-        waitKeyPress();
+        waitKeyPress( 350 );
 
     }
 

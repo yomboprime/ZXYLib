@@ -138,7 +138,7 @@ void main(void) {
 
         textUtils_println( "\nPress a key to start again..." );
 
-        waitKeyPress();
+        waitKeyPress( 350 );
 
     }
 

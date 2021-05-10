@@ -1,8 +1,27 @@
-# @author yomboprime
 #
+# ZXLib
 #
+# MIT License
 #
+# Copyright (c) 2021 Juan Jose Luna Espinosa
 #
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
 
 
 # Configure here your path to Node js:
@@ -45,8 +64,23 @@ srcFilesTestCoprocesador2 = src/zxthree/screen/screen.c src/zxthree/raster/trian
 
 srcFilesTestMouse = src/zxthree/screen/screen.c src/zxthree/raster/triangle/triangle.c src/zxthree/impl/zxradas/screen/scrradas.c src/zxuno/radas.c src/zxuno/turbo.c src/zxuno/zxuno.c examples/exampleMouse.c
 
+srcFilesFileBrowser = src/textUtils.c src/zxuno/zxuno.c src/esxdos.c src/zxuno/uart.c src/zxuno/turbo.c src/network.c src/config.c src/retroProt/retroProtFile.c src/retroProt/retroProtFile_Download_esxdos.c examples/netGames/fileBrowser/fileBrowser.c
+
+srcFilesFileBrowserPlus3DOS = src/textUtils.c src/zxuno/zxuno.c src/plus3dos.c src/zxuno/uart.c src/zxuno/turbo.c src/network.c src/retroProt/retroProtFile.c src/retroProt/retroProtFile_Download_p3dos.c src/configPlus3E.c examples/netGames/filePlus3EBrowser/filePlus3EBrowser.c
+
+srcFilesWiFi_Test = src/textUtils.c src/zxuno/zxuno.c src/zxuno/uart.c src/zxuno/turbo.c src/network.c src/retroProt.c examples/netGames/WiFi_Test/WiFi_Test.c
+
+srcFilesBlocksGame = src/textUtils.c src/zxuno/zxuno.c src/zxuno/uart.c src/zxuno/turbo.c src/network.c src/retroProt.c examples/netGames/blocksGame/blocksGame.c
+
+srcFilesChessGame = src/textUtils.c src/zxuno/zxuno.c src/zxuno/uart.c src/zxuno/turbo.c src/network.c src/retroProt.c examples/netGames/chessGame/chessGame.c
+
+srcFilesChat = src/textUtils.c src/zxuno/zxuno.c src/zxuno/uart.c src/zxuno/turbo.c src/network.c src/retroProt.c examples/netGames/chat/chat.c
+
+
 # All the targets:
-all: generateBASICLoader createExample1 createExample2 createExample3 createExample4 createExample5 createExample6 createExample7 createExample8 createExample9 createExample10 createExample11 createExample12 createExample13 createExample14 createExample15 createExample16 createExample17 createExample18
+#all: generateBASICLoader createExample1 createExample2 createExample3 createExample4 createExample5 createExample6 createExample7 createExample8 createExample9 createExample10 createExample11 createExample12 createExample13 createExample14 createExample15 createExample16 createExample17 createExample18
+
+all: createExample19 createExample19b
 
 # Targets:
 
@@ -378,6 +412,116 @@ createTAP18:
 
 generateWavLeches18:
 	./CgLeches TESTMOUS.tap TESTMOUS.wav 3 > ultimolog.txt
+
+#------------------------------------------------------------------------------
+
+createExample19: compile19 concatenateTAPs19 createTAP19 copyTAP19
+
+compile19:
+	zcc +zx -o f19.bin -lndos -lmzx $(srcFilesFileBrowser) > ultimolog.txt
+
+concatenateTAPs19:
+	cat ./cargadorBinario/loader.bin f19.bin > fileBrowser.bin
+
+createTAP19:
+	./gentape/GenTape fileBrow.tap basic 'FILEBROW' 0 fileBrowser.bin > ultimolog.txt
+
+copyTAP19:
+	cp fileBrow.tap /home/yombo/devel/RetroProtServer/public/fileBrow.tap
+
+#------------------------------------------------------------------------------
+
+createExample19b: compile19b createTAP19b concatenateTAPs19b header19b copy19b
+#generateWav19b playWav19b
+
+compile19b:
+	zcc +zx -o f19b.bin -lndos -lmzx $(srcFilesFileBrowserPlus3DOS) > ultimolog.txt
+
+createTAP19b:
+	$(node) ./bin2tap-js/bin2tap.js ../f19b.bin > ultimolog.txt
+
+concatenateTAPs19b:
+	cat ./cargadorBASIC/cargador.tap f19b.tap > filePlus.tap
+
+generateWav19b:
+	tape2wav filePlus.tap filePlus.wav > ultimolog.txt
+
+header19b:
+	cat cabeceraESXDOS/header f19b.bin > filePlus.bin
+
+playWav19b:
+#	/home/yombo/scriptsescritorio/zesarux.sh
+	ffplay -nodisp -ss 3 -autoexit filePlus.wav
+
+copy19b:
+	cp filePlus.bin /home/yombo/devel/RetroProtServer/public/
+
+#------------------------------------------------------------------------------
+
+
+createExample20: compile20 concatenateTAPs20 createTAP20
+
+compile20:
+	zcc +zx -o f20.bin -lndos -lmzx $(srcFilesWiFi_Test) > ultimolog.txt
+
+concatenateTAPs20:
+	cat ./cargadorBinario/loader.bin f20.bin > testWiFi.bin
+
+createTAP20:
+	./gentape/GenTape testWiFi.tap basic 'WIFITEST' 0 testWiFi.bin > ultimolog.txt
+
+copyTAP20:
+	cp testWiFi.tap /home/yombo/devel/RetroProtServer/public/test.tap
+
+#------------------------------------------------------------------------------
+
+createExample21: compile21 concatenateTAPs21 createTAP21
+
+compile21:
+	zcc +zx -o f21.bin -lndos -lmzx $(srcFilesBlocksGame) > ultimolog.txt
+
+concatenateTAPs21:
+	cat ./cargadorBinario/loader.bin f21.bin > bloksGam.bin
+
+createTAP21:
+	./gentape/GenTape bloksGam.tap basic 'BLOKSGAM' 0 bloksGam.bin > ultimolog.txt
+
+copyTAP21:
+	cp bloksGam.tap /home/yombo/devel/RetroProtServer/public/test.tap
+
+
+
+#------------------------------------------------------------------------------
+
+createExample22: compile22 concatenateTAPs22 createTAP22
+
+compile22:
+	zcc +zx -o f22.bin -lndos -lmzx $(srcFilesChessGame) > ultimolog.txt
+
+concatenateTAPs22:
+	cat ./cargadorBinario/loader.bin f22.bin > cheSpeak.bin
+
+createTAP22:
+	./gentape/GenTape cheSpeak.tap basic 'CHESPEAK' 0 cheSpeak.bin > ultimolog.txt
+
+copyTAP22:
+	cp cheSpeak.tap /home/yombo/devel/RetroProtServer/public/test.tap
+
+#------------------------------------------------------------------------------
+
+createExample23: compile23 concatenateTAPs23 createTAP23
+
+compile23:
+	zcc +zx -o f23.bin -lndos -lmzx $(srcFilesChat) > ultimolog.txt
+
+concatenateTAPs23:
+	cat ./cargadorBinario/loader.bin f23.bin > chat.bin
+
+createTAP23:
+	./gentape/GenTape chat.tap basic 'CHAT' 0 chat.bin > ultimolog.txt
+
+copyTAP23:
+	cp chat.tap /home/yombo/devel/RetroProtServer/public/test.tap
 
 #------------------------------------------------------------------------------
 

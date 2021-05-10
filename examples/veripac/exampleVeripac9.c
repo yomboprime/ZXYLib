@@ -778,7 +778,7 @@ bool loadFile() {
 
         textUtils_printAt( 10, 7 );
         textUtils_print( "Press any key to continue..." );
-        waitKeyPress();
+        waitKeyPress( 350 );
 
         return true;
 
@@ -789,7 +789,7 @@ bool loadFile() {
 
         textUtils_printAt( 10, 7 );
         textUtils_print( "Didn't select a file. " );
-        waitKeyPress();
+        waitKeyPress( 350 );
     }
 
     return false;

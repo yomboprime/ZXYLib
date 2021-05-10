@@ -89,7 +89,7 @@ totalErrors = 0;
 //for ( seed = 1234; seed < 1235; seed++ ) {
 
 //    textUtils_println( "Press a key..." );
-//    waitKeyPress();
+//    waitKeyPress( 350 );
 
     #define RAM_DATA_REG 250
     #define RAM_STAT_REG 251
@@ -241,7 +241,7 @@ totalErrors = 0;
 
 textUtils_print( "\nFinished test." );
 
-waitKeyPress();
+waitKeyPress( 350 );
 
 
 

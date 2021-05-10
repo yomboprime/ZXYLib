@@ -1,8 +1,32 @@
 /*
- * @author yomboprime
- *
- * ZX Spectrum text functions
+
+ZXLib
+
+MIT License
+
+Copyright (c) 2021 Juan Jose Luna Espinosa
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
 */
+
+// ZX Spectrum text functions
 
 #include "textUtils.h"
 #include <stdio.h>
@@ -70,7 +94,7 @@ void textUtils_print_l( long n ) {
  * In 64 columns mode:
  * 0 <= x <= 63
  * 0 <= y <= 23
- * 
+ *
  */
 void textUtils_printAt( int x, int y ) {
 
@@ -83,7 +107,7 @@ void textUtils_printAt( int x, int y ) {
 /*
  * Sets current ink, paper, bright and flash for painting.
  */
-extern void textUtils_setAttributes( uint8_t attributes ) {
+void textUtils_setAttributes( uint8_t attributes ) {
 
     uint8_t paper = ( attributes & 0x38 ) >> 3;
     uint8_t ink = attributes & 0x07;
@@ -94,6 +118,18 @@ extern void textUtils_setAttributes( uint8_t attributes ) {
     fputc_cons( 17 ); fputc_cons( paper + 48 );
     fputc_cons( 18 ); fputc_cons( flash + 48 );
     fputc_cons( 19 ); fputc_cons( bright + 48 );
+
+}
+
+uint8_t textUtils_createAttributes( bool flash, bool bright, uint8_t paper, uint8_t ink ) {
+
+	uint8_t attr = 0;
+	attr = ink & 7;
+	attr |= ( paper & 7 ) << 3;
+	attr |= bright ? 0x40 : 0x00;
+	attr |= flash ? 0x80 : 0x00;
+
+	return attr;
 
 }
 
@@ -182,16 +218,20 @@ void textUtils_defineUDGGraphic( uint8_t *graphic, uint16_t graphicIndex ) {
 
 }
 
-bool isDigit( uint8_t c ) {
+bool textUtils_isDigit( uint8_t c ) {
     return c >= '0' && c <= '9';
+}
+
+bool textUtils_isReadable( uint8_t c ) {
+
+	return c >= ' ' && c <= '~';
+
 }
 
 /*
  * Waits for a key press with repetition
  */
-uint16_t waitKeyPress() {
-
-    uint16_t count = 350;
+uint16_t waitKeyPress(  uint16_t count ) {
 
     uint16_t k = in_Inkey();
     while ( k > 0 && count > 0 ) {
