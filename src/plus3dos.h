@@ -88,7 +88,7 @@ extern uint16_t plus3dos_close( uint8_t fileNumber );
 extern uint16_t plus3dos_readBytes( uint8_t *buffer, uint8_t fileNumber, uint16_t numBytes );
 extern uint16_t plus3dos_writeBytes( uint8_t *buffer, uint8_t fileNumber, uint16_t numBytes );
 extern uint16_t plus3dos_readDir( uint8_t *fileName, uint8_t *buffer );
-extern uint32_t plus3dos_getFileSizeBytes( uint8_t *fileName, uint8_t fileNumber, uint8_t *buffer, uint16_t bufferSize );
+extern uint32_t plus3dos_getFileSizeBytes( uint8_t *fileName, uint8_t fileNumber, uint8_t *buffer, uint16_t bufferSize, uint8_t openAction );
 
 //extern void plus3dos_delete( uint8_t *fileName );
 

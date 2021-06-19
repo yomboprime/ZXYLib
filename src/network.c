@@ -37,24 +37,24 @@ uint8_t initNetwork() {
 	UART_begin();
 
 	// End possible previous connection
-	UART_print( "+++" );
+	UART_print( (uint8_t*)"+++" );
 
 	delay( 1500 );
 
-	UART_println( "AT+CIPMODE=0" );
+	UART_println( (uint8_t*)"AT+CIPMODE=0" );
 
-	if ( UART_find( "OK", 500 ) ) {
+	if ( UART_find( (uint8_t*)"OK", 500 ) ) {
 
-		UART_println( "AT+CIPCLOSE" );
+		UART_println( (uint8_t*)"AT+CIPCLOSE" );
 
-		UART_find( "OK", 500 );
+		UART_find( (uint8_t*)"OK", 500 );
 
 	}
 
 	// Detect WiFi module
-    UART_println( "AT" );
+    UART_println( (uint8_t*)"AT" );
 
-	if ( ! UART_find( "OK", 1500 ) ) return NETWORK_ERROR_MODEM_NOT_DETECTED;
+	if ( ! UART_find( (uint8_t*)"OK", 1500 ) ) return NETWORK_ERROR_MODEM_NOT_DETECTED;
 
 	return NETWORK_ERROR_OK;
 
@@ -64,15 +64,15 @@ uint8_t connectToWiFi( char *ssid, char *password, long timeout ) {
 
 	// timeout in ms
 
-	UART_println( "AT+CWMODE=3" );
-	if ( ! UART_find( "OK", 1500 ) ) return NETWORK_ERROR_SET_WIFI_MODE;
+	UART_println( (uint8_t*)"AT+CWMODE=3" );
+	if ( ! UART_find( (uint8_t*)"OK", 1500 ) ) return NETWORK_ERROR_SET_WIFI_MODE;
 
-	UART_print( "AT+CWJAP=\"" );
-	UART_print( ssid );
-	UART_print( "\",\"" );
-	UART_print( password );
-	UART_println( "\"" );
-	if ( ! UART_find( "OK", timeout ) ) return NETWORK_ERROR_CONNECT_TO_WIFI;
+	UART_print( (uint8_t*)"AT+CWJAP=\"" );
+	UART_print( (uint8_t*)ssid );
+	UART_print( (uint8_t*)"\",\"" );
+	UART_print( (uint8_t*)password );
+	UART_println( (uint8_t*)"\"" );
+	if ( ! UART_find( (uint8_t*)"OK", timeout ) ) return NETWORK_ERROR_CONNECT_TO_WIFI;
 
 	return NETWORK_ERROR_OK;
 
@@ -80,14 +80,14 @@ uint8_t connectToWiFi( char *ssid, char *password, long timeout ) {
 
 uint8_t connectToServer( char *hostName, char *hostPort ) {
 
-	UART_println( "AT+CIPMUX=0" );
-	if ( ! UART_find( "OK", 2500 ) ) return NETWORK_ERROR_CONFIG_MODEM_MULTI;
+	UART_println( (uint8_t*)"AT+CIPMUX=0" );
+	if ( ! UART_find( (uint8_t*)"OK", 2500 ) ) return NETWORK_ERROR_CONFIG_MODEM_MULTI;
 
-	UART_print( "AT+CIPSTART=\"TCP\",\"" );
-	UART_print( hostName );
-	UART_print( "\"," );
-	UART_println( hostPort );
-	if ( ! UART_find( "OK", 2500 ) ) return NETWORK_ERROR_CONNECT_SERVER;
+	UART_print( (uint8_t*)"AT+CIPSTART=\"TCP\",\"" );
+	UART_print( (uint8_t*)hostName );
+	UART_print( (uint8_t*)"\"," );
+	UART_println( (uint8_t*)hostPort );
+	if ( ! UART_find( (uint8_t*)"OK", 2500 ) ) return NETWORK_ERROR_CONNECT_SERVER;
 
 	return NETWORK_ERROR_OK;
 
@@ -97,12 +97,12 @@ uint8_t openServerStream() {
 
 	// After success, uart functions can be used to read and write data, and closeServerStream to finish.
 
-	UART_println( "AT+CIPMODE=1" );
-	if ( ! UART_find( "OK", 2000 ) ) return NETWORK_ERROR_OPEN_SERVER_STREAM;
+	UART_println( (uint8_t*)"AT+CIPMODE=1" );
+	if ( ! UART_find( (uint8_t*)"OK", 2000 ) ) return NETWORK_ERROR_OPEN_SERVER_STREAM;
 
-	UART_println( "AT+CIPSEND" );
-	if ( ! UART_find( "OK", 2000 ) ) return NETWORK_ERROR_WRITE_SERVER_DATA;
-	if ( ! UART_find( ">", 2000 ) ) return NETWORK_ERROR_READ_SERVER_DATA;
+	UART_println( (uint8_t*)"AT+CIPSEND" );
+	if ( ! UART_find( (uint8_t*)"OK", 2000 ) ) return NETWORK_ERROR_WRITE_SERVER_DATA;
+	if ( ! UART_find( (uint8_t*)">", 2000 ) ) return NETWORK_ERROR_READ_SERVER_DATA;
 
 	return NETWORK_ERROR_OK;
 
@@ -111,10 +111,10 @@ uint8_t openServerStream() {
 uint8_t closeServerStream() {
 
 	delay( 1500 );
-	UART_print( "+++" );
+	UART_print( (uint8_t*)"+++" );
 	delay( 1500 );
-	UART_println( "AT+CIPMODE=0" );
-	if ( ! UART_find( "OK", 2000 ) ) return NETWORK_ERROR_CLOSE_STREAM;
+	UART_println( (uint8_t*)"AT+CIPMODE=0" );
+	if ( ! UART_find( (uint8_t*)"OK", 2000 ) ) return NETWORK_ERROR_CLOSE_STREAM;
 
 	return NETWORK_ERROR_OK;
 
@@ -122,8 +122,8 @@ uint8_t closeServerStream() {
 
 uint8_t closeServerConnection() {
 
-	UART_println( "AT+CIPCLOSE" );
-	if ( ! UART_find( "OK", 2000 ) ) return NETWORK_ERROR_CLOSE_CONNECTION;
+	UART_println( (uint8_t*)"AT+CIPCLOSE" );
+	if ( ! UART_find( (uint8_t*)"OK", 2000 ) ) return NETWORK_ERROR_CLOSE_CONNECTION;
 
 	return NETWORK_ERROR_OK;
 

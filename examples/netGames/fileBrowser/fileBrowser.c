@@ -161,7 +161,7 @@ static uint8_t strikeUDG [] = {
 #define ATTRIBUTES_VERT_BAR ( PAPER_WHITE | INK_BLACK )
 #define ATTRIBUTES_VERT_BAR_BACKGROUND ( PAPER_WHITE | INK_BLACK | BRIGHT )
 #define ATTRIBUTES_DIRECTORY_ICON ( PAPER_CYAN | INK_YELLOW )
-#define ATTRIBUTES_LIGHTNING ( FLASH | PAPER_BLUE | INK_YELLOW )
+#define ATTRIBUTES_LIGHTNING ( FLASH | BRIGHT | PAPER_BLUE | INK_YELLOW )
 
 /*
 * Global variables / other definitions
@@ -632,6 +632,8 @@ void printToTitleBox( bool secondColumn, uint8_t *line1, uint8_t *line2 ) {
 			Y_COORD_TITLE_BOX,
 			secondColumn == false ? X_SIZE_TITLE_BOX1 : X_SIZE_TITLE_BOX2,
 			line1, line2 );
+            
+	textUtils_paintRectangleWithAttributes( X_COORD_TITLE_BOX, X_SIZE_TITLE_BOX - 1, Y_COORD_TITLE_BOX, Y_SIZE_TITLE_BOX - 1, ATTRIBUTES_TITLE_BOX );
 }
 
 void printToBox( uint8_t attributes, uint16_t x, uint16_t y, uint16_t length, uint8_t *line1, uint8_t *line2 ) {
@@ -1072,6 +1074,13 @@ void downloadProgressCallback( uint32_t totalBytesRead ) {
 
 }
 
+void uploadProgressCallback( uint32_t totalBytesRead ) {
+
+	sprintf( (char *)diskBuffer, "%lu of %lu bytes.", totalBytesRead, fileSize1 );
+	printToStatusBox( "Uploading...", diskBuffer );
+
+}
+
 void activateTurbo() {
 	
 	TURBO_set( FP_TURBO );
@@ -1098,7 +1107,7 @@ void infiniteLoop() {
 	while ( true ) {
 
 		// Keyboard input
-		key = waitKeyPress( 350 );
+		key = waitKeyPress( 200 );
 
 		showFileInfo = false;
 
@@ -1341,6 +1350,7 @@ void infiniteLoop() {
 									currentOrderingMethod,
 									firstDisplayedTCPEntry + selectedDisplayedEntry,
 									filePath,
+                                    0, // TODO H+ H-
 									diskBuffer,
 									DISK_BUFFER_SIZE,
 									downloadProgressCallback
@@ -1415,9 +1425,10 @@ void infiniteLoop() {
 							}
 							else {
 
-								// Delete the file with confirmation
-								sprintf( diskBuffer, "Confirm DELETE %ld bytes?", fileSize1 );
-								printToStatusBox( diskBuffer, shortString( sdPath, 27 ) );
+								// Upload the file with confirmation
+
+								sprintf( diskBuffer, "Confirm UPLOAD %lu bytes?", fileSize1 );
+								printToStatusBox( diskBuffer, shortString( filePath, 27 ) );
 								textUtils_printAt( 27, 23 );
 								textUtils_print( "(Y/N)" );
 
@@ -1425,61 +1436,49 @@ void infiniteLoop() {
 
 								if ( key2 == 'y' || key2 == 'Y' ) {
 
-									printToStatusBox( "Deleting file...", NULL );
+									printToStatusBox( "Uploading...", NULL );
 
-									ESXDOS_delete( sdPath, SD_drive );
-									iferror {
+									diff = rpFile_uploadFile(
+										tcpPath,
+										sdPath,
+										filePath,
+										0, // TODO H+ H-
+										diskBuffer,
+										DISK_BUFFER_SIZE,
+										fileSize1,
+										uploadProgressCallback
+									);
+									
+									sdPath[ pathLength1 ] = 0;
 
-										sprintf( diskBuffer, "Code: %d", diff );
-										printToStatusBox( "Error deleting file:", shortString( sdPath, X_SIZE_STATUS_BOX ) );
-										sdPath[ pathLength1 ] = 0;
+									if ( diff == RPF_ERROR_OK ) {
+
+										brightSelection( false );
+										refreshTCPListing( false );
+										brightSelection( true );
+										
+										printToStatusBox( "File uploaded succesfully.", NULL );
 
 									}
 									else {
 
-										printToStatusBox( "File deleted succesfully:", shortString( sdPath, X_SIZE_STATUS_BOX ) );
+										sprintf( diskBuffer, "Code: %d", diff );
+										printToStatusBox( "Error uploading.", diskBuffer );
 
-										sdPath[ pathLength1 ] = 0;
-
-										if ( selectedDisplayedEntry == 0 ) {
-											if ( firstDisplayedSDEntry > 0 && ( firstDisplayedSDEntry + 1 == numTotalSDEntries ) ) {
-
-												// User has deleted the only one file in the page. Go to previous page.
-
-												diff = MAX_DISPLAY_DIR_ENTRIES;
-												if ( diff > firstDisplayedSDEntry ) {
-													diff = firstDisplayedSDEntry;
-												}
-												firstDisplayedSDEntry -= diff;
-
-												brightSelection( false );
-
-												refreshSDListing();
-
-												selectedDisplayedEntry = numDisplayedSDEntries - 1;
-
-												brightSelection( true );
-											}
-										}
-										else {
-											if ( selectedDisplayedEntry + 1 >= numDisplayedSDEntries ) {
-												brightSelection( false );
-												selectedDisplayedEntry--;
-												refreshSDListing();
-												brightSelection( true );
-											}
-											else {
-												refreshSDListing();
-												brightSelection( true );
-											}
-										}
 									}
 
-									showFileInfo = false;
 								}
 								else {
-									printToStatusBox( "Aborted by user.", NULL );
+									
 									sdPath[ pathLength1 ] = 0;
+
+									brightSelection( false );
+									refreshTCPListing( false );
+									refreshSDListing();
+									brightSelection( true );
+									
+									printToStatusBox( "Aborted by user.", NULL );
+									
 								}
 							}
 						}

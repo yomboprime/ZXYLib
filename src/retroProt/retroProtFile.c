@@ -78,6 +78,7 @@ uint8_t rpFile_listFiles( uint8_t *tcpPath, uint8_t *searchString, uint8_t order
 
 	// Send ordering type
 	UART_writeByte( ordering );
+//pierde este byte
 
 	// Send first entry index
 	UART_writeByte( firstEntry & 0xFF );
@@ -89,6 +90,7 @@ uint8_t rpFile_listFiles( uint8_t *tcpPath, uint8_t *searchString, uint8_t order
 
 	// Send maxBytesFileName
 	UART_writeByte( maxBytesFileName );
+//y este
 
 	// Get server response
 
@@ -182,6 +184,7 @@ uint8_t rpFile_getFileNameAndSize( uint8_t *tcpPath, uint8_t *searchString, uint
 
 	// Send ordering type
 	UART_writeByte( ordering );
+//UART_writeByte( 0 );
 
 	// Send entry index
 	UART_writeByte( entry & 0xFF );

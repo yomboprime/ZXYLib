@@ -37,7 +37,7 @@ SOFTWARE.
 
 // Implementation for Plus3e
 
-uint8_t rpFile_downloadFile( uint8_t *tcpPath, uint8_t *searchString, uint8_t ordering, uint16_t entry, uint8_t *sdPath, uint8_t *diskBuffer, uint16_t diskBufferSize, void (*progressCallback)() ) {
+uint8_t rpFile_downloadFile( uint8_t *tcpPath, uint8_t *searchString, uint8_t ordering, uint16_t entry, uint8_t *sdPath, uint8_t processing, uint8_t *diskBuffer, uint16_t diskBufferSize, void (*progressCallback)() ) {
 
 	// Send command: "downloadFile"
 	//
@@ -48,6 +48,7 @@ uint8_t rpFile_downloadFile( uint8_t *tcpPath, uint8_t *searchString, uint8_t or
 	// ordering: Order of the file list. See FILE_ORDERING_* in retroProtFile.h
 	// entry: The entry index to download.
 	// sdPath: Path in the local file system. Terminated with 0xFF.
+	// processing: Type of processing to the file that will apply the server
 	// diskBuffer: Temporary buffer to do the disk writing.
 	// diskBufferSize: Size of the temporary buffer. For SD writing minimum of 512 bytes is best.
 	// callback: will be called periodically with ( uint32_t bytesRead )
@@ -85,10 +86,15 @@ uint8_t rpFile_downloadFile( uint8_t *tcpPath, uint8_t *searchString, uint8_t or
 
 	// Send ordering type
 	UART_writeByte( ordering );
+//UART_writeByte( 0 );
 
 	// Send entry index
 	UART_writeByte( entry & 0xFF );
 	UART_writeByte( ( entry & 0xFF00 ) >> 8 );
+
+	// Send processing type
+	UART_writeByte( processing );
+//UART_writeByte( 0 );
 
 	// Get server response
 
@@ -187,7 +193,7 @@ uint8_t rpFile_downloadFile( uint8_t *tcpPath, uint8_t *searchString, uint8_t or
 
 }
 
-uint8_t rpFile_uploadFile( uint8_t *tcpPath, uint8_t *sdFilename, uint8_t *diskBuffer, uint16_t diskBufferSize, uint32_t fileSize, void (*progressCallback)() ) {
+uint8_t rpFile_uploadFile( uint8_t *tcpPath, uint8_t *sdFullPath, uint8_t *sdFileName, uint8_t processing, uint8_t *diskBuffer, uint16_t diskBufferSize, uint32_t fileSize, void (*progressCallback)() ) {
 
 	// Send command: "uploadFile"
 	//
@@ -195,6 +201,7 @@ uint8_t rpFile_uploadFile( uint8_t *tcpPath, uint8_t *sdFilename, uint8_t *diskB
 	//
 	// tcpPath: Path of the remote directory to upload the file to. Terminated with 0
 	// sdFilename: Path in the local file system, terminatetd with 0xFF
+	// processing: Type of processing to the file that will apply the server
 	// diskBuffer: Temporary buffer to do the disk writing.
 	// diskBufferSize: Size of the temporary buffer. For SD writing minimum of 512 bytes is best.
 	// callback: will be called periodically with ( uint32_t bytesWritten )
@@ -212,6 +219,8 @@ uint8_t rpFile_uploadFile( uint8_t *tcpPath, uint8_t *sdFilename, uint8_t *diskB
 	uint32_t bytesRead;
 	uint16_t bytesToRead;
 	uint16_t result;
+	
+	uint8_t pos;
 
 	// Add 128 bytes for header
 	bytesLeft = fileSize;
@@ -229,10 +238,13 @@ uint8_t rpFile_uploadFile( uint8_t *tcpPath, uint8_t *sdFilename, uint8_t *diskB
 	UART_writeByte( 0 );
 
 	// Send file size
-	UART_writeByte( bytesLeft & 0xFF );
-	UART_writeByte( ( bytesLeft & 0x0000FF00 ) >> 8 );
-	UART_writeByte( ( bytesLeft & 0x00FF0000 ) >> 16 );
-	UART_writeByte( ( bytesLeft & 0xFF000000 ) >> 24 );
+	UART_writeByte( (uint8_t)( bytesLeft & 0xFF ) );
+	UART_writeByte( (uint8_t)( ( bytesLeft & 0x0000FF00 ) >> 8 ) );
+	UART_writeByte( (uint8_t)( ( bytesLeft & 0x00FF0000 ) >> 16 ) );
+	UART_writeByte( (uint8_t)( ( bytesLeft & 0xFF000000 ) >> 24 ) );
+	
+	// Send processing type
+	UART_writeByte( processing );
 
 	// Get server response
 
@@ -256,7 +268,9 @@ uint8_t rpFile_uploadFile( uint8_t *tcpPath, uint8_t *sdFilename, uint8_t *diskB
 
 	// Open file for reading
 	
-	result = plus3dos_open( sdFilename, 1, ACCESS_MODE_EXCLUSIVE_READ, CREATE_ACTION_DONTCREATE, OPEN_ACTION_POSITION_TO_HEADER );
+	pos = processing == 2 ? OPEN_ACTION_POSITION_TO_DATA : OPEN_ACTION_POSITION_TO_HEADER;
+	
+	result = plus3dos_open( sdFilename, 1, ACCESS_MODE_EXCLUSIVE_READ, CREATE_ACTION_DONTCREATE, pos );
 
 	if ( result != 0 ) {
 

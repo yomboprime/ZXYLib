@@ -39,7 +39,7 @@ SOFTWARE.
 #include "../../../src/textUtils.h"
 #include "../../../src/zxuno/turbo.h"
 #include "../../../src/plus3dos.h"
-#include "../../../src/configPlus3E.h"
+//#include "../../../src/configPlus3E.h"
 #include "../../../src/retroProt/retroProtFile.h"
 
 /*
@@ -144,7 +144,7 @@ static uint8_t strikeUDG [] = {
 
 #define X_COORD_STATUS_BOX 0
 #define Y_COORD_STATUS_BOX 22
-#define X_SIZE_STATUS_BOX 32
+#define X_SIZE_STATUS_BOX 28
 #define Y_SIZE_STATUS_BOX 2
 
 #define X_COORD_TCP_VERT_BAR 16
@@ -181,7 +181,6 @@ uint8_t *pbuffer3;
 uint8_t tempChar;
 
 #define MAX_DISPLAY_DIR_ENTRIES 20
-#define MAX_DISPLAY_DIR_ENTRIES_2 400
 #define MAX_BYTES_TCP_FILENAME 20
 #define DISPLAY_BYTES_TCP_FILENAME 11
 
@@ -212,9 +211,9 @@ uint8_t tempChar;
 
 // WiFi connection parameters
 uint8_t currentWiFiSSID[ NETWORK_SSID_LENGTH + 1 ];
-#define MAX_PASSWORD_LENGTH 63
+#define MAX_PASSWORD_LENGTH 32
 uint8_t currentWiFiPassword[ MAX_PASSWORD_LENGTH + 1 ];
-#define MAX_HOST_LENGTH 80
+#define MAX_HOST_LENGTH 30
 uint8_t currentHost[ MAX_HOST_LENGTH + 1 ];
 uint8_t currentPort[ 6 ];
 
@@ -233,6 +232,13 @@ uint8_t originalTurbo;
 // Selection
 bool selectedTCP_NO_SD = false;
 uint16_t selectedDisplayedEntry = 0;
+
+// Header config
+#define HEADER_CONFIG_DEFAULT 0
+#define HEADER_CONFIG_ADD 1
+#define HEADER_CONFIG_REMOVE 2
+#define MAX_HEADER_CONFIG 2
+uint8_t headerConfig = 0;
 
 // Connection status
 bool connected = false;
@@ -262,8 +268,10 @@ uint8_t currentOrderingMethod = 0;
 //*****************************************
 //*****************************************
 void main(void) {
+    
+    int i;
 
-	originalTurbo = TURBO_get();
+	originalTurbo = ZXUNO_TURBO_X1;//TURBO_get();
 	TURBO_set( FP_TURBO );
 
 	textUtils_32ColumnsMode();
@@ -274,9 +282,9 @@ void main(void) {
 	zx_border( INK_BLUE );
 
 	TURBO_set( originalTurbo );
-	
+
 	loadConfig();
-	TURBO_set( FP_TURBO );
+//	TURBO_set( FP_TURBO );
 
 	textUtils_paintRectangleWithAttributes( X_COORD_TITLE_BOX, X_SIZE_TITLE_BOX - 1, Y_COORD_TITLE_BOX, Y_SIZE_TITLE_BOX - 1, ATTRIBUTES_TITLE_BOX );
 
@@ -314,6 +322,54 @@ void main(void) {
 		refreshSDListing( true );
 
 	}
+/*
+    for ( i = 0; i < 8; i ++ ) {
+    
+        textUtils_printAt( i * 4, 5 );
+        fputc_cons( 'M' );
+        fputc_cons( 'M' );
+        fputc_cons( 'M' );
+        textUtils_printAt( i * 4, 6 );
+        fputc_cons( 'M' );
+        fputc_cons( 'M' );
+        fputc_cons( 'M' );
+        textUtils_printAt( i * 4, 7 );
+        fputc_cons( 'M' );
+        fputc_cons( 'M' );
+        fputc_cons( 'M' );
+        textUtils_printAt( i * 4, 9 );
+        fputc_cons( 'M' );
+        fputc_cons( 'M' );
+        fputc_cons( 'M' );
+        textUtils_printAt( i * 4, 10 );
+        fputc_cons( 'M' );
+        fputc_cons( 'M' );
+        fputc_cons( 'M' );
+        textUtils_printAt( i * 4, 11 );
+        fputc_cons( 'M' );
+        fputc_cons( 'M' );
+        fputc_cons( 'M' );
+        
+        
+        textUtils_paintRectangleWithAttributes( i * 4,
+			( i * 4 ) + 2,
+			5,
+			7,
+            (i << 3) + ( 7 - i )
+        );
+        
+        textUtils_paintRectangleWithAttributes( i * 4,
+			( i * 4 ) + 2,
+			9,
+			11,
+            ( ( i << 3 ) + ( 7 - i ) ) | 0x40
+        );
+
+    }
+
+
+    while ( 1 );
+*/
 
 	connect();
 
@@ -321,14 +377,14 @@ void main(void) {
 
 		if ( refreshTCPListing( true ) == true ) {
 
-			printToStatusBox( "FILEPLUS ready.", "yombo'2021" );
+			printToStatusBox( (uint8_t*)"FILEPLUS ready.", (uint8_t*)"yombo'2021" );
 
 		}
 
 	}
 
 	brightSelection( true );
-	
+
 	TURBO_set( originalTurbo );
 
 	// The loop
@@ -352,19 +408,28 @@ void loadConfig() {
 
 	*currentHost = 0;
 	*currentPort = 0;
-	sprintf( tcpPath, "/" );
-	sprintf( sdPath, "" );
+	sprintf( (char *)tcpPath, "/" );
+	sprintf( (char *)sdPath, "" );
 
-	configFilename[ 0 ] = 'R';
-	configFilename[ 1 ] = 'P';
+
+	sprintf( currentWiFiSSID, "wipi4" );
+    sprintf( currentWiFiPassword, "ketefollen" );
+	sprintf( currentHost, "192.168.1.100" );
+	sprintf( currentPort, "8083" );
+
+/*
+	configFilename[ 0 ] = 'M';
+	configFilename[ 1 ] = ':';
 	configFilename[ 2 ] = 'R';
-	configFilename[ 3 ] = 'O';
-	configFilename[ 4 ] = 'T';
-	configFilename[ 5 ] = '.';
-	configFilename[ 6 ] = 'C';
-	configFilename[ 7 ] = 'F';
-	configFilename[ 8 ] = 'G';
-	configFilename[ 9 ] = 0xFF;
+	configFilename[ 3 ] = 'P';
+	configFilename[ 4 ] = 'R';
+	configFilename[ 5 ] = 'O';
+	configFilename[ 6 ] = 'T';
+	configFilename[ 7 ] = '.';
+	configFilename[ 8 ] = 'C';
+	configFilename[ 9 ] = 'F';
+	configFilename[ 10 ] = 'G';
+	configFilename[ 11 ] = 0xFF;
 
 	error = loadConfigFile( configFilename, configCallback, diskBuffer, DISK_BUFFER_SIZE );
 
@@ -375,26 +440,26 @@ void loadConfig() {
 		if ( *currentWiFiSSID == 0 ) {
 
 			error = CONFIG_ERROR_VALIDATION;
-			errorTxt = "SSID not set.";
+			errorTxt = (uint8_t*)"SSID not set.";
 
 		}
 		else if ( *currentWiFiPassword == 0 ) {
 
 			error = CONFIG_ERROR_VALIDATION;
-			errorTxt = "WiFi password not set.";
+			errorTxt = (uint8_t*)"WiFi passw not set.";
 
 		}
 
 		if ( *currentHost == 0 ) {
 
 			error = CONFIG_ERROR_VALIDATION;
-			errorTxt = "Server not set.";
+			errorTxt = (uint8_t*)"Host not set.";
 
 		}
 		else if ( *currentPort == 0 ) {
 
 			error = CONFIG_ERROR_VALIDATION;
-			errorTxt = "Port not set.";
+			errorTxt = (uint8_t*)"Port not set.";
 
 		}
 
@@ -402,36 +467,36 @@ void loadConfig() {
 
 	if ( error != CONFIG_OK ) {
 
-		textUtils_println( "Error loading RPROT.CFG: " );
+		textUtils_println( (uint8_t*)"Error in M:RPROT.CFG:" );
 		textUtils_println( configError( error ) );
 		if ( error = CONFIG_ERROR_VALIDATION ) textUtils_println( errorTxt );
 
 		waitKey();
 
 	}
-
+*/
 }
 
 void configCallback( uint8_t *param, uint8_t *value ) {
 
-	if ( strcmp( "ssid", param ) == 0 ) {
-		strcpy( currentWiFiSSID, value );
+	if ( strcmp( "ssid", (const char *)param ) == 0 ) {
+		strcpy( currentWiFiSSID, (const char *)value );
 	}
-	else if ( strcmp( "password", param ) == 0 ) {
-		strcpy( currentWiFiPassword, value );
+	else if ( strcmp( "password", (const char *)param ) == 0 ) {
+		strcpy( currentWiFiPassword, (const char *)value );
 	}
-	else if ( strcmp( "server", param ) == 0 ) {
-		strcpy( currentHost, value );
+	else if ( strcmp( "server", (const char *)param ) == 0 ) {
+		strcpy( currentHost, (const char *)value );
 	}
-	else if ( strcmp( "file_port", param ) == 0 ) {
-		strcpy( currentPort, value );
+	else if ( strcmp( "file_port", (const char *)param ) == 0 ) {
+		strcpy( currentPort, (const char *)value );
 	}
-	else if ( strcmp( "tcp_initial_dir", param ) == 0 ) {
-		strcpy( tcpPath, value );
+	else if ( strcmp( "tcp_initial_dir", (const char *)param ) == 0 ) {
+		strcpy( (char *)tcpPath, (const char *)value );
 	}
 	/*
-	else if ( strcmp( "sd_initial_dir", param ) == 0 ) {
-		strcpy( sdPath, value );
+	else if ( strcmp( "sd_initial_dir", (const char *)param ) == 0 ) {
+		strcpy( sdPath, (const char *)value );
 	}
 	*/
 
@@ -448,7 +513,7 @@ void defineGraphics() {
 	textUtils_defineUDGGraphic( barBackground0UDG, UDG_BARBACKGROUND0 );
 	textUtils_defineUDGGraphic( barBackground1UDG, UDG_BARBACKGROUND1 );
 	textUtils_defineUDGGraphic( barBackground2UDG, UDG_BARBACKGROUND2 );
-	
+
 	textUtils_defineUDGGraphic( strikeUDG, UDG_STRIKE );
 
 }
@@ -468,11 +533,11 @@ bool refreshTCPListing( uint8_t showRefreshingMessage ) {
 	uint8_t currentFileNameSize;
 	uint8_t result;
 
-	if ( showRefreshingMessage ) printToStatusBox( "Reading list...", NULL );
+	if ( showRefreshingMessage ) printToStatusBox( (uint8_t*)"Reading list...", NULL );
 
 	result = rpFile_listFiles(
 		tcpPath,
-		"",
+		(uint8_t*)"",
 		currentOrderingMethod,
 		tcpList,
 		firstDisplayedTCPEntry,
@@ -483,8 +548,8 @@ bool refreshTCPListing( uint8_t showRefreshingMessage ) {
 	);
 
 	if ( result != RPF_ERROR_OK ) {
-		sprintf( tcpPath, "Code: %d", result );
-		printToStatusBox( "Error reading list:", tcpPath );
+		sprintf( (char *)tcpPath, "Code: %d", result );
+		printToStatusBox( (uint8_t*)"Error reading list:", tcpPath );
 		return false;
 	}
 
@@ -564,7 +629,7 @@ bool refreshTCPListing( uint8_t showRefreshingMessage ) {
 
 	// Don't show host name or IP on screen (security risk)
 	//printToTitleBox( false, shortString( currentHost, X_SIZE_TITLE_BOX1 ), shortString( tcpPath, X_SIZE_TITLE_BOX1 ) );
-	printToTitleBox( false, shortString( "RetroProt server:", X_SIZE_TITLE_BOX1 ), shortString( tcpPath, X_SIZE_TITLE_BOX1 ) );
+	printToTitleBox( false, shortString( (uint8_t*)"RetroProt server:", X_SIZE_TITLE_BOX1 ), shortString( tcpPath, X_SIZE_TITLE_BOX1 ) );
 
 	return true;
 
@@ -678,11 +743,11 @@ void connect() {
 	uint8_t i;
 	connected = false;
 
-	printToStatusBox( "Initing network...", NULL );
+	printToStatusBox( (uint8_t*)"Initing network...", NULL );
 
 	if ( initNetwork() != NETWORK_ERROR_OK ) {
 
-		printToStatusBox( "Can't talk with the WiFi module.", NULL );
+		printToStatusBox( (uint8_t*)"Can't talk with the WiFi module.", NULL );
 
 		return;
 
@@ -693,24 +758,24 @@ void connect() {
 
 		if ( i == 1 ) {
 
-			printToStatusBox( "Connecting to net... ", currentWiFiSSID );
+			printToStatusBox( (uint8_t*)"Connecting to net... ", currentWiFiSSID );
 
 			if ( connectToWiFi( currentWiFiSSID, currentWiFiPassword, 25000 ) != NETWORK_ERROR_OK ) {
 
-				printToStatusBox( "Error connecting to net ", currentWiFiSSID );
+				printToStatusBox( (uint8_t*)"Error connecting to net ", currentWiFiSSID );
 				return;
 
 			}
 
 		}
 
-		printToStatusBox( "Connecting to server...", NULL );
+		printToStatusBox( (uint8_t*)"Connecting to server...", NULL );
 
 		if ( connectToServer( currentHost, currentPort ) != NETWORK_ERROR_OK ) {
 
 			if ( i == 1 ) {
 
-				printToStatusBox( "Error connecting to server.", NULL );
+				printToStatusBox( (uint8_t*)"Error connecting to server.", NULL );
 				return;
 
 			}
@@ -722,7 +787,7 @@ void connect() {
 
 	if ( openServerStream() != NETWORK_ERROR_OK ) {
 
-		printToStatusBox( "Error opening data stream", "to server." );
+		printToStatusBox( (uint8_t*)"Error opening data stream", (uint8_t*)"to server." );
 		return;
 
 	}
@@ -732,21 +797,21 @@ void connect() {
 }
 
 void initDrive() {
-	
+
 	uint16_t result;
 
-	printToStatusBox( "Initing SD...", NULL );
+	printToStatusBox( (uint8_t*)"Initing SD...", NULL );
 
 	SD_initiated = false;
 
 	result = plus3dos_init();
 	if ( result ) {
-		sprintf( filePath, "Code: %d", result );
-		printToStatusBox( "Error initing +3DOS:", filePath );
+		sprintf( (char *)filePath, "Code: %d", result );
+		printToStatusBox( (uint8_t*)"Error initing +3DOS:", filePath );
 		return;
 	}
 
-	printToStatusBox( "SD detected.", NULL );
+	printToStatusBox( (uint8_t*)"SD detected.", NULL );
 
 	SD_initiated = true;
 
@@ -758,8 +823,8 @@ void refreshSDListing( uint8_t reloadDisk ) {
 	uint16_t firstEntryCount;
 
 	if ( reloadDisk ) {
-		
-		printToStatusBox( "Reading file list...", NULL );
+
+		printToStatusBox( (uint8_t*)"Reading file list...", NULL );
 
 		for ( i = 0; i < MAX_SD_ENTRY_SIZE; i++ ) {
 			diskBuffer[ i ] = 0;
@@ -767,22 +832,22 @@ void refreshSDListing( uint8_t reloadDisk ) {
 		filePath[ 0 ] = 0xFF;
 
 		readResult = plus3dos_readDir( filePath, diskBuffer );
-		
+
 		if ( readResult & 0xFF00 ) {
 
-			sprintf( filePath, "+3DOS Error code= %d", readResult & 0x00FF );
-			printToStatusBox( "Error reading SD directory." , filePath );
+			sprintf( (char *)filePath, "+3DOS Error code= %d", readResult & 0x00FF );
+			printToStatusBox( (uint8_t*)"Error reading SD directory." , filePath );
 
 		}
-			
+
 		i = readResult & 0x00FF;
 		i--;
 		numTotalSDEntries = i;
-		
+
 	}
-	
+
 	i = numTotalSDEntries;
-	
+
 	firstEntryCount = firstDisplayedSDEntry;
 	while ( firstEntryCount > 0 ) {
 
@@ -792,14 +857,14 @@ void refreshSDListing( uint8_t reloadDisk ) {
 	}
 	numDisplayedSDEntries = i;
 	if ( numDisplayedSDEntries > MAX_DISPLAY_DIR_ENTRIES ) {
-	
+
 		numDisplayedSDEntries = MAX_DISPLAY_DIR_ENTRIES;
 
 	}
-	
+
 	pbuffer = diskBuffer;
 	pbuffer += MAX_SD_ENTRY_SIZE * ( firstDisplayedSDEntry + 1 );
-
+//kk
 	textUtils_setAttributes( ATTRIBUTES_LISTING );
 	for ( i = 0; i < numDisplayedSDEntries; i++ ) {
 
@@ -809,7 +874,7 @@ void refreshSDListing( uint8_t reloadDisk ) {
 		fputc_cons( ' ' );
 
 		// Print file name
-		
+
 		for ( j = 0; j < 8; j ++ ) {
 
 			tempChar = *pbuffer2;
@@ -845,8 +910,12 @@ void refreshSDListing( uint8_t reloadDisk ) {
 
 	updateVerticalBar( X_COORD_SD_VERT_BAR, firstDisplayedSDEntry, numTotalSDEntries );
 
-	printToTitleBox( true, "+3DOS Drive:", shortString( sdPath, X_SIZE_TITLE_BOX2 ) );
-	
+	printToTitleBox( true, (uint8_t*)"+3DOS Drive:", shortString( sdPath, X_SIZE_TITLE_BOX2 ) );
+	if ( headerConfig == 0 ) pbuffer = (uint8_t*)" ";
+	else if ( headerConfig == 1 ) pbuffer = (uint8_t*)"+H";
+	else pbuffer = (uint8_t*)"-H";
+    printToTitleBox( true, (uint8_t*)"+3DOS Drive:", pbuffer );
+
 }
 
 void showTCPFileInfo() {
@@ -899,7 +968,7 @@ void showTCPFileInfo() {
 	*pbuffer2++ = 0;
 
 	if ( i == '>' ) {
-		sprintf( pbuffer2, "<DIR>" );
+		sprintf( (char *)pbuffer2, "<DIR>" );
 	}
 	else {
 		// Store file size
@@ -907,7 +976,7 @@ void showTCPFileInfo() {
 		longTemp1 += ( (uint32_t)( *pbuffer++ ) ) << 8;
 		longTemp1 += ( (uint32_t)( *pbuffer++ ) ) << 16;
 		longTemp1 += ( (uint32_t)( *pbuffer++ ) ) << 24;
-		sprintf( pbuffer2, "%ld bytes.", longTemp1 );
+		sprintf( (char *)pbuffer2, "%ld bytes.", longTemp1 );
 	}
 
 	printToStatusBox( filePath, pbuffer2 );
@@ -947,7 +1016,7 @@ void showSDFileInfo() {
 	longTemp1 = longTemp1 << 8;
 	longTemp1 = longTemp1 | i;
 
-	sprintf( pbuffer2, "%ld KBytes.", longTemp1 );
+	sprintf( (char *)pbuffer2, "%ld KBytes.", longTemp1 );
 
 	printToStatusBox( filePath, pbuffer2 );
 
@@ -955,8 +1024,8 @@ void showSDFileInfo() {
 
 bool concatPath( uint8_t *string1, uint8_t *string2, uint16_t maxSize, bool appendSlash ) {
 
-	uint16_t l1 = strlen( string1 );
-	uint16_t l2 = strlen( string2 );
+	uint16_t l1 = strlen( (char *)string1 );
+	uint16_t l2 = strlen( (char *)string2 );
 
 	if ( l1 + l2 + ( appendSlash ? 1 : 0 ) > maxSize ) {
 		return false;
@@ -1001,7 +1070,7 @@ void pathUpOneDir( uint8_t *path ) {
 
 uint8_t *shortString( uint8_t *string, int maxSize ) {
 
-	int s = strlen( string );
+	int s = strlen( (char *)string );
 	if ( s > maxSize ) {
 		s -= maxSize;
 		string += s;
@@ -1013,20 +1082,20 @@ uint8_t *shortString( uint8_t *string, int maxSize ) {
 
 void downloadProgressCallback( uint32_t totalBytesRead ) {
 
-	sprintf( diskBuffer, "%lu of %lu bytes.", totalBytesRead, fileSize1 );
-	printToStatusBox( "Downloading...", diskBuffer );
+	sprintf( (char *)diskBuffer, "%lu of %lu bytes.", totalBytesRead, fileSize1 );
+	printToStatusBox( (uint8_t *)"Downloading...", diskBuffer );
 
 }
 
 void uploadProgressCallback( uint32_t totalBytesRead ) {
 
-	sprintf( diskBuffer, "%lu of %lu bytes.", totalBytesRead, fileSize1 );
-	printToStatusBox( "Uploading...", diskBuffer );
+	sprintf( (char *)diskBuffer, "%lu of %lu bytes.", totalBytesRead, fileSize1 );
+	printToStatusBox( (uint8_t *)"Uploading...", diskBuffer );
 
 }
 
 void activateTurbo() {
-	
+
 	TURBO_set( FP_TURBO );
 
 	textUtils_setAttributes( ATTRIBUTES_LIGHTNING );
@@ -1055,7 +1124,14 @@ void infiniteLoop() {
 
 		showFileInfo = false;
 
-		if ( ( ( key >= 8 ) && ( key <= 13 ) ) || ( key == 'o' ) )  activateTurbo();
+		activateTurbo();
+
+/*
+if ( key ) {
+	textUtils_printAt( 2, 2 );
+	textUtils_print_l( key );
+}
+*/
 
 		switch ( key ) {
 			// Up
@@ -1116,7 +1192,7 @@ void infiniteLoop() {
 					brightSelection( true );
 				}
 				showFileInfo = true;
-				
+
 				break;
 
 			// Down
@@ -1169,7 +1245,7 @@ void infiniteLoop() {
 					brightSelection( true );
 				}
 				showFileInfo = true;
-				
+
 				break;
 
 			// Left and right
@@ -1184,7 +1260,7 @@ void infiniteLoop() {
 				}
 				brightSelection( true );
 				showFileInfo = true;
-				
+
 				break;
 
 			// Intro pressed
@@ -1192,10 +1268,10 @@ void infiniteLoop() {
 
 				if ( selectedTCP_NO_SD == true ) {
 
-					printToStatusBox( "Reading file info...", NULL );
+					printToStatusBox( (uint8_t*)"Reading file info...", NULL );
 					diff = rpFile_getFileNameAndSize(
 						tcpPath,
-						"",
+						(uint8_t*)"",
 						currentOrderingMethod,
 						firstDisplayedTCPEntry + selectedDisplayedEntry,
 						diskBuffer,
@@ -1204,17 +1280,17 @@ void infiniteLoop() {
 						&fileOrDirectory1
 					);
 					if ( diff != RPF_ERROR_OK ) {
-						sprintf( diskBuffer, "Code= %d", diff );
-						printToStatusBox( "Error reading file info.", diskBuffer );
+						sprintf( (char *)diskBuffer, "Code= %d", diff );
+						printToStatusBox( (uint8_t*)"File info error.", diskBuffer );
 					}
 					else {
 						if ( fileOrDirectory1 == '>' ) {
 							// Navigate down through directory
-							if ( *diskBuffer == '.' && *( diskBuffer + 1 ) == 0 ) {
+							if ( *diskBuffer == '.' && diskBuffer[ 1 ] == 0 ) {
 								// '.' is the same directory, just do nothing
 								diff = true;
 							}
-							else if ( *diskBuffer == '.' && *( diskBuffer + 1 ) == '.' && *( diskBuffer + 2 ) == 0 ) {
+							else if ( *diskBuffer == '.' && diskBuffer[ 1 ] == '.' && diskBuffer[ 2 ] == 0 ) {
 								// ".." is up one directory
 								pathUpOneDir( tcpPath );
 								diff = true;
@@ -1223,7 +1299,7 @@ void infiniteLoop() {
 								// Regular directory
 								diff = concatPath( tcpPath, diskBuffer, TCP_PATH_SIZE, true );
 								if ( diff == false ) {
-									printToStatusBox( "File path too long.", NULL );
+									printToStatusBox( (uint8_t*)"File path too long.", NULL );
 								}
 							}
 							if ( diff == true ) {
@@ -1238,7 +1314,7 @@ void infiniteLoop() {
 						else {
 
 							// Copy SD file path and filename shortened to 8.3 name
-							strcpy( filePath, sdPath );
+							strcpy( (char *)filePath, (char *)sdPath );
 							pbuffer2 = filePath;
 							while ( *pbuffer2 > 0 ) pbuffer2++;
 
@@ -1259,7 +1335,7 @@ void infiniteLoop() {
 								pbuffer3++;
 							}
 							if ( *pbuffer3 > 0 ) {
-								i = strlen( pbuffer3 );
+								i = strlen( (char *)pbuffer3 );
 								k = 3;
 								if ( i < 3 ) {
 									k = i;
@@ -1277,25 +1353,26 @@ void infiniteLoop() {
 
 							// Download the file with confirmation
 
-							sprintf( diskBuffer, "Confirm DOWNLOAD %lu bytes?", fileSize1 );
+							sprintf( (char *)diskBuffer, "Confirm DOWNLOAD %lu bytes?", fileSize1 );
 							printToStatusBox( diskBuffer, shortString( filePath, 27 ) );
 							textUtils_printAt( 27, 23 );
-							textUtils_print( "(Y/N)" );
+							textUtils_print( (uint8_t*)"(Y/N)" );
 
 							key2 = waitKey();
 
-							if ( key2 == 'y' || key2 == 'Y' ) {
+							if ( key2 == 'y' ) {
 
-								printToStatusBox( "Downloading...", NULL );
-								
+								printToStatusBox( (uint8_t*)"Downloading...", NULL );
+
 								*pbuffer2 = 0xFF;
-								
+
 								diff = rpFile_downloadFile(
 									tcpPath,
-									"",
+									(uint8_t*)"",
 									currentOrderingMethod,
 									firstDisplayedTCPEntry + selectedDisplayedEntry,
 									filePath,
+									headerConfig,
 									diskBuffer,
 									DISK_BUFFER_SIZE,
 									downloadProgressCallback
@@ -1306,14 +1383,14 @@ void infiniteLoop() {
 									brightSelection( false );
 									refreshSDListing( true );
 									brightSelection( true );
-									
-									printToStatusBox( "File downloaded succesfully.", NULL );
+
+									printToStatusBox( (uint8_t*)"Downloading success.", NULL );
 
 								}
 								else {
 
-									sprintf( diskBuffer, "Code: %d", diff );
-									printToStatusBox( "Error downloading.", diskBuffer );
+									sprintf( (char *)diskBuffer, "Code: %d", diff );
+									printToStatusBox( (uint8_t*)"Error downloading.", diskBuffer );
 
 								}
 
@@ -1324,8 +1401,8 @@ void infiniteLoop() {
 								refreshTCPListing( false );
 								refreshSDListing( true );
 								brightSelection( true );
-								
-								printToStatusBox( "Aborted by user.", NULL );
+
+								printToStatusBox( (uint8_t*)"Aborted by user.", NULL );
 
 							}
 						}
@@ -1335,7 +1412,7 @@ void infiniteLoop() {
 
 					// Get SD file name in filePath
 
-					strcpy( filePath, sdPath );
+					strcpy( (char *)filePath, (char *)sdPath );
 					pbuffer2 = filePath;
 					while ( *pbuffer2 > 0 ) pbuffer2++;
 
@@ -1362,63 +1439,71 @@ void infiniteLoop() {
 
 					// Upload the file with confirmation
 
-					printToStatusBox( "Reading file size...", NULL );
-					fileSize1 = plus3dos_getFileSizeBytes( filePath, 1, diskBuffer, DISK_BUFFER_SIZE );
+					printToStatusBox( (uint8_t*)"Reading file size...", NULL );
+					fileSize1 = plus3dos_getFileSizeBytes(
+						filePath,
+						1,
+						diskBuffer,
+						DISK_BUFFER_SIZE,
+						headerConfig == 2 ? OPEN_ACTION_POSITION_TO_DATA : OPEN_ACTION_POSITION_TO_HEADER
+					);
 					*pbuffer2 = 0;
 
-					sprintf( diskBuffer, "Confirm UPLOAD %ld bytes?", fileSize1 );
+					sprintf( (char *)diskBuffer, "Confirm UPLOAD %ld bytes?", fileSize1 );
 					printToStatusBox( diskBuffer, shortString( filePath, 27 ) );
 					textUtils_printAt( 27, 23 );
-					textUtils_print( "(Y/N)" );
+					textUtils_print( (uint8_t*)"(Y/N)" );
 
 					key2 = waitKey();
 
-					if ( key2 == 'y' || key2 == 'Y' ) {
+					if ( key2 == 'y' ) {
 
-						printToStatusBox( "Uploading file...", NULL );
-						
+						printToStatusBox( (uint8_t*)"Uploading file...", NULL );
+
 						*pbuffer2 = 0xFF;
 
 						diff = rpFile_uploadFile(
 							tcpPath,
 							filePath,
+							filePath,
+							headerConfig,
 							diskBuffer,
 							DISK_BUFFER_SIZE,
 							fileSize1,
 							uploadProgressCallback
 						);
 
+						brightSelection( false );
+						refreshTCPListing( false );
+						refreshSDListing( true );
+						brightSelection( true );
+
 						if ( diff == RPF_ERROR_OK ) {
 
-							brightSelection( false );
-							refreshTCPListing( false );
-							refreshSDListing( true );
-							brightSelection( true );
-							
-							printToStatusBox( "File uploaded succesfully.", NULL );
+							printToStatusBox( (uint8_t*)"Uploading success.", NULL );
 
 						}
 						else {
 
-							sprintf( diskBuffer, "Code: %d", diff );
-							printToStatusBox( "Error uploading.", diskBuffer );
+							sprintf( (char *)diskBuffer, "Code: %d", diff );
+							printToStatusBox( (uint8_t*)"Error uploading.", diskBuffer );
 
 						}
 
 					}
 					else {
-						
+
 						brightSelection( false );
 						refreshTCPListing( false );
 						refreshSDListing( true );
 						brightSelection( true );
-						
-						printToStatusBox( "Aborted by user.", NULL );
+
+						printToStatusBox( (uint8_t*)"Aborted by user.", NULL );
 
 					}
 
 				}
-				
+
 				break;
 
 			// Backspace pressed
@@ -1437,10 +1522,10 @@ void infiniteLoop() {
 				selectedDisplayedEntry = 0;
 				brightSelection( true );
 				showFileInfo = true;
-				
+
 				break;
 
-			case 'o':
+			case 'O':
 
 				// Change ordering
 
@@ -1448,10 +1533,20 @@ void infiniteLoop() {
 				if ( currentOrderingMethod >= numOrderingMethods ) currentOrderingMethod = 0;
 				refreshTCPListing( true );
 				brightSelection( true );
-				printToStatusBox( "File ordering set to:", orderingMethods[ currentOrderingMethod ] );
-				
+				printToStatusBox( (uint8_t*)"File ordering set to:", orderingMethods[ currentOrderingMethod ] );
+
 				break;
 
+			case 'H':
+
+				headerConfig ++;
+				if ( headerConfig >= ( MAX_HEADER_CONFIG + 1 ) ) {
+					headerConfig = 0;
+				}
+
+				refreshSDListing( false );
+
+				break;
 		}
 
 		if ( showFileInfo == true ) {
@@ -1462,8 +1557,8 @@ void infiniteLoop() {
 				showSDFileInfo();
 			}
 		}
-		
-		if ( ( ( key >= 8 ) && ( key <= 13 ) ) || ( key == 'o' ) ) deactivateTurbo();
+
+		deactivateTurbo();
 
 	}
 }

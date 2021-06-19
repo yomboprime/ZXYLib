@@ -55,5 +55,7 @@ extern int UART_peek();
 extern int32_t UART_parseInt( long timeout_ms );
 extern bool UART_find( uint8_t *s, long timeout_ms );
 
+extern void delay( long ms );
+
 #endif /* ZXUNO_UART_H */
 

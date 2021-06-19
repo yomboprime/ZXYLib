@@ -1,6 +1,8 @@
 /utilities/radastanMode/convertRadas/node_modules/
 /utilities/8bnet/node_modules/
 *.bin
+!filePlus.bin
+*.reloc
 nul
 ultimolog.txt
 zcc_opt.def

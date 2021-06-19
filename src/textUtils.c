@@ -67,7 +67,7 @@ void textUtils_64ColumnsMode() {
  */
 void textUtils_print( uint8_t *text ) {
 
-    fputs( text, stdout );
+    fputs( (const char *)text, stdout );
 
 }
 
@@ -116,9 +116,9 @@ void textUtils_setAttributes( uint8_t attributes ) {
 
     fputc_cons( 16 ); fputc_cons( ink + 48 );
     fputc_cons( 17 ); fputc_cons( paper + 48 );
-    fputc_cons( 18 ); fputc_cons( flash + 48 );
+/*    fputc_cons( 18 ); fputc_cons( flash + 48 );
     fputc_cons( 19 ); fputc_cons( bright + 48 );
-
+*/  
 }
 
 uint8_t textUtils_createAttributes( bool flash, bool bright, uint8_t paper, uint8_t ink ) {
@@ -210,7 +210,7 @@ void textUtils_defineUDGGraphic( uint8_t *graphic, uint16_t graphicIndex ) {
 
     uint8_t *p = 65368;
 
-    p += (uint8_t *)( graphicIndex << 3 );
+    p += ( graphicIndex << 3 );
 
     for ( i = 0; i < 8; i++ ) {
         *p++ = *graphic++;

@@ -363,7 +363,7 @@ bool UART_find( uint8_t *s, long timeout_ms ) {
     int c_int;
     uint8_t c;
     uint8_t *ps = s;
-    uint8_t l = strlen( s );
+    uint8_t l = (uint8_t)strlen( (const char *)s );
     uint8_t numChars = 0;
     long t;
 
@@ -409,4 +409,14 @@ bool UART_find( uint8_t *s, long timeout_ms ) {
     }
 
     return false;
+}
+
+void delay( long ms ) {
+
+    long t = millis() + ms;
+    
+    while ( millis() < t ) {
+        // Nothing to do;
+    }
+    
 }

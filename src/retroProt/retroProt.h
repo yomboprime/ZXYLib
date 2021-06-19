@@ -32,7 +32,7 @@ SOFTWARE.
 #ifndef RETROPROT_H
 #define RETROPROT_H
 
-#include "./network.h"
+#include "../network.h"
 
 #define APP_ID_LENGTH 32
 #define ROOM_NAME_LENGTH 32

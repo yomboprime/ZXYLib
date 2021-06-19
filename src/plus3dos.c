@@ -484,16 +484,15 @@ uint16_t plus3dos_readDir( uint8_t *fileName, uint8_t *buffer ) {
 
 }
 
-uint32_t plus3dos_getFileSizeBytes( uint8_t *fileName, uint8_t fileNumber, uint8_t *buffer, uint16_t bufferSize ) {
+uint32_t plus3dos_getFileSizeBytes( uint8_t *fileName, uint8_t fileNumber, uint8_t *buffer, uint16_t bufferSize, uint8_t openAction ) {
 
 	uint16_t result;
 	uint32_t totalBytes = 0;
 	
 	//result = plus3dos_open( fileName, fileNumber, ACCESS_MODE_EXCLUSIVE_READ, CREATE_ACTION_DONTCREATE, OPEN_ACTION_POSITION_TO_DATA );
-	result = plus3dos_open( fileName, fileNumber, ACCESS_MODE_EXCLUSIVE_READ, CREATE_ACTION_DONTCREATE, OPEN_ACTION_POSITION_TO_HEADER );
+	result = plus3dos_open( fileName, fileNumber, ACCESS_MODE_EXCLUSIVE_READ, CREATE_ACTION_DONTCREATE, openAction );
 	if ( result != 0 ) return 34;
-//mirar de leer desde la cabecera y ver si un fichero con cabecera se puede detectar la longitud bien. y luego mirar si funcionan los ficheros
-//sin cabecera, y mirar de detectar cabecera si hace falta
+
 	while ( result == 0 ) {
 
 		result = plus3dos_readBytes( buffer, fileNumber, bufferSize );

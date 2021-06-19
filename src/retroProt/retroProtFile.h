@@ -69,8 +69,8 @@ extern uint8_t rpFile_listFiles( uint8_t *tcpPath, uint8_t *searchString, uint8_
 
 extern uint8_t rpFile_getFileNameAndSize( uint8_t *tcpPath, uint8_t *searchString, uint8_t ordering, uint16_t entry, uint8_t *buffer, uint16_t bufferSize, uint32_t *fileSize, uint8_t *fileOrDirectory );
 
-extern uint8_t rpFile_downloadFile( uint8_t *tcpPath, uint8_t *searchString, uint8_t ordering, uint16_t entry, uint8_t *sdPath, uint8_t *diskBuffer, uint16_t diskBufferSize, void (*progressCallback)() );
+extern uint8_t rpFile_downloadFile( uint8_t *tcpPath, uint8_t *searchString, uint8_t ordering, uint16_t entry, uint8_t *sdPath, uint8_t processing, uint8_t *diskBuffer, uint16_t diskBufferSize, void (*progressCallback)() );
 
-extern uint8_t rpFile_uploadFile( uint8_t *tcpPath, uint8_t *sdFilename, uint8_t *diskBuffer, uint16_t diskBufferSize, uint32_t fileSize, void (*progressCallback)() );
+extern uint8_t rpFile_uploadFile( uint8_t *tcpPath, uint8_t *sdFullPath, uint8_t *sdFileName, uint8_t processing, uint8_t *diskBuffer, uint16_t diskBufferSize, uint32_t fileSize, void (*progressCallback)() );
 
 #endif /* RETROPROT_FILE_H */

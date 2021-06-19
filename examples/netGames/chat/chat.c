@@ -12,11 +12,11 @@
 
 #include "../../../src/textUtils.h"
 #include "../../../src/zxuno/turbo.h"
-#include "../../../src/retroProt.h"
+#include "../../../src/retroProt/retroProt.h"
 
-#define WIFI_SSID "wipi4"
-#define WIFI_PASSWD "12341234"
-#define SERVER_NAME "192.168.1.100"
+#define WIFI_SSID "yombo-hotspot"
+#define WIFI_PASSWD "ketefollen"
+#define SERVER_NAME "192.168.1.125"
 #define SERVER_PORT "8092"
 
 #define NICKNAME_LENGTH 20
@@ -51,6 +51,7 @@ uint8_t prevChar = 0;
 
 int numClientsInRoom = 0;
 
+bool redrawMessage;
 bool doExit;
 
 void listRoomsCallback( uint8_t numClients, uint8_t maxNumClients, uint8_t numBytesPerTransfer, uint8_t timeout, uint8_t flags );
@@ -366,6 +367,7 @@ void main( void ) {
 		while ( 1 ) {
 
 			numClientsInRoom = -1;
+			redrawMessage = false;
 
 			// Read keyboard
 			c = getKey();
@@ -373,6 +375,8 @@ void main( void ) {
 			if ( prevChar == 0 && c == 13 && numCharactersInBuffer > 0 ) {
 
 				// A message is in messageBuffer and <enter> was just pressed
+
+				redrawMessage = true;
 
 				if ( strncmp( messageBuffer, "exit", 4 ) == 0 ) break;
 
@@ -432,10 +436,11 @@ void main( void ) {
 
 			}
 
-			if ( textUtils_isReadable( c ) && prevChar == 0  ) {
+			if ( textUtils_isReadable( c ) && prevChar != c  ) {
 
 				if ( numCharactersInBuffer < MAX_MESSAGE_LENGTH ) {
 
+					redrawMessage = true;
 					messageBuffer[ numCharactersInBuffer ++ ] = c;
 
 				}
@@ -453,6 +458,8 @@ void main( void ) {
 
 				if ( numCharactersInBuffer > 0 ) numCharactersInBuffer --;
 
+				redrawMessage = true;
+
 			}
 
 			prevChar = c;
@@ -461,6 +468,7 @@ void main( void ) {
 			numClientsInRoom = 0;
 			c2 = UART_read_timeout( SERVER_DATA_TIMEOUT );
 			if ( c2 < 0 ) break;
+			else if ( c2 > 0 ) redrawMessage = true;
 
 			// Read extra byte
 			//b1 = UART_readBlocking();
@@ -536,16 +544,34 @@ void main( void ) {
 
 			// Print at the top of the screen the message the user is typing
 
-			textUtils_printAt( 0, 0 );
-			textUtils_setAttributes( whiteColorBlueBackground );
-			fputc_cons( '>' );
-			fputc_cons( ' ' );
+			if ( redrawMessage ) {
 
-			for ( b0 = 0; b0 < numCharactersInBuffer; b0 ++ ) fputc_cons( messageBuffer[ b0 ] );
-			fputc_cons( ' ' );
+				if ( c2 == 0 ) {
 
-			textUtils_setAttributes( whiteColorBlackBackground );
-			fputc_cons( ' ' );
+					// Just draw last char
+					textUtils_setAttributes( whiteColorBlueBackground );
+					fputc_cons( messageBuffer[ numCharactersInBuffer - 1 ];
+					textUtils_setAttributes( whiteColorBlackBackground );
+					fputc_cons( ' ' );
+
+				}
+				else {
+
+					// Draw entire message
+					textUtils_printAt( 0, 0 );
+					textUtils_setAttributes( whiteColorBlueBackground );
+					fputc_cons( '>' );
+					fputc_cons( ' ' );
+
+					for ( b0 = 0; b0 < numCharactersInBuffer; b0 ++ ) fputc_cons( messageBuffer[ b0 ] );
+					fputc_cons( ' ' );
+
+					textUtils_setAttributes( whiteColorBlackBackground );
+					fputc_cons( ' ' );
+
+				}
+
+			}
 
 		}
 

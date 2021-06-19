@@ -13,11 +13,11 @@
 
 #include "../../../src/textUtils.h"
 #include "../../../src/zxuno/turbo.h"
-#include "../../../src/retroProt.h"
+#include "../../../src/retroProt/retroProt.h"
 
-#define WIFI_SSID "wipi4"
-#define WIFI_PASSWD "12341234"
-#define SERVER_NAME "192.168.1.100"
+#define WIFI_SSID "yombo-hotspot"
+#define WIFI_PASSWD "ketefollen"
+#define SERVER_NAME "192.168.1.125"
 #define SERVER_PORT "8092"
 
 #define getKey() in_Inkey()
